@@ -10,9 +10,10 @@
 <div class="detail-wrap">
     <div class="detail glass">
         <h2>{{ event.title }}</h2>
+        <span class="tag category-tag" style="margin-bottom:16px;display:inline-block;">{{ event.category }}</span>
         <div class="info-grid">
             <div class="info-item">
-                <div class="label">TIME</div>
+                <div class="label" data-zh="时间" data-en="TIME">时间</div>
                 <div class="value">{{ event.start_time.strftime('%Y-%m-%d %H:%M') }} - {{ event.end_time.strftime('%H:%M') }}</div>
             </div>
             {% if event.location %}
@@ -63,6 +64,7 @@
         {% if current_user.is_authenticated and (event.creator_id == current_user.id or current_user.is_admin) %}
         <div class="admin-tools">
             <div class="actions">
+                <a href="{{ url_for('checkin.qr', event_id=event.id) }}" class="btn btn-glass btn-sm" data-zh="签到二维码" data-en="QR Code">签到二维码</a>
                 <a href="{{ url_for('event.edit', id=event.id) }}" class="btn btn-glass btn-sm" data-zh="编辑活动" data-en="Edit">编辑活动</a>
                 <form method="post" action="{{ url_for('event.delete', id=event.id) }}" onsubmit="return confirm('确定删除此活动？')" style="display:inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

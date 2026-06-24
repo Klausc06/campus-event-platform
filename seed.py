@@ -27,6 +27,7 @@ with app.app_context():
         Event(
             title='新学期迎新晚会',
             description='欢迎新同学加入校园大家庭',
+            category='文艺',
             location='大礼堂',
             start_time=now + timedelta(days=7),
             end_time=now + timedelta(days=7, hours=3),
@@ -37,6 +38,7 @@ with app.app_context():
         Event(
             title='Python 编程工作坊',
             description='从零开始学习 Python 编程',
+            category='学术',
             location='计算机实验室 A301',
             start_time=now + timedelta(days=14),
             end_time=now + timedelta(days=14, hours=2),
@@ -47,6 +49,7 @@ with app.app_context():
         Event(
             title='校园马拉松',
             description='第五届校园马拉松比赛',
+            category='体育',
             location='校田径场',
             start_time=now + timedelta(days=21),
             end_time=now + timedelta(days=21, hours=4),
@@ -57,6 +60,7 @@ with app.app_context():
         Event(
             title='职业规划讲座',
             description='企业 HR 分享求职经验',
+            category='学术',
             location='学术报告厅',
             start_time=now + timedelta(days=30),
             end_time=now + timedelta(days=30, hours=2),
@@ -67,6 +71,7 @@ with app.app_context():
         Event(
             title='电影放映之夜',
             description='本周放映经典影片',
+            category='社交',
             location='多功能厅',
             start_time=now + timedelta(days=3),
             end_time=now + timedelta(days=3, hours=3),

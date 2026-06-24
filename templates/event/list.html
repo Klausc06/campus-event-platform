@@ -12,7 +12,15 @@
     <form method="get" class="search-box">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         <input type="text" name="q" value="{{ q }}" placeholder="搜索活动名称或地点..." data-zh-placeholder="搜索活动名称或地点..." data-en-placeholder="Search events or locations...">
+        {% if category %}<input type="hidden" name="category" value="{{ category }}">{% endif %}
     </form>
+</div>
+
+<div class="category-pills">
+    <a href="{{ url_for('event.list_events', q=q) }}" class="pill {% if not category %}active{% endif %}" data-zh="全部" data-en="All">全部</a>
+    {% for c in categories %}
+    <a href="{{ url_for('event.list_events', q=q, category=c) }}" class="pill {% if category == c %}active{% endif %}">{{ c }}</a>
+    {% endfor %}
 </div>
 
 {% if current_user.is_authenticated %}
@@ -26,9 +34,7 @@
     <div class="card glass" style="animation-delay: {{ loop.index0 * 80 }}ms">
         <div class="card-header">
             <h3>{{ event.title }}</h3>
-            {% if event.start_time %}
-            <span class="tag soon">{{ event.start_time.strftime('%m-%d') }}</span>
-            {% endif %}
+            <span class="tag category-tag">{{ event.category }}</span>
         </div>
         <div class="meta">
             {{ event.start_time.strftime('%Y-%m-%d %H:%M') }}
@@ -58,4 +64,28 @@
     </div>
     {% endfor %}
 </div>
+
+{% if pagination.pages > 1 %}
+<div class="pagination">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('event.list_events', page=pagination.prev_num, q=q, category=category) }}" class="page-btn" data-zh="上一页" data-en="Previous">上一页</a>
+    {% else %}
+    <span class="page-btn disabled" data-zh="上一页" data-en="Previous">上一页</span>
+    {% endif %}
+
+    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+        {% if p %}
+        <a href="{{ url_for('event.list_events', page=p, q=q, category=category) }}" class="page-btn {% if p == pagination.page %}active{% endif %}">{{ p }}</a>
+        {% else %}
+        <span class="page-btn ellipsis">&hellip;</span>
+        {% endif %}
+    {% endfor %}
+
+    {% if pagination.has_next %}
+    <a href="{{ url_for('event.list_events', page=pagination.next_num, q=q, category=category) }}" class="page-btn" data-zh="下一页" data-en="Next">下一页</a>
+    {% else %}
+    <span class="page-btn disabled" data-zh="下一页" data-en="Next">下一页</span>
+    {% endif %}
+</div>
+{% endif %}
 {% endblock %}

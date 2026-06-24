@@ -181,7 +181,7 @@ body {
 }
 
 .toggle button {
-  padding: 8px 14px;
+  padding: 10px 14px;
   border: none;
   background: transparent;
   color: var(--ink-muted);
@@ -318,7 +318,7 @@ body {
   text-decoration: none;
   letter-spacing: 0.5px;
   border-bottom: 1px solid transparent;
-  padding: 8px 2px;
+  padding: 10px 4px;
   transition: color 0.3s ease, border-bottom-color 0.3s ease;
 }
 
@@ -752,10 +752,124 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
   color: var(--danger, #A03030);
 }
 
+.category-pills {
+  padding: 0 32px;
+  margin-bottom: 24px;
+  max-width: 680px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  padding: 8px 18px;
+  border-radius: 20px;
+  text-decoration: none;
+  color: var(--ink-secondary);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border-subtle);
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.15s;
+  font-weight: 400;
+}
+
+.pill:hover {
+  background: var(--glass-bg-hover);
+  color: var(--ink);
+}
+
+.pill:active {
+  transform: scale(0.96);
+}
+
+.pill.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.pill.active:hover {
+  background: var(--accent-hover);
+  color: #fff;
+}
+
+.category-tag {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  font-weight: 500;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding: 0 32px 40px;
+  max-width: 680px;
+}
+
+.page-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--ink-secondary);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border-subtle);
+  transition: background 0.25s ease, color 0.25s ease, transform 0.15s;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.page-btn:hover {
+  background: var(--glass-bg-hover);
+  color: var(--ink);
+}
+
+.page-btn:active {
+  transform: scale(0.96);
+}
+
+.page-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.page-btn.disabled {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
+
+.page-btn.ellipsis {
+  background: transparent;
+  border: none;
+  color: var(--ink-muted);
+  cursor: default;
+  pointer-events: none;
+}
+
 @media (max-width: 640px) {
   .hero { padding: 40px 20px 20px; }
   .hero h1 { font-size: 26px; letter-spacing: 2px; }
   .cards, .detail-wrap, .auth-wrap, .checkin-wrap, .admin-wrap, .search-wrap, .section-tag { padding-left: 20px; padding-right: 20px; }
+  .category-pills { padding-left: 20px; padding-right: 20px; }
+  .pagination { padding-left: 20px; padding-right: 20px; }
   .nav { padding: 14px 20px; }
   .card { padding: 20px; }
   .detail .info-grid { grid-template-columns: 1fr; }

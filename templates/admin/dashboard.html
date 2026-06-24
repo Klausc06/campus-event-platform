@@ -27,6 +27,10 @@
         </div>
     </div>
 
+    <div style="text-align:right;margin-bottom:1rem;">
+        <a href="{{ url_for('admin.export_all') }}" class="card-link btn-glass" data-zh="导出全部" data-en="Export All">导出全部</a>
+    </div>
+
     <div class="admin-table glass">
         <div class="admin-table-head">
             <div data-zh="活动名称" data-en="Event">活动名称</div>
@@ -43,6 +47,7 @@
             </div>
             <div>
                 <a href="{{ url_for('event.detail', id=stat.event.id) }}" class="card-link" data-zh="查看" data-en="View">查看</a>
+                <a href="{{ url_for('admin.export_event', event_id=stat.event.id) }}" class="card-link btn-glass" data-zh="导出" data-en="Export">导出</a>
             </div>
         </div>
         {% endfor %}

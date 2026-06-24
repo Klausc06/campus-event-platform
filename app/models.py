@@ -3,6 +3,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app.extensions import db, login_manager
 
+CATEGORIES = ['学术', '体育', '文艺', '社交', '志愿服务', '其他']
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -38,6 +40,7 @@ class Event(db.Model):
     end_time = db.Column(db.DateTime, nullable=False)
     max_participants = db.Column(db.Integer, default=0)
     checkin_code = db.Column(db.String(50))
+    category = db.Column(db.String(50), default='其他')
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 

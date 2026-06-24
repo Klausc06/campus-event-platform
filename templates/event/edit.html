@@ -22,6 +22,10 @@
                 {{ form.description(class="form-control", rows=4) }}
             </div>
             <div class="form-group">
+                {{ form.category.label }}
+                {{ form.category(class="form-control") }}
+            </div>
+            <div class="form-group">
                 {{ form.location.label }}
                 {{ form.location(class="form-control") }}
                 <div class="form-helper" data-zh="线下场地请注明楼栋及房间号" data-en="Include building and room number for in-person events">线下场地请注明楼栋及房间号</div>

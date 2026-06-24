@@ -1,6 +1,9 @@
+import csv
+import io
 import os
+from urllib.parse import quote
 
-from flask import current_app, render_template
+from flask import current_app, render_template, Response
 from flask_login import login_required, current_user
 from sqlalchemy import func
 
@@ -42,6 +45,71 @@ def dashboard():
         total_registrations=total_registrations,
         total_checkins=total_checkins,
         event_stats=event_stats,
+    )
+
+
+@admin_bp.route('/export/<int:event_id>')
+def export_event(event_id):
+    event = db.session.get(Event, event_id)
+    if not event:
+        return 'Event not found', 404
+
+    registrations = Registration.query.filter_by(
+        event_id=event_id, status='confirmed'
+    ).all()
+
+    output = io.StringIO()
+    output.write('\ufeff')
+    writer = csv.writer(output)
+    writer.writerow(['username', 'email', 'registered_at', 'checked_in', 'checked_in_at'])
+
+    for r in registrations:
+        writer.writerow([
+            r.user.username,
+            r.user.email,
+            r.registered_at.strftime('%Y-%m-%d %H:%M:%S') if r.registered_at else '',
+            'Yes' if r.checked_in else 'No',
+            r.checked_in_at.strftime('%Y-%m-%d %H:%M:%S') if r.checked_in_at else '',
+        ])
+
+    output.seek(0)
+    filename = f'{event.title}_registrations.csv'
+    encoded = quote(filename)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv; charset=utf-8',
+        headers={'Content-Disposition': f"attachment; filename=\"{filename}\"; filename*=UTF-8''{encoded}"},
+    )
+
+
+@admin_bp.route('/export/all')
+def export_all():
+    regs = db.session.query(Registration, Event.title).join(Event).filter(
+        Registration.status == 'confirmed'
+    ).all()
+
+    output = io.StringIO()
+    output.write('\ufeff')
+    writer = csv.writer(output)
+    writer.writerow(['event_title', 'username', 'email', 'registered_at', 'checked_in', 'checked_in_at'])
+
+    for r, title in regs:
+        writer.writerow([
+            title,
+            r.user.username,
+            r.user.email,
+            r.registered_at.strftime('%Y-%m-%d %H:%M:%S') if r.registered_at else '',
+            'Yes' if r.checked_in else 'No',
+            r.checked_in_at.strftime('%Y-%m-%d %H:%M:%S') if r.checked_in_at else '',
+        ])
+
+    output.seek(0)
+    filename = 'all_events_registrations.csv'
+    encoded = quote(filename)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv; charset=utf-8',
+        headers={'Content-Disposition': f"attachment; filename=\"{filename}\"; filename*=UTF-8''{encoded}"},
     )
 
 

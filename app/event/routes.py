@@ -3,21 +3,25 @@ from flask_login import login_required, current_user
 
 from app.event import event_bp
 from app.extensions import db
-from app.models import Event, Registration
+from app.models import Event, Registration, CATEGORIES
 from app.forms import EventForm
 
 
 @event_bp.route('/')
 def list_events():
     q = request.args.get('q', '').strip()
+    category = request.args.get('category', '').strip()
+    page = request.args.get('page', 1, type=int)
     query = Event.query
     if q:
         escaped_q = q.replace('%', '\\%').replace('_', '\\_')
         query = query.filter(
             (Event.title.ilike(f'%{escaped_q}%')) | (Event.location.ilike(f'%{escaped_q}%'))
         )
-    events = query.order_by(Event.start_time.desc()).all()
-    return render_template('event/list.html', events=events, q=q)
+    if category and category in CATEGORIES:
+        query = query.filter_by(category=category)
+    pagination = query.order_by(Event.start_time.desc()).paginate(page=page, per_page=9, error_out=False)
+    return render_template('event/list.html', events=pagination.items, pagination=pagination, q=q, category=category, categories=CATEGORIES)
 
 
 @event_bp.route('/<int:id>')

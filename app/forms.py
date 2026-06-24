@@ -1,11 +1,12 @@
 from flask_wtf import FlaskForm
 from wtforms import (
     StringField, PasswordField, TextAreaField, SubmitField,
-    DateTimeLocalField, IntegerField,
+    DateTimeLocalField, IntegerField, SelectField,
 )
 from wtforms.validators import (
     DataRequired, Length, Email, EqualTo, NumberRange, ValidationError,
 )
+from app.models import CATEGORIES
 
 
 class LoginForm(FlaskForm):
@@ -25,6 +26,7 @@ class RegisterForm(FlaskForm):
 class EventForm(FlaskForm):
     title = StringField('活动标题', validators=[DataRequired()])
     description = TextAreaField('活动描述')
+    category = SelectField('活动分类', choices=[(c, c) for c in CATEGORIES], default='其他')
     location = StringField('活动地点')
     start_time = DateTimeLocalField('开始时间', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
     end_time = DateTimeLocalField('结束时间', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
