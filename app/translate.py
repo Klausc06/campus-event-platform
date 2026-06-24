@@ -1,7 +1,9 @@
 from flask import Blueprint, jsonify, request
+from app.extensions import csrf
 from app.models import Event
 
 translate_bp = Blueprint("translate", __name__, url_prefix="/api")
+csrf.exempt(translate_bp)
 
 
 @translate_bp.route("/translate", methods=["POST"])
