@@ -26,8 +26,11 @@ def create_app(config_class=Config):
     if app.debug and toolbar is not None:
         toolbar.init_app(app)
 
-    setup_logging(app)
-    register_request_hooks(app)
+    try:
+        setup_logging(app)
+        register_request_hooks(app)
+    except Exception:
+        pass
 
     from app.auth import auth_bp
     from app.event import event_bp
