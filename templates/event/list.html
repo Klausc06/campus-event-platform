@@ -37,7 +37,10 @@
     <div class="card glass" style="animation-delay: {{ loop.index0 * 80 }}ms">
         <div class="card-header">
             <h3>{{ event.title }}</h3>
-            <span class="tag category-tag">{{ event.category }}</span>
+            <span class="tag category-tag"
+                  data-zh="{{ event.category }}"
+                  data-en="{% if event.category == '学术' %}Academic{% elif event.category == '体育' %}Sports{% elif event.category == '文艺' %}Arts{% elif event.category == '社交' %}Social{% elif event.category == '志愿服务' %}Volunteer{% else %}Other{% endif %}"
+            >{{ event.category }}</span>
         </div>
         <div class="meta">
             {{ event.start_time.strftime('%Y-%m-%d %H:%M') }}

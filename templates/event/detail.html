@@ -10,7 +10,10 @@
 <div class="detail-wrap">
     <div class="detail glass">
         <h2>{{ event.title }}</h2>
-        <span class="tag category-tag" style="margin-bottom:16px;display:inline-block;">{{ event.category }}</span>
+        <span class="tag category-tag" style="margin-bottom:16px;display:inline-block;"
+              data-zh="{{ event.category }}"
+              data-en="{% if event.category == '学术' %}Academic{% elif event.category == '体育' %}Sports{% elif event.category == '文艺' %}Arts{% elif event.category == '社交' %}Social{% elif event.category == '志愿服务' %}Volunteer{% else %}Other{% endif %}"
+        >{{ event.category }}</span>
         <div class="info-grid">
             <div class="info-item">
                 <div class="label" data-zh="时间" data-en="TIME">时间</div>
