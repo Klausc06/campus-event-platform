@@ -19,7 +19,8 @@
                 <a href="{{ url_for('auth.login') }}" data-zh="我的" data-en="My">我的</a>
                 {% endif %}
                 {% if current_user.is_authenticated and current_user.is_admin %}
-                <a href="{{ url_for('admin.dashboard') }}" class="{% if request.endpoint and 'admin' in request.endpoint %}active{% endif %}" data-zh="管理" data-en="Admin">管理</a>
+                <a href="{{ url_for('admin.dashboard') }}" class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}" data-zh="管理" data-en="Admin">管理</a>
+                <a href="{{ url_for('admin.logs') }}" class="{% if request.endpoint == 'admin.logs' %}active{% endif %}" data-zh="日志" data-en="Logs">日志</a>
                 {% endif %}
             </div>
             <div class="toggles">
