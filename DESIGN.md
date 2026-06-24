@@ -269,6 +269,191 @@
 - 入场动画：`slideIn`，从 `translateY(-12px)` 滑入
 - 左边框颜色编码：success=绿, danger=红, warn=黄, info=强调色
 
+### 分类筛选药丸按钮 (.category-pills)
+
+容器使用 flexbox 水平排列，gap 8px，允许换行 (`flex-wrap: wrap`)。
+
+| 类名 | 用途 | 样式 |
+|------|------|------|
+| `.category-pills` | 容器 | `display: flex; flex-wrap: wrap; gap: 8px` |
+| `.pill` | 单个筛选按钮 | 毛玻璃背景 + pill 圆角 |
+| `.pill.active` | 选中状态 | 强调色背景 + 白色文字 |
+
+核心属性：
+
+```css
+.pill {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  transition: background 0.25s, transform 0.25s, box-shadow 0.25s, color 0.25s ease;
+}
+
+.pill:hover {
+  background: var(--glass-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.pill:active {
+  transform: scale(0.96);
+}
+
+.pill.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 2px 12px rgba(196,90,58,0.25);
+}
+```
+
+响应式：移动端 padding 缩至 `6px 14px`，字号 12px。
+
+### 分页控件 (.pagination)
+
+| 类名 | 用途 | 样式 |
+|------|------|------|
+| `.pagination` | 容器 | flexbox 居中，gap 6px |
+| `.page-btn` | 页码按钮 | 毛玻璃背景 + 圆角 |
+| `.page-btn.active` | 当前页 | 强调色背景 + 白色文字 |
+| `.page-btn:disabled` | 禁用状态 | 降低透明度，禁止点击 |
+
+核心属性：
+
+```css
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 24px;
+}
+
+.page-btn {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  min-width: 40px;
+  text-align: center;
+  transition: background 0.25s, transform 0.25s, box-shadow 0.25s, color 0.25s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: var(--glass-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.page-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.page-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 2px 12px rgba(196,90,58,0.25);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+```
+
+响应式：移动端 gap 缩至 4px，padding 缩至 `6px 10px`。
+
+### QR 码页面 (.qr-card)
+
+居中布局，包含活动信息与 QR 码图片，支持打印。
+
+| 类名 | 用途 | 样式 |
+|------|------|------|
+| `.qr-card` | 卡片容器 | 毛玻璃背景 + 居中 flex |
+| `.qr-image` | QR 码图片 | 固定尺寸 + 微妙边框 |
+
+核心属性：
+
+```css
+.qr-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-shadow);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+  max-width: 420px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.qr-image {
+  width: 200px;
+  height: 200px;
+  border-radius: 12px;
+  outline: 1px solid rgba(0,0,0,0.1);
+  outline-offset: 4px;
+}
+```
+
+打印适配：
+
+```css
+@media print {
+  .qr-card {
+    background: #fff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    border: 1px solid #ddd;
+    break-inside: avoid;
+  }
+  .qr-image {
+    outline: none;
+  }
+}
+```
+
+响应式：移动端 padding 缩至 24px，`.qr-image` 尺寸缩至 160px。
+
+### 导出按钮 (.btn-glass.btn-sm)
+
+复用现有 `.btn-glass` 毛玻璃按钮样式，搭配 `.btn-sm` 小尺寸变体。
+
+```css
+.btn-glass.btn-sm {
+  padding: 6px 14px;
+  font-size: 12px;
+  border-radius: 10px;
+}
+```
+
+用于页面顶部操作区（如"导出 CSV"、"导出 QR 码"），与页面标题行对齐。
+
 ---
 
 ## 6. 交互规范

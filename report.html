@@ -603,6 +603,10 @@
     <tr><td rowspan="3">管理面板</td><td>数据统计</td><td>管理员查看用户总数、活动总数、报名总数、签到总数</td></tr>
     <tr><td>活动统计</td><td>每个活动的报名人数、签到人数、签到率</td></tr>
     <tr><td>权限控制</td><td>仅管理员可访问管理面板</td></tr>
+    <tr><td rowspan="2"><span data-zh="附加功能" data-en="Bonus Features">附加功能</span></td><td><span data-zh="QR码签到" data-en="QR Code Check-in">QR码签到</span></td><td><span data-zh="每个活动生成唯一QR码，链接到签到页面，支持打印张贴于活动场地" data-en="Generate unique QR code per event linking to check-in page, supports printing for venue posting">每个活动生成唯一QR码，链接到签到页面，支持打印张贴于活动场地</span></td></tr>
+    <tr><td><span data-zh="CSV导出" data-en="CSV Export">CSV导出</span></td><td><span data-zh="支持单个活动报名名单导出和全部活动批量导出，UTF-8 BOM兼容Excel中文，RFC 5987文件名编码" data-en="Export per-event attendee list or bulk export all registrations, UTF-8 BOM for Excel Chinese compatibility, RFC 5987 filename encoding">支持单个活动报名名单导出和全部活动批量导出，UTF-8 BOM兼容Excel中文，RFC 5987文件名编码</span></td></tr>
+    <tr><td rowspan="2"><span data-zh="体验优化" data-en="UX Enhancement">体验优化</span></td><td><span data-zh="分页功能" data-en="Pagination">分页功能</span></td><td><span data-zh="活动列表每页显示9条，支持上一页/页码/下一页导航，玻璃风格分页按钮" data-en="Event list paginated at 9 per page with Previous/page numbers/Next controls, glass-styled pagination buttons">活动列表每页显示9条，支持上一页/页码/下一页导航，玻璃风格分页按钮</span></td></tr>
+    <tr><td><span data-zh="活动分类" data-en="Category Filter">活动分类</span></td><td><span data-zh="支持学术、体育、文艺、社交、志愿服务、其他六类分类，分类筛选标签和详情页分类徽章" data-en="Six categories: Academic, Sports, Arts, Social, Volunteering, Other; category filter pills and detail page badge">支持学术、体育、文艺、社交、志愿服务、其他六类分类，分类筛选标签和详情页分类徽章</span></td></tr>
   </tbody>
 </table>
 
@@ -760,6 +764,9 @@ erDiagram
     <tr><td><code>/event/&lt;id&gt;/cancel</code></td><td>POST</td><td>cancel</td><td>event</td><td>取消报名</td><td>登录</td></tr>
     <tr><td><code>/checkin/&lt;event_id&gt;</code></td><td>GET/POST</td><td>checkin</td><td>checkin</td><td>活动签到</td><td>登录+已报名</td></tr>
     <tr><td><code>/admin/</code></td><td>GET</td><td>dashboard</td><td>admin</td><td>管理面板</td><td>管理员</td></tr>
+    <tr><td><code>/checkin/&lt;id&gt;/qr</code></td><td>GET</td><td>qr_code</td><td>checkin</td><td><span data-zh="QR码签到页面" data-en="QR code check-in page">QR码签到页面</span></td><td>创建者/管理员</td></tr>
+    <tr><td><code>/admin/export/&lt;id&gt;</code></td><td>GET</td><td>export_event</td><td>admin</td><td><span data-zh="单活动CSV导出" data-en="Per-event CSV export">单活动CSV导出</span></td><td>管理员</td></tr>
+    <tr><td><code>/admin/export/all</code></td><td>GET</td><td>export_all</td><td>admin</td><td><span data-zh="全部活动批量CSV导出" data-en="Bulk CSV export for all events">全部活动批量CSV导出</span></td><td>管理员</td></tr>
   </tbody>
 </table>
 
@@ -777,6 +784,7 @@ erDiagram
     <tr><td>Werkzeug</td><td>3.x</td><td>WSGI工具库</td><td>密码哈希、Flask内置依赖</td></tr>
     <tr><td>SQLite</td><td>3.x</td><td>数据库</td><td>零配置、文件型，适合课程项目和原型开发</td></tr>
     <tr><td>pytest</td><td>8.x</td><td>测试框架</td><td>简洁的fixture机制，社区标准</td></tr>
+    <tr><td>qrcode</td><td>7.x</td><td>QR码生成</td><td>轻量QR码库，支持PIL图片输出</td></tr>
     <tr><td>Cpolar</td><td>-</td><td>内网穿透</td><td>可选，用于局域网外演示访问</td></tr>
   </tbody>
 </table>
@@ -815,6 +823,7 @@ erDiagram
     <tr><td>end_time</td><td>DateTime</td><td>NOT NULL</td><td>结束时间</td></tr>
     <tr><td>max_participants</td><td>Integer</td><td>DEFAULT 0</td><td>最大参与人数，0表示不限</td></tr>
     <tr><td>checkin_code</td><td>String(50)</td><td>可空</td><td>签到码</td></tr>
+    <tr><td>category</td><td>String(20)</td><td>DEFAULT '其他'</td><td><span data-zh="活动分类：学术/体育/文艺/社交/志愿服务/其他" data-en="Event category: Academic/Sports/Arts/Social/Volunteering/Other">活动分类：学术/体育/文艺/社交/志愿服务/其他</span></td></tr>
     <tr><td>creator_id</td><td>Integer</td><td>FK → user.id, NOT NULL</td><td>创建者ID</td></tr>
     <tr><td>created_at</td><td>DateTime</td><td>DEFAULT utcnow</td><td>创建时间</td></tr>
   </tbody>
@@ -983,6 +992,7 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
     end_time = db.Column(db.DateTime, nullable=<span class="kw">False</span>)
     max_participants = db.Column(db.Integer, default=<span class="num">0</span>)
     checkin_code = db.Column(db.String(<span class="num">50</span>))
+    category = db.Column(db.String(<span class="num">20</span>), default=<span class="st">'其他'</span>)
     creator_id = db.Column(db.Integer, db.ForeignKey(<span class="st">'user.id'</span>), nullable=<span class="kw">False</span>)
     created_at = db.Column(db.DateTime, default=<span class="kw">lambda</span>: datetime.now(timezone.utc))
 
@@ -1152,6 +1162,104 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
             abort(<span class="num">403</span>)
         <span class="kw">return</span> f(*args, **kwargs)
     <span class="kw">return</span> decorated_function</code></pre>
+
+<h3>5.12 <span data-zh="QR码签到" data-en="QR Code Check-in">QR码签到</span></h3>
+<p><span data-zh="使用qrcode库为每个活动生成唯一QR码，链接到签到页面。事件创建者或管理员可查看并打印QR码，方便张贴于活动场地。" data-en="Uses the qrcode library to generate a unique QR code per event linking to its check-in page. Event creator or admin can view and print QR codes for venue posting.">使用qrcode库为每个活动生成唯一QR码，链接到签到页面。事件创建者或管理员可查看并打印QR码，方便张贴于活动场地。</span></p>
+<pre><code><span class="cm"># app/checkin/routes.py</span>
+<span class="kw">import</span> io, base64
+<span class="kw">import</span> qrcode
+
+<span class="kw">def</span> <span class="fn">get_qr_code</span>(url):
+    <span class="cm">"""生成QR码并返回base64编码的PNG图片"""</span>
+    img = qrcode.<span class="fn">make</span>(url, box_size=<span class="num">8</span>, border=<span class="num">2</span>)
+    buf = io.<span class="cls">BytesIO</span>()
+    img.<span class="fn">save</span>(buf, format=<span class="st">'PNG'</span>)
+    <span class="kw">return</span> <span class="st">'data:image/png;base64,'</span> + base64.<span class="fn">b64encode</span>(buf.<span class="fn">getvalue</span>()).<span class="fn">decode</span>()
+
+<span class="dc">@checkin_bp.route</span>(<span class="st">'/&lt;int:event_id&gt;/qr'</span>)
+<span class="dc">@login_required</span>
+<span class="kw">def</span> <span class="fn">qr_code</span>(event_id):
+    event = db.session.<span class="fn">get</span>(Event, event_id)
+    <span class="kw">if not</span> event <span class="kw">or</span> (event.creator_id != current_user.id <span class="kw">and not</span> current_user.is_admin):
+        <span class="fn">abort</span>(<span class="num">403</span>)
+    checkin_url = request.host_url.<span class="fn">rstrip</span>(<span class="st">'/'</span>) + url_for(<span class="st">'checkin.checkin'</span>, event_id=event.id)
+    qr_data = <span class="fn">get_qr_code</span>(checkin_url)
+    <span class="kw">return</span> <span class="fn">render_template</span>(<span class="st">'checkin/qr.html'</span>, event=event, qr_data=qr_data)</code></pre>
+
+<h3>5.13 <span data-zh="CSV导出" data-en="CSV Export">CSV导出</span></h3>
+<p><span data-zh="支持单个活动报名名单导出和全部活动批量导出。使用UTF-8 BOM确保Excel正确显示中文，RFC 5987编码文件名防止乱码。查询采用单次JOIN避免N+1问题。" data-en="Supports per-event attendee list export and bulk export for all events. Uses UTF-8 BOM for Excel Chinese compatibility, RFC 5987 filename encoding. Single JOIN query avoids N+1 problem.">支持单个活动报名名单导出和全部活动批量导出。使用UTF-8 BOM确保Excel正确显示中文，RFC 5987编码文件名防止乱码。查询采用单次JOIN避免N+1问题。</span></p>
+<pre><code><span class="cm"># app/admin/routes.py</span>
+<span class="kw">import</span> csv, io
+<span class="kw">from</span> flask <span class="kw">import</span> Response
+<span class="kw">from</span> urllib.parse <span class="kw">import</span> quote
+
+<span class="kw">def</span> <span class="fn">_make_csv_response</span>(rows, filename):
+    <span class="cm">"""生成带UTF-8 BOM和RFC 5987文件名的CSV响应"""</span>
+    buf = io.<span class="cls">StringIO</span>()
+    writer = csv.<span class="fn">writer</span>(buf)
+    writer.<span class="fn">writerow</span>([<span class="st">'活动标题'</span>, <span class="st">'用户名'</span>, <span class="st">'邮箱'</span>, <span class="st">'报名时间'</span>, <span class="st">'是否签到'</span>, <span class="st">'签到时间'</span>])
+    writer.<span class="fn">writerows</span>(rows)
+    encoded = <span class="fn">quote</span>(filename)
+    resp = <span class="cls">Response</span>(<span class="st">'\ufeff'</span> + buf.<span class="fn">getvalue</span>(), mimetype=<span class="st">'text/csv; charset=utf-8'</span>)
+    resp.headers[<span class="st">'Content-Disposition'</span>] = (
+        <span class="st">f"attachment; filename*=UTF-8''</span>{encoded}<span class="st">"</span>
+    )
+    <span class="kw">return</span> resp
+
+<span class="dc">@admin_bp.route</span>(<span class="st">'/export/&lt;int:event_id&gt;'</span>)
+<span class="kw">def</span> <span class="fn">export_event</span>(event_id):
+    event = db.session.<span class="fn">get</span>(Event, event_id)
+    regs = (Registration.query
+        .<span class="fn">join</span>(User).<span class="fn">filter</span>(Registration.event_id == event_id,
+                         Registration.status == <span class="st">'confirmed'</span>)
+        .<span class="fn">add_columns</span>(User.username, User.email,
+                     Registration.registered_at,
+                     Registration.checked_in, Registration.checked_in_at)
+        .<span class="fn">all</span>())
+    rows = [[event.title, r.username, r.email, r.registered_at,
+             <span class="st">'是'</span> <span class="kw">if</span> r.checked_in <span class="kw">else</span> <span class="st">'否'</span>, r.checked_in_at <span class="kw">or</span> <span class="st">''</span>] <span class="kw">for</span> r <span class="kw">in</span> regs]
+    <span class="kw">return</span> <span class="fn">_make_csv_response</span>(rows, <span class="st">f'</span>{event.title}<span class="st">_报名名单.csv'</span>)
+
+<span class="dc">@admin_bp.route</span>(<span class="st">'/export/all'</span>)
+<span class="kw">def</span> <span class="fn">export_all</span>():
+    regs = (Registration.query
+        .<span class="fn">join</span>(User).<span class="fn">join</span>(Event)
+        .<span class="fn">filter</span>(Registration.status == <span class="st">'confirmed'</span>)
+        .<span class="fn">add_columns</span>(Event.title, User.username, User.email,
+                     Registration.registered_at,
+                     Registration.checked_in, Registration.checked_in_at)
+        .<span class="fn">all</span>())
+    rows = [[r.title, r.username, r.email, r.registered_at,
+             <span class="st">'是'</span> <span class="kw">if</span> r.checked_in <span class="kw">else</span> <span class="st">'否'</span>, r.checked_in_at <span class="kw">or</span> <span class="st">''</span>] <span class="kw">for</span> r <span class="kw">in</span> regs]
+    <span class="kw">return</span> <span class="fn">_make_csv_response</span>(rows, <span class="st">'全部活动报名数据.csv'</span>)</code></pre>
+
+<h3>5.14 <span data-zh="分页功能" data-en="Pagination">分页功能</span></h3>
+<p><span data-zh="活动列表使用Flask-SQLAlchemy的.paginate()方法实现分页，每页显示9条活动，支持上一页/页码/下一页导航。" data-en="Event list uses Flask-SQLAlchemy .paginate() for pagination, displaying 9 events per page with Previous/page numbers/Next navigation controls.">活动列表使用Flask-SQLAlchemy的.paginate()方法实现分页，每页显示9条活动，支持上一页/页码/下一页导航。</span></p>
+<pre><code><span class="cm"># app/event/routes.py — list_events 中的分页逻辑</span>
+<span class="dc">@event_bp.route</span>(<span class="st">'/'</span>)
+<span class="kw">def</span> <span class="fn">list_events</span>():
+    page = request.args.<span class="fn">get</span>(<span class="st">'page'</span>, <span class="num">1</span>, type=int)
+    query = Event.query.<span class="fn">order_by</span>(Event.start_time.<span class="fn">desc</span>())
+    pagination = query.<span class="fn">paginate</span>(page=page, per_page=<span class="num">9</span>, error_out=<span class="kw">False</span>)
+    <span class="kw">return</span> <span class="fn">render_template</span>(<span class="st">'event/list.html'</span>,
+                           events=pagination.items, pagination=pagination)</code></pre>
+
+<h3>5.15 <span data-zh="活动分类" data-en="Category Filter">活动分类</span></h3>
+<p><span data-zh="活动支持六种分类（学术、体育、文艺、社交、志愿服务、其他），通过URL参数?category=进行筛选，分类标签以pill样式展示在活动列表上方。" data-en="Events support six categories (Academic, Sports, Arts, Social, Volunteering, Other), filtered via ?category= URL parameter, with pill-style filter buttons above the event cards.">活动支持六种分类（学术、体育、文艺、社交、志愿服务、其他），通过URL参数?category=进行筛选，分类标签以pill样式展示在活动列表上方。</span></p>
+<pre><code><span class="cm"># app/event/routes.py — 分类筛选逻辑</span>
+CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>, <span class="st">'文艺'</span>, <span class="st">'社交'</span>, <span class="st">'志愿服务'</span>, <span class="st">'其他'</span>]
+
+<span class="dc">@event_bp.route</span>(<span class="st">'/'</span>)
+<span class="kw">def</span> <span class="fn">list_events</span>():
+    category = request.args.<span class="fn">get</span>(<span class="st">'category'</span>)
+    query = Event.query.<span class="fn">order_by</span>(Event.start_time.<span class="fn">desc</span>())
+    <span class="kw">if</span> category <span class="kw">and</span> category <span class="kw">in</span> CATEGORIES:
+        query = query.<span class="fn">filter_by</span>(category=category)
+    page = request.args.<span class="fn">get</span>(<span class="st">'page'</span>, <span class="num">1</span>, type=int)
+    pagination = query.<span class="fn">paginate</span>(page=page, per_page=<span class="num">9</span>, error_out=<span class="kw">False</span>)
+    <span class="kw">return</span> <span class="fn">render_template</span>(<span class="st">'event/list.html'</span>,
+                           events=pagination.items, pagination=pagination,
+                           categories=CATEGORIES, current_category=category)</code></pre>
 </div>
 
 <!-- ============ 六、UI设计 ============ -->
@@ -1269,6 +1377,114 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
   <li>切换时遍历所有标记元素，更新<code>textContent</code></li>
   <li>用户语言偏好存储在<code>localStorage</code>中，下次访问自动应用</li>
 </ul>
+
+<h3>6.8 <span data-zh="分类筛选标签组件" data-en="Category Filter Pills Component">分类筛选标签组件</span></h3>
+<p><span data-zh="活动列表页顶部展示分类筛选标签（pill样式），点击切换当前分类。标签使用玻璃风格背景，选中状态以主色调高亮。" data-en="Category filter pills displayed above event cards with glass-styled background. Active category highlighted with accent color.">活动列表页顶部展示分类筛选标签（pill样式），点击切换当前分类。标签使用玻璃风格背景，选中状态以主色调高亮。</span></p>
+<pre><code><span class="cm">&lt;!-- templates/event/list.html — 分类筛选标签 --&gt;</span>
+&lt;div class=<span class="st">"category-pills"</span>&gt;
+  &lt;a href=<span class="st">"{{ url_for('event.list_events') }}"</span>
+     class=<span class="st">"pill {% if not current_category %}active{% endif %}"</span>&gt;
+    <span data-zh="全部" data-en="All">全部</span>
+  &lt;/a&gt;
+  {% for cat in categories %}
+  &lt;a href=<span class="st">"{{ url_for('event.list_events', category=cat) }}"</span>
+     class=<span class="st">"pill {% if current_category == cat %}active{% endif %}"</span>&gt;
+    {{ cat }}
+  &lt;/a&gt;
+  {% endfor %}
+&lt;/div&gt;</code></pre>
+<pre><code><span class="cm">/* 分类标签样式 */</span>
+.<span class="fn">category-pills</span> {
+  display: flex; flex-wrap: wrap; gap: <span class="num">8</span>px;
+  margin-bottom: <span class="num">24</span>px; justify-content: center;
+}
+.<span class="fn">pill</span> {
+  padding: <span class="num">6</span>px <span class="num">18</span>px; border-radius: <span class="num">20</span>px;
+  background: <span class="kw">var</span>(--glass-bg);
+  backdrop-filter: <span class="fn">blur</span>(<span class="num">20</span>px);
+  border: <span class="num">1</span>px solid <span class="kw">var</span>(--glass-border);
+  font-size: <span class="num">13</span>px; color: <span class="kw">var</span>(--ink-secondary);
+  text-decoration: none; transition: all <span class="num">0.2</span>s;
+}
+.<span class="fn">pill</span>.active,
+.<span class="fn">pill</span>:hover {
+  background: <span class="kw">var</span>(--accent); color: #fff;
+  border-color: <span class="kw">var</span>(--accent);
+}</code></pre>
+
+<h3>6.9 <span data-zh="分页控件组件" data-en="Pagination Controls Component">分页控件组件</span></h3>
+<p><span data-zh="活动列表底部分页导航，包含上一页按钮、页码按钮和下一页按钮，使用玻璃风格设计，与整体UI风格一致。" data-en="Pagination navigation at the bottom of event list with Previous, page numbers, and Next buttons in glass-styled design consistent with overall UI.">活动列表底部分页导航，包含上一页按钮、页码按钮和下一页按钮，使用玻璃风格设计，与整体UI风格一致。</span></p>
+<pre><code><span class="cm">&lt;!-- templates/event/list.html — 分页控件 --&gt;</span>
+{% if pagination.pages > 1 %}
+&lt;nav class=<span class="st">"pagination"</span>&gt;
+  {% if pagination.has_prev %}
+  &lt;a href=<span class="st">"{{ url_for('event.list_events', page=pagination.prev_num) }}"</span>
+     class=<span class="st">"page-btn"</span>&gt;&laquo; <span data-zh="上一页" data-en="Prev">上一页</span>&lt;/a&gt;
+  {% endif %}
+  {% for p in pagination.iter_pages() %}
+    {% if p %}
+    &lt;a href=<span class="st">"{{ url_for('event.list_events', page=p) }}"</span>
+       class=<span class="st">"page-btn {% if p == pagination.page %}active{% endif %}"</span>&gt;{{ p }}&lt;/a&gt;
+    {% else %}
+    &lt;span class=<span class="st">"page-ellipsis"</span>&gt;&hellip;&lt;/span&gt;
+    {% endif %}
+  {% endfor %}
+  {% if pagination.has_next %}
+  &lt;a href=<span class="st">"{{ url_for('event.list_events', page=pagination.next_num) }}"</span>
+     class=<span class="st">"page-btn"</span>&gt;<span data-zh="下一页" data-en="Next">下一页</span> &raquo;&lt;/a&gt;
+  {% endif %}
+&lt;/nav&gt;
+{% endif %}</code></pre>
+<pre><code><span class="cm">/* 分页按钮样式 */</span>
+.<span class="fn">pagination</span> {
+  display: flex; justify-content: center;
+  gap: <span class="num">6</span>px; margin-top: <span class="num">32</span>px;
+}
+.<span class="fn">page-btn</span> {
+  padding: <span class="num">8</span>px <span class="num">14</span>px; border-radius: <span class="num">10</span>px;
+  background: <span class="kw">var</span>(--glass-bg);
+  backdrop-filter: <span class="fn">blur</span>(<span class="num">20</span>px);
+  border: <span class="num">1</span>px solid <span class="kw">var</span>(--glass-border);
+  color: <span class="kw">var</span>(--ink-secondary);
+  text-decoration: none; font-size: <span class="num">13</span>px;
+  transition: all <span class="num">0.2</span>s;
+}
+.<span class="fn">page-btn</span>.active,
+.<span class="fn">page-btn</span>:hover {
+  background: <span class="kw">var</span>(--accent); color: #fff;
+  border-color: <span class="kw">var</span>(--accent);
+}</code></pre>
+
+<h3>6.10 <span data-zh="QR码签到页面" data-en="QR Code Check-in Page">QR码签到页面</span></h3>
+<p><span data-zh="独立的QR码展示页面，居中显示活动标题和QR码图片，支持浏览器打印功能。采用print-friendly设计，适合打印张贴于活动场地入口。" data-en="Dedicated QR code display page centered with event title and QR image, supports browser print. Print-friendly design suitable for posting at venue entrances.">独立的QR码展示页面，居中显示活动标题和QR码图片，支持浏览器打印功能。采用print-friendly设计，适合打印张贴于活动场地入口。</span></p>
+<pre><code><span class="cm">&lt;!-- templates/checkin/qr.html — QR码页面 --&gt;</span>
+&lt;div class=<span class="st">"qr-page"</span>&gt;
+  &lt;h2&gt;{{ event.title }}&lt;/h2&gt;
+  &lt;p class=<span class="st">"qr-subtitle"</span>&gt;<span data-zh="扫描二维码签到" data-en="Scan QR code to check in">扫描二维码签到</span>&lt;/p&gt;
+  &lt;img src=<span class="st">"{{ qr_data }}"</span> alt=<span class="st">"QR Code"</span> class=<span class="st">"qr-image"</span>&gt;
+  &lt;button onclick=<span class="st">"window.print()"</span> class=<span class="st">"btn-print"</span>&gt;
+    <span data-zh="打印QR码" data-en="Print QR Code">打印QR码</span>
+  &lt;/button&gt;
+&lt;/div&gt;</code></pre>
+<pre><code><span class="cm">/* QR码页面样式 */</span>
+.<span class="fn">qr-page</span> {
+  text-align: center; padding: <span class="num">60</span>px <span class="num">20</span>px;
+}
+.<span class="fn">qr-image</span> {
+  width: <span class="num">280</span>px; height: <span class="num">280</span>px;
+  margin: <span class="num">24</span>px auto; border-radius: <span class="num">16</span>px;
+  box-shadow: <span class="num">0</span> <span class="num">4</span>px <span class="num">24</span>px <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.08</span>);
+}
+.<span class="fn">btn-print</span> {
+  margin-top: <span class="num">16</span>px; padding: <span class="num">10</span>px <span class="num">28</span>px;
+  background: <span class="kw">var</span>(--accent); color: #fff;
+  border: none; border-radius: <span class="num">10</span>px;
+  font-size: <span class="num">14</span>px; cursor: pointer;
+}
+<span class="dc">@media</span> print {
+  .qr-page { padding: <span class="num">40</span>px; }
+  .btn-print { display: none; }
+}</code></pre>
 </div>
 
 <!-- ============ 七、测试结果 ============ -->
@@ -1373,6 +1589,7 @@ Flask-Login>=0.6
 Flask-Migrate>=4.0
 Flask-WTF>=1.2
 Werkzeug>=3.0
+qrcode>=7.0
 pytest>=8.0</code></pre>
 
 <h3>8.3 演示数据说明</h3>
