@@ -32,7 +32,7 @@
 
 <div class="cards">
     {% for event in events %}
-    <div class="card glass" style="animation-delay: {{ loop.index0 * 80 }}ms">
+    <div class="card glass" data-category="{{ event.category }}" style="animation-delay: {{ loop.index0 * 80 }}ms">
         <div class="card-header">
             <h3 data-zh="{{ event.title }}" data-en="{{ event.title_en or event.title }}">{{ event.title }}</h3>
             <span class="tag category-tag"

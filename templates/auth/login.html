@@ -3,17 +3,17 @@
 
 {% block content %}
 <div class="auth-wrap">
-    <div class="auth-card glass">
+    <div class="auth-card">
         <h2>{{ t("登 录") }}</h2>
         <div class="sub">{{ t("欢迎回来") }}</div>
         <form method="post">
             {{ form.hidden_tag() }}
             <div class="form-group">
-                <label for="username">{{ t("用户名") }}</label>
+                <label>{{ t("用户名") }}</label>
                 {{ form.username(class="form-control", placeholder=t("请输入用户名")) }}
             </div>
             <div class="form-group">
-                <label for="password">{{ t("密码") }}</label>
+                <label>{{ t("密码") }}</label>
                 {{ form.password(class="form-control", placeholder=t("请输入密码")) }}
             </div>
             {{ form.submit(class="btn btn-primary", style="width:100%;justify-content:center", value=t("登录")) }}

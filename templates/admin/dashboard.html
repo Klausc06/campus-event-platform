@@ -9,19 +9,19 @@
 
 <div class="admin-wrap">
     <div class="stat-row">
-        <div class="stat-card glass accent-edge">
+        <div class="stat-card accent-edge">
             <div class="num">{{ total_users }}</div>
             <div class="label">{{ t("注册用户") }}</div>
         </div>
-        <div class="stat-card glass accent-edge">
+        <div class="stat-card accent-edge">
             <div class="num">{{ total_events }}</div>
             <div class="label">{{ t("活动总数") }}</div>
         </div>
-        <div class="stat-card glass green-edge">
+        <div class="stat-card green-edge">
             <div class="num">{{ total_registrations }}</div>
             <div class="label">{{ t("报名人次") }}</div>
         </div>
-        <div class="stat-card glass green-edge">
+        <div class="stat-card green-edge">
             <div class="num">{{ total_checkins }}</div>
             <div class="label">{{ t("签到人次") }}</div>
         </div>
@@ -31,7 +31,7 @@
         <a href="{{ url_for('admin.export_all') }}" class="card-link btn-glass">{{ t("导出全部") }}</a>
     </div>
 
-    <div class="admin-table glass">
+    <div class="admin-table">
         <div class="admin-table-head">
             <div>{{ t("活动名称") }}</div>
             <div>{{ t("报名") }}</div>

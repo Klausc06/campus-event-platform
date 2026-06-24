@@ -3,25 +3,25 @@
 
 {% block content %}
 <div class="auth-wrap">
-    <div class="auth-card glass">
+    <div class="auth-card">
         <h2>{{ t("注 册") }}</h2>
         <div class="sub">{{ t("创建新账号") }}</div>
         <form method="post">
             {{ form.hidden_tag() }}
             <div class="form-group">
-                <label for="username">{{ t("用户名") }}</label>
+                <label>{{ t("用户名") }}</label>
                 {{ form.username(class="form-control", placeholder=t("设置用户名")) }}
             </div>
             <div class="form-group">
-                <label for="email">{{ t("邮箱") }}</label>
+                <label>{{ t("邮箱") }}</label>
                 {{ form.email(class="form-control", placeholder=t("你的邮箱地址")) }}
             </div>
             <div class="form-group">
-                <label for="password">{{ t("密码") }}</label>
+                <label>{{ t("密码") }}</label>
                 {{ form.password(class="form-control", placeholder=t("设置密码")) }}
             </div>
             <div class="form-group">
-                <label for="confirm">{{ t("确认密码") }}</label>
+                <label>{{ t("确认密码") }}</label>
                 {{ form.confirm(class="form-control", placeholder=t("再次输入密码")) }}
             </div>
             {{ form.submit(class="btn btn-primary", style="width:100%;justify-content:center", value=t("注册")) }}

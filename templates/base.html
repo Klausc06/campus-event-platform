@@ -6,10 +6,10 @@
     <title>{% block title %}校园活动平台{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 </head>
 <body>
+    <a href="#main" class="visually-hidden-focusable">Skip to content</a>
     <nav class="nav">
             <a class="nav-brand" href="{{ url_for('event.list_events') }}">{{ t("校园活动") }}<span class="dot">.</span>{{ t("平台") }}</a>
         <div class="nav-right">
@@ -23,14 +23,14 @@
                 <a href="{{ url_for('admin.logs') }}" class="{% if request.endpoint == 'admin.logs' %}active{% endif %}">{{ t("日志") }}</a>
                 {% endif %}
             </div>
-            <div class="toggles">
+            <div class="toggles" role="group" aria-label="Settings">
                 <div class="toggle" id="langToggle">
-                    <button class="active" onclick="setLang('zh')">中</button>
-                    <button onclick="setLang('en')">EN</button>
+                    <button class="active" aria-pressed="true" onclick="setLang('zh')">中</button>
+                    <button aria-pressed="false" onclick="setLang('en')">EN</button>
                 </div>
                 <div class="toggle" id="themeToggle">
-                    <button class="active" onclick="setTheme('light')">Light</button>
-                    <button onclick="setTheme('dark')">Dark</button>
+                    <button class="active" aria-pressed="true" onclick="setTheme('light')">Light</button>
+                    <button aria-pressed="false" onclick="setTheme('dark')">Dark</button>
                 </div>
             </div>
             {% if current_user.is_authenticated %}
@@ -47,7 +47,7 @@
         </div>
     </nav>
 
-    <main>
+    <main id="main">
         {% include '_flash.html' %}
         {% block content %}{% endblock %}
     </main>
@@ -56,12 +56,13 @@
         &copy; {{ now().year if now is defined else 2026 }} <span>{{ t("校园活动平台") }}</span>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     function setTheme(t) {
         document.documentElement.setAttribute('data-theme', t);
-        document.querySelectorAll('#themeToggle button').forEach(function(b) { b.classList.remove('active'); });
-        document.querySelector('#themeToggle button[onclick="setTheme(\'' + t + '\')"]').classList.add('active');
+        document.querySelectorAll('#themeToggle button').forEach(function(b) { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+        var active = document.querySelector('#themeToggle button[onclick="setTheme(\'' + t + '\')"]');
+        active.classList.add('active');
+        active.setAttribute('aria-pressed', 'true');
         localStorage.setItem('theme', t);
     }
     function setLang(l) {
@@ -71,8 +72,10 @@
         document.querySelectorAll('[data-zh-placeholder]').forEach(function(el) {
             el.placeholder = el.getAttribute('data-' + l + '-placeholder');
         });
-        document.querySelectorAll('#langToggle button').forEach(function(b) { b.classList.remove('active'); });
-        document.querySelector('#langToggle button[onclick="setLang(\'' + l + '\')"]').classList.add('active');
+        document.querySelectorAll('#langToggle button').forEach(function(b) { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+        var active = document.querySelector('#langToggle button[onclick="setLang(\'' + l + '\')"]');
+        active.classList.add('active');
+        active.setAttribute('aria-pressed', 'true');
         localStorage.setItem('lang', l);
     }
     (function() {

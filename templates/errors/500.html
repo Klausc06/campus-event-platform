@@ -7,12 +7,12 @@
   <p class="error-msg">{{ t("服务器遇到了一个错误。以下是详细信息：") }}</p>
 
   {% if config.DEBUG %}
-  <div class="error-detail glass">
+  <div class="error-detail">
     <div class="detail-label">{{ t("错误追踪") }}</div>
     <pre class="traceback">{{ traceback }}</pre>
   </div>
 
-  <div class="error-detail glass">
+  <div class="error-detail">
     <div class="detail-label">{{ t("请求信息") }}</div>
     <div class="detail-row"><span>URL:</span> <code>{{ request.url }}</code></div>
     <div class="detail-row"><span>{{ t("方法：") }}</span> <code>{{ request.method }}</code></div>
@@ -21,20 +21,20 @@
   </div>
 
   {% if request.form %}
-  <div class="error-detail glass">
+  <div class="error-detail">
     <div class="detail-label">{{ t("表单数据") }}</div>
     <pre>{{ request.form | tojson(indent=2) }}</pre>
   </div>
   {% endif %}
 
   {% if request.args %}
-  <div class="error-detail glass">
+  <div class="error-detail">
     <div class="detail-label">{{ t("查询参数") }}</div>
     <pre>{{ request.args | tojson(indent=2) }}</pre>
   </div>
   {% endif %}
   {% else %}
-  <div class="error-detail glass">
+  <div class="error-detail">
     <div class="detail-label">{{ t("信息") }}</div>
     <p>{{ t("请联系管理员，提供以下 Request ID：") }}</p>
     <code class="request-id">{{ g.get('request_id', '-') }}</code>
