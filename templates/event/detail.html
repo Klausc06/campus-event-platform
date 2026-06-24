@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ event.title }} - 校园活动平台{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1 data-zh="活 动 详 情" data-en="Event Detail">活 动 详 情</h1>
+    <div class="accent-line"></div>
+</section>
+
+<div class="detail-wrap">
+    <div class="detail glass">
+        <h2>{{ event.title }}</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="label">TIME</div>
+                <div class="value">{{ event.start_time.strftime('%Y-%m-%d %H:%M') }} - {{ event.end_time.strftime('%H:%M') }}</div>
+            </div>
+            {% if event.location %}
+            <div class="info-item">
+                <div class="label" data-zh="地点" data-en="LOCATION">地点</div>
+                <div class="value">{{ event.location }}</div>
+            </div>
+            {% endif %}
+            <div class="info-item">
+                <div class="label" data-zh="名额" data-en="CAPACITY">名额</div>
+                <div class="value">
+                    {{ event.registered_count }}{% if event.max_participants > 0 %} / {{ event.max_participants }}{% else %} / {% endif %}
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="label" data-zh="发起人" data-en="CREATOR">发起人</div>
+                <div class="value">{{ event.creator.username }}</div>
+            </div>
+        </div>
+
+        {% if event.description %}
+        <div class="body-text">{{ event.description }}</div>
+        {% endif %}
+
+        <div class="actions">
+            {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary" data-zh="登录后报名" data-en="Login to Register">登录后报名</a>
+            {% elif registration %}
+                {% if registration.checked_in %}
+                <div class="status-box checked-in" data-zh="已报名，已签到" data-en="Registered & Checked In">已报名，已签到</div>
+                {% else %}
+                <a href="{{ url_for('checkin.checkin', event_id=event.id) }}" class="btn btn-primary" data-zh="前往签到" data-en="Check In">前往签到</a>
+                <form method="post" action="{{ url_for('event.cancel', id=event.id) }}" style="display:inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-glass" data-zh="取消报名" data-en="Cancel">取消报名</button>
+                </form>
+                {% endif %}
+            {% elif event.is_full %}
+            <div class="status-box full" data-zh="名额已满" data-en="Full">名额已满</div>
+            {% else %}
+            <form method="post" action="{{ url_for('event.register', id=event.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-primary" data-zh="立即报名" data-en="Register Now">立即报名</button>
+            </form>
+            {% endif %}
+        </div>
+
+        {% if current_user.is_authenticated and (event.creator_id == current_user.id or current_user.is_admin) %}
+        <div class="admin-tools">
+            <div class="actions">
+                <a href="{{ url_for('event.edit', id=event.id) }}" class="btn btn-glass btn-sm" data-zh="编辑活动" data-en="Edit">编辑活动</a>
+                <form method="post" action="{{ url_for('event.delete', id=event.id) }}" onsubmit="return confirm('确定删除此活动？')" style="display:inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-sm" data-zh="删除活动" data-en="Delete">删除活动</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <div style="margin-top: 24px; position: relative; z-index: 2;">
+            <a href="{{ url_for('event.list_events') }}" class="card-link" data-zh="返回列表" data-en="Back to List">返回列表</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

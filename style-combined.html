@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>校园活动平台 — Liquid Glass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+/* ===== CSS VARIABLES ===== */
+:root, [data-theme="light"] {
+  --bg: #EDEAE4;
+  --bg-gradient: linear-gradient(160deg, #EDEAE4 0%, #E4DED5 50%, #DDD7CE 100%);
+  --ink: #1A1A1A;
+  --ink-secondary: #4A4A4A;
+  --ink-muted: #8A8A8A;
+  --accent: #C45A3A;
+  --accent-hover: #B04E32;
+  --accent-soft: rgba(196, 90, 58, 0.12);
+  --success: #2D7A4F;
+  --success-soft: rgba(45, 122, 79, 0.1);
+  --danger: #A03030;
+  --danger-soft: rgba(160, 48, 48, 0.08);
+  --warn: #9A7A20;
+  --warn-soft: rgba(154, 122, 32, 0.1);
+  /* Glass */
+  --glass-bg: rgba(255, 255, 255, 0.42);
+  --glass-bg-hover: rgba(255, 255, 255, 0.58);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-border-subtle: rgba(255, 255, 255, 0.35);
+  --glass-highlight: rgba(255, 255, 255, 0.8);
+  --glass-highlight-bottom: rgba(0, 0, 0, 0.03);
+  --glass-blur: 40px;
+  --glass-blur-heavy: 60px;
+  --glass-shadow: 0 4px 30px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.03);
+  --glass-shadow-hover: 0 8px 40px rgba(0,0,0,0.07), 0 2px 6px rgba(0,0,0,0.04);
+  --glass-refraction: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 40%);
+  /* Nav glass */
+  --nav-bg: rgba(237, 234, 228, 0.65);
+  --nav-border: rgba(0, 0, 0, 0.06);
+  /* Form */
+  --input-bg: rgba(255, 255, 255, 0.3);
+  --input-border: rgba(0, 0, 0, 0.1);
+  --input-focus: rgba(196, 90, 58, 0.4);
+  /* Progress */
+  --progress-bg: rgba(0, 0, 0, 0.06);
+  --progress-fill: var(--success);
+  /* Toggle */
+  --toggle-bg: rgba(0, 0, 0, 0.08);
+  --toggle-active: var(--ink);
+  --toggle-active-text: var(--bg);
+}
+
+[data-theme="dark"] {
+  --bg: #0E0E12;
+  --bg-gradient: linear-gradient(160deg, #0E0E12 0%, #141418 50%, #18181E 100%);
+  --ink: #F0EDE8;
+  --ink-secondary: #B8B4AE;
+  --ink-muted: #6A6660;
+  --accent: #E07050;
+  --accent-hover: #E88060;
+  --accent-soft: rgba(224, 112, 80, 0.15);
+  --success: #4ADE80;
+  --success-soft: rgba(74, 222, 128, 0.1);
+  --danger: #F87171;
+  --danger-soft: rgba(248, 113, 113, 0.1);
+  --warn: #FACC15;
+  --warn-soft: rgba(250, 204, 21, 0.08);
+  /* Glass */
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-bg-hover: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-subtle: rgba(255, 255, 255, 0.06);
+  --glass-highlight: rgba(255, 255, 255, 0.12);
+  --glass-highlight-bottom: rgba(255, 255, 255, 0.02);
+  --glass-shadow: 0 4px 30px rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.15);
+  --glass-shadow-hover: 0 8px 40px rgba(0,0,0,0.3), 0 2px 6px rgba(0,0,0,0.2);
+  --glass-refraction: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 40%);
+  /* Nav glass */
+  --nav-bg: rgba(14, 14, 18, 0.6);
+  --nav-border: rgba(255, 255, 255, 0.06);
+  /* Form */
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-border: rgba(255, 255, 255, 0.1);
+  --input-focus: rgba(224, 112, 80, 0.4);
+  /* Progress */
+  --progress-bg: rgba(255, 255, 255, 0.06);
+  --progress-fill: var(--success);
+  /* Toggle */
+  --toggle-bg: rgba(255, 255, 255, 0.08);
+  --toggle-active: var(--ink);
+  --toggle-active-text: var(--bg);
+}
+
+/* ===== RESET ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-gradient);
+  color: var(--ink);
+  font-family: 'Noto Serif SC', 'Georgia', serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.5s ease, color 0.3s ease;
+}
+
+/* ===== GLASS MIXIN (via classes) ===== */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* Top refraction highlight */
+.glass::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 5%, var(--glass-highlight) 50%, transparent 95%);
+  z-index: 1;
+}
+/* Inner refraction gradient */
+.glass::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: var(--glass-refraction);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 20px 20px 0 0;
+}
+.glass > * { position: relative; z-index: 2; }
+.glass:hover {
+  background: var(--glass-bg-hover);
+  box-shadow: var(--glass-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* ===== NAV ===== */
+.nav {
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--nav-bg);
+  backdrop-filter: blur(var(--glass-blur-heavy));
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+  border-bottom: 1px solid var(--nav-border);
+  transition: all 0.3s ease;
+}
+.nav-brand {
+  font-size: 18px;
+  color: var(--ink);
+  letter-spacing: 3px;
+  font-weight: 300;
+}
+.nav-brand .dot { color: var(--accent); font-weight: 700; }
+.nav-right { display: flex; align-items: center; gap: 20px; }
+.nav-links { display: flex; gap: 24px; }
+.nav-links a {
+  text-decoration: none;
+  color: var(--ink-muted);
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  transition: color 0.3s;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  padding-bottom: 2px;
+}
+.nav-links a:hover { color: var(--ink); }
+.nav-links a.active { color: var(--ink); border-bottom: 1.5px solid var(--accent); }
+
+/* Toggles container */
+.toggles { display: flex; gap: 8px; align-items: center; }
+.toggle {
+  display: flex;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border-subtle);
+  background: var(--toggle-bg);
+}
+.toggle button {
+  padding: 5px 12px;
+  border: none;
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0.5px;
+  transition: all 0.25s ease;
+}
+.toggle button.active {
+  background: var(--toggle-active);
+  color: var(--toggle-active-text);
+  border-radius: 16px;
+}
+.toggle button:hover:not(.active) { color: var(--ink); }
+
+/* ===== HERO ===== */
+.hero { padding: 56px 32px 28px; max-width: 640px; }
+.hero h1 {
+  font-size: 34px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  line-height: 1.4;
+  margin-bottom: 10px;
+  color: var(--ink);
+}
+.hero .subtitle {
+  font-size: 15px;
+  color: var(--ink-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.3px;
+}
+.hero .accent-line { width: 36px; height: 2px; background: var(--accent); margin: 14px 0 0; border-radius: 1px; }
+
+/* ===== SEARCH ===== */
+.search-wrap { padding: 0 32px; margin-bottom: 28px; max-width: 440px; }
+.search-box {
+  display: flex;
+  align-items: center;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 0 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.02);
+}
+.search-box:focus-within { border-color: var(--input-focus); box-shadow: 0 0 0 3px var(--accent-soft); }
+.search-box svg { flex-shrink: 0; color: var(--ink-muted); }
+.search-box input {
+  flex: 1;
+  padding: 13px 10px;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+  font-family: 'Noto Serif SC', serif;
+}
+.search-box input::placeholder { color: var(--ink-muted); font-weight: 300; }
+
+/* ===== CARDS ===== */
+.cards { padding: 0 32px 40px; display: flex; flex-direction: column; gap: 14px; max-width: 680px; }
+
+.card { padding: 26px 28px 22px; }
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+.card h3 { font-size: 18px; font-weight: 400; letter-spacing: 1.5px; color: var(--ink); }
+.card .tag {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.card .tag.soon { background: var(--accent-soft); color: var(--accent); }
+.card .meta {
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin-bottom: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.3px;
+}
+.card .meta .sep { margin: 0 6px; opacity: 0.35; }
+.card .desc { font-size: 14px; color: var(--ink-secondary); line-height: 1.85; margin-bottom: 16px; font-weight: 300; }
+.card-footer { display: flex; justify-content: space-between; align-items: center; }
+.badge {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+.badge.open { background: var(--success-soft); color: var(--success); }
+.badge.full { background: var(--danger-soft); color: var(--danger); }
+.badge.warn { background: var(--warn-soft); color: var(--warn); }
+.card-link {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--ink-secondary);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 1px;
+  transition: all 0.3s ease;
+}
+.card-link:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ===== SECTION DIVIDER ===== */
+.section-tag {
+  padding: 0 32px;
+  margin: 20px 0 16px;
+  max-width: 680px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--ink-muted);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+/* ===== DETAIL ===== */
+.detail-wrap { padding: 0 32px 40px; max-width: 680px; }
+.detail { padding: 32px; }
+.detail h2 { font-size: 26px; font-weight: 300; letter-spacing: 2px; margin-bottom: 20px; }
+.detail .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+.detail .info-item .label { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink-muted); letter-spacing: 1px; margin-bottom: 3px; }
+.detail .info-item .value { font-size: 15px; color: var(--ink); font-weight: 300; }
+.detail .body-text { font-size: 15px; color: var(--ink-secondary); line-height: 2; margin-bottom: 24px; font-weight: 300; }
+.actions { display: flex; gap: 10px; }
+
+/* Buttons */
+.btn {
+  padding: 11px 24px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(196, 90, 58, 0.25);
+}
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(196, 90, 58, 0.3); }
+.btn-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--ink-secondary);
+  border: 1px solid var(--glass-border);
+}
+.btn-glass:hover { background: var(--glass-bg-hover); color: var(--ink); }
+
+/* ===== AUTH ===== */
+.auth-wrap { padding: 0 32px 40px; max-width: 680px; }
+.auth-card { padding: 44px 32px; max-width: 380px; }
+.auth-card h2 { font-size: 24px; font-weight: 300; letter-spacing: 3px; margin-bottom: 6px; }
+.auth-card .sub { font-size: 13px; color: var(--ink-muted); margin-bottom: 28px; font-family: 'DM Sans', sans-serif; }
+.form-group { margin-bottom: 18px; position: relative; z-index: 2; }
+.form-group label { display: block; font-size: 11px; color: var(--ink-muted); letter-spacing: 1px; margin-bottom: 6px; font-family: 'DM Sans', sans-serif; }
+.form-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--input-border);
+  border-radius: 10px;
+  background: var(--input-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: 15px;
+  color: var(--ink);
+  outline: none;
+  font-family: 'Noto Serif SC', serif;
+  transition: all 0.3s ease;
+}
+.form-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.form-group input::placeholder { color: var(--ink-muted); font-weight: 300; }
+.auth-card .btn { width: 100%; justify-content: center; margin-top: 6px; }
+.auth-card .switch { text-align: center; margin-top: 18px; font-size: 13px; color: var(--ink-muted); font-family: 'DM Sans', sans-serif; position: relative; z-index: 2; }
+.auth-card .switch a { color: var(--accent); text-decoration: none; transition: opacity 0.2s; }
+.auth-card .switch a:hover { opacity: 0.7; }
+
+/* ===== CHECKIN ===== */
+.checkin-wrap { padding: 0 32px 40px; max-width: 680px; }
+.checkin-card { padding: 44px 32px; max-width: 380px; text-align: center; }
+.checkin-card .event-label { font-size: 13px; color: var(--ink-muted); margin-bottom: 6px; letter-spacing: 1px; font-family: 'DM Sans', sans-serif; }
+.checkin-card h2 { font-size: 24px; font-weight: 300; letter-spacing: 3px; margin-bottom: 24px; }
+.checkin-card input {
+  width: 100%;
+  padding: 16px;
+  text-align: center;
+  font-size: 22px;
+  letter-spacing: 8px;
+  border: 1px solid var(--input-border);
+  border-radius: 12px;
+  background: var(--input-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--ink);
+  outline: none;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.3s ease;
+  margin-bottom: 14px;
+}
+.checkin-card input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.checkin-card input::placeholder { font-size: 14px; letter-spacing: 1px; color: var(--ink-muted); }
+
+/* ===== ADMIN ===== */
+.admin-wrap { padding: 0 32px 40px; max-width: 680px; }
+.stat-row { display: flex; gap: 12px; margin-bottom: 20px; }
+.stat-card { flex: 1; padding: 18px; border-radius: 16px; }
+.stat-card .num { font-family: 'DM Sans', sans-serif; font-size: 28px; font-weight: 300; color: var(--ink); margin-bottom: 2px; }
+.stat-card .label { font-size: 12px; color: var(--ink-muted); letter-spacing: 0.5px; }
+.stat-card.accent-edge { border-left: 3px solid var(--accent); }
+.stat-card.green-edge { border-left: 3px solid var(--success); }
+
+.admin-table { border-radius: 16px; overflow: hidden; }
+.admin-table-head {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 12px 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--ink-muted);
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--glass-border-subtle);
+  position: relative;
+  z-index: 2;
+}
+.admin-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 13px 20px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--glass-border-subtle);
+  align-items: center;
+  transition: background 0.2s;
+  position: relative;
+  z-index: 2;
+}
+.admin-row:last-child { border-bottom: none; }
+.admin-row:hover { background: rgba(255,255,255,0.08); }
+.admin-row .name { font-weight: 400; color: var(--ink); }
+.admin-row .num { font-family: 'DM Sans', sans-serif; color: var(--ink-secondary); }
+.progress {
+  width: 72px;
+  height: 5px;
+  background: var(--progress-bg);
+  border-radius: 3px;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+.progress .fill { height: 100%; border-radius: 3px; background: var(--progress-fill); transition: width 0.4s ease; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 640px) {
+  .hero { padding: 40px 20px 20px; }
+  .hero h1 { font-size: 26px; letter-spacing: 2px; }
+  .cards, .detail-wrap, .auth-wrap, .checkin-wrap, .admin-wrap, .search-wrap, .section-tag { padding-left: 20px; padding-right: 20px; }
+  .nav { padding: 14px 20px; }
+  .card { padding: 20px; }
+  .detail .info-grid { grid-template-columns: 1fr; }
+  .stat-row { flex-direction: column; }
+  .admin-table-head, .admin-row { grid-template-columns: 1fr 1fr; gap: 4px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav class="nav">
+  <div class="nav-brand">校园活动<span class="dot">.</span>平台</div>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="#" class="active">活动</a>
+      <a href="#">我的</a>
+      <a href="#">管理</a>
+    </div>
+    <div class="toggles">
+      <div class="toggle" id="langToggle">
+        <button class="active" onclick="setLang('zh')">中</button>
+        <button onclick="setLang('en')">EN</button>
+      </div>
+      <div class="toggle" id="themeToggle">
+        <button class="active" onclick="setTheme('light')">Light</button>
+        <button onclick="setTheme('dark')">Dark</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <h1 data-zh="探 索 校 园 活 动" data-en="Explore Campus Events">探 索 校 园 活 动</h1>
+  <div class="subtitle" data-zh="发现身边正在发生的精彩" data-en="Discover what's happening around you">发现身边正在发生的精彩</div>
+  <div class="accent-line"></div>
+</section>
+
+<!-- ===== SEARCH ===== -->
+<div class="search-wrap">
+  <div class="search-box">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" placeholder="搜索活动名称或地点..." data-zh-placeholder="搜索活动名称或地点..." data-en-placeholder="Search events or locations...">
+  </div>
+</div>
+
+<!-- ===== EVENT CARDS ===== -->
+<div class="cards">
+  <div class="card glass">
+    <div class="card-header">
+      <h3 data-zh="新学期迎新晚会" data-en="Welcome Party">新学期迎新晚会</h3>
+      <span class="tag soon" data-zh="7 天后" data-en="In 7 days">7 天后</span>
+    </div>
+    <div class="meta">2026-07-01 19:00 <span class="sep">/</span> <span data-zh="大礼堂" data-en="Main Hall">大礼堂</span></div>
+    <div class="desc" data-zh="欢迎新同学加入校园大家庭，现场音乐、美食与互动游戏，期待你的到来。" data-en="Welcome party for new students. Live music, food, and interactive games await you.">欢迎新同学加入校园大家庭，现场音乐、美食与互动游戏，期待你的到来。</div>
+    <div class="card-footer">
+      <span class="badge open" data-zh="42 / 200 已报名" data-en="42 / 200 Registered">42 / 200 已报名</span>
+      <a href="#" class="card-link" data-zh="查看详情" data-en="View Details">查看详情</a>
+    </div>
+  </div>
+
+  <div class="card glass">
+    <div class="card-header">
+      <h3 data-zh="Python 编程工作坊" data-en="Python Workshop">Python 编程工作坊</h3>
+      <span class="tag soon" data-zh="14 天后" data-en="In 14 days">14 天后</span>
+    </div>
+    <div class="meta">2026-07-08 14:00 <span class="sep">/</span> <span data-zh="计算机实验室 A301" data-en="Computer Lab A301">计算机实验室 A301</span></div>
+    <div class="desc" data-zh="从零开始学习 Flask Web 开发，动手构建你的第一个应用。无需编程基础。" data-en="Learn Flask web development from scratch. Build your first app. No coding experience required.">从零开始学习 Flask Web 开发，动手构建你的第一个应用。无需编程基础。</div>
+    <div class="card-footer">
+      <span class="badge full" data-zh="名额已满" data-en="Full">名额已满</span>
+      <a href="#" class="card-link" data-zh="查看详情" data-en="View Details">查看详情</a>
+    </div>
+  </div>
+
+  <div class="card glass">
+    <div class="card-header">
+      <h3 data-zh="校园马拉松" data-en="Campus Marathon">校园马拉松</h3>
+      <span class="tag soon" data-zh="21 天后" data-en="In 21 days">21 天后</span>
+    </div>
+    <div class="meta">2026-07-15 08:00 <span class="sep">/</span> <span data-zh="校田径场" data-en="Track Field">校田径场</span></div>
+    <div class="desc" data-zh="第五届校园马拉松比赛，5 公里 / 10 公里两个组别，完赛即有纪念奖牌。" data-en="5th Annual Campus Marathon. 5km / 10km categories. Finisher medals for all.">第五届校园马拉松比赛，5 公里 / 10 公里两个组别，完赛即有纪念奖牌。</div>
+    <div class="card-footer">
+      <span class="badge warn" data-zh="38 / 500 即将满员" data-en="38 / 500 Almost Full">38 / 500 即将满员</span>
+      <a href="#" class="card-link" data-zh="查看详情" data-en="View Details">查看详情</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DETAIL ===== -->
+<div class="section-tag" data-zh="活动详情" data-en="Event Detail">活动详情</div>
+<div class="detail-wrap">
+  <div class="detail glass">
+    <h2 data-zh="新学期迎新晚会" data-en="Welcome Party">新学期迎新晚会</h2>
+    <div class="info-grid">
+      <div class="info-item"><div class="label">TIME</div><div class="value">2026-07-01 19:00</div></div>
+      <div class="info-item"><div class="label" data-zh="地点" data-en="LOCATION">地点</div><div class="value" data-zh="大礼堂" data-en="Main Hall">大礼堂</div></div>
+      <div class="info-item"><div class="label" data-zh="名额" data-en="CAPACITY">名额</div><div class="value">42 / 200</div></div>
+      <div class="info-item"><div class="label" data-zh="状态" data-en="STATUS">状态</div><div class="value" data-zh="报名中" data-en="Open">报名中</div></div>
+    </div>
+    <div class="body-text" data-zh="欢迎新同学加入校园大家庭。本次晚会包含现场音乐表演、美食自助、互动游戏等精彩环节。请提前 15 分钟入场，凭签到码完成签到。" data-en="Welcome to our campus community. This event features live music, food buffet, and interactive games. Please arrive 15 minutes early and check in with your code.">欢迎新同学加入校园大家庭。本次晚会包含现场音乐表演、美食自助、互动游戏等精彩环节。请提前 15 分钟入场，凭签到码完成签到。</div>
+    <div class="actions">
+      <button class="btn btn-primary" data-zh="立即报名" data-en="Register Now">立即报名</button>
+      <button class="btn btn-glass" data-zh="签到" data-en="Check In">签到</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== AUTH ===== -->
+<div class="section-tag" data-zh="用户登录" data-en="Login">用户登录</div>
+<div class="auth-wrap">
+  <div class="auth-card glass">
+    <h2 data-zh="登 录" data-en="Sign In">登 录</h2>
+    <div class="sub" data-zh="欢迎回来" data-en="Welcome back">欢迎回来</div>
+    <div class="form-group">
+      <label>USERNAME</label>
+      <input type="text" placeholder="请输入用户名" data-zh-placeholder="请输入用户名" data-en-placeholder="Enter your username">
+    </div>
+    <div class="form-group">
+      <label>PASSWORD</label>
+      <input type="password" placeholder="请输入密码" data-zh-placeholder="请输入密码" data-en-placeholder="Enter your password">
+    </div>
+    <button class="btn btn-primary" data-zh="登录" data-en="Sign In">登录</button>
+    <div class="switch"><span data-zh="还没有账号？" data-en="No account yet? ">还没有账号？</span><a href="#" data-zh="立即注册" data-en="Register">立即注册</a></div>
+  </div>
+</div>
+
+<!-- ===== CHECKIN ===== -->
+<div class="section-tag" data-zh="活动签到" data-en="Check-in">活动签到</div>
+<div class="checkin-wrap">
+  <div class="checkin-card glass">
+    <div class="event-label" data-zh="新学期迎新晚会" data-en="Welcome Party">新学期迎新晚会</div>
+    <h2 data-zh="活 动 签 到" data-en="CHECK IN">活 动 签 到</h2>
+    <input type="text" placeholder="输入签到码" data-zh-placeholder="输入签到码" data-en-placeholder="Enter check-in code">
+    <button class="btn btn-primary" style="width:100%;justify-content:center" data-zh="签到" data-en="Check In">签到</button>
+  </div>
+</div>
+
+<!-- ===== ADMIN ===== -->
+<div class="section-tag" data-zh="管理面板" data-en="Admin Dashboard">管理面板</div>
+<div class="admin-wrap">
+  <div class="stat-row">
+    <div class="stat-card glass accent-edge"><div class="num">128</div><div class="label" data-zh="注册用户" data-en="Users">注册用户</div></div>
+    <div class="stat-card glass accent-edge"><div class="num">12</div><div class="label" data-zh="活动总数" data-en="Events">活动总数</div></div>
+    <div class="stat-card glass green-edge"><div class="num">356</div><div class="label" data-zh="报名人次" data-en="Registrations">报名人次</div></div>
+    <div class="stat-card glass green-edge"><div class="num">289</div><div class="label" data-zh="签到人次" data-en="Check-ins">签到人次</div></div>
+  </div>
+  <div class="admin-table glass">
+    <div class="admin-table-head">
+      <div data-zh="活动名称" data-en="Event">活动名称</div>
+      <div data-zh="报名" data-en="Signed Up">报名</div>
+      <div data-zh="签到率" data-en="Check-in Rate">签到率</div>
+      <div data-zh="操作" data-en="Action">操作</div>
+    </div>
+    <div class="admin-row">
+      <div class="name" data-zh="新学期迎新晚会" data-en="Welcome Party">新学期迎新晚会</div>
+      <div class="num">42</div>
+      <div><span class="progress"><span class="fill" style="width:85%"></span></span>85%</div>
+      <div><a href="#" class="card-link" data-zh="查看" data-en="View">查看</a></div>
+    </div>
+    <div class="admin-row">
+      <div class="name" data-zh="Python 编程工作坊" data-en="Python Workshop">Python 编程工作坊</div>
+      <div class="num">50</div>
+      <div><span class="progress"><span class="fill" style="width:92%"></span></span>92%</div>
+      <div><a href="#" class="card-link" data-zh="查看" data-en="View">查看</a></div>
+    </div>
+    <div class="admin-row">
+      <div class="name" data-zh="校园马拉松" data-en="Campus Marathon">校园马拉松</div>
+      <div class="num">38</div>
+      <div><span class="progress"><span class="fill" style="width:0%"></span></span>—</div>
+      <div><a href="#" class="card-link" data-zh="查看" data-en="View">查看</a></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.querySelectorAll('#themeToggle button').forEach(b => b.classList.remove('active'));
+  document.querySelector('#themeToggle button[onclick="setTheme(\'' + t + '\')"]').classList.add('active');
+}
+function setLang(l) {
+  document.querySelectorAll('[data-zh]').forEach(el => {
+    el.textContent = el.getAttribute('data-' + l);
+  });
+  document.querySelectorAll('[data-zh-placeholder]').forEach(el => {
+    el.placeholder = el.getAttribute('data-' + l + '-placeholder');
+  });
+  document.querySelectorAll('#langToggle button').forEach(b => b.classList.remove('active'));
+  document.querySelector('#langToggle button[onclick="setLang(\'' + l + '\')"]').classList.add('active');
+}
+</script>
+
+</body>
+</html>

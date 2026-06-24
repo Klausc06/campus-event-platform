@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}活动列表 - 校园活动平台{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1 data-zh="探 索 校 园 活 动" data-en="Explore Campus Events">探 索 校 园 活 动</h1>
+    <div class="subtitle" data-zh="发现身边正在发生的精彩" data-en="Discover what's happening around you">发现身边正在发生的精彩</div>
+    <div class="accent-line"></div>
+</section>
+
+<div class="search-wrap">
+    <form method="get" class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" name="q" value="{{ q }}" placeholder="搜索活动名称或地点..." data-zh-placeholder="搜索活动名称或地点..." data-en-placeholder="Search events or locations...">
+    </form>
+</div>
+
+{% if current_user.is_authenticated %}
+<div style="padding: 0 32px; margin-bottom: 16px; max-width: 680px;">
+    <a href="{{ url_for('event.create') }}" class="btn btn-primary" data-zh="创建新活动" data-en="Create Event">创建新活动</a>
+</div>
+{% endif %}
+
+<div class="cards">
+    {% for event in events %}
+    <div class="card glass" style="animation-delay: {{ loop.index0 * 80 }}ms">
+        <div class="card-header">
+            <h3>{{ event.title }}</h3>
+            {% if event.start_time %}
+            <span class="tag soon">{{ event.start_time.strftime('%m-%d') }}</span>
+            {% endif %}
+        </div>
+        <div class="meta">
+            {{ event.start_time.strftime('%Y-%m-%d %H:%M') }}
+            {% if event.location %}
+            <span class="sep">/</span> {{ event.location }}
+            {% endif %}
+        </div>
+        {% if event.description %}
+        <div class="desc">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</div>
+        {% endif %}
+        <div class="card-footer">
+            {% if event.is_full %}
+            <span class="badge full" data-zh="名额已满" data-en="Full">{{ event.registered_count }}/{{ event.max_participants }}</span>
+            {% elif event.max_participants > 0 and (event.registered_count / event.max_participants) > 0.7 %}
+            <span class="badge warn" data-zh="即将满员" data-en="Almost Full">{{ event.registered_count }}/{{ event.max_participants }}</span>
+            {% else %}
+            <span class="badge open" data-zh="报名中" data-en="Open">
+                {{ event.registered_count }}{% if event.max_participants > 0 %}/{{ event.max_participants }}{% endif %}
+            </span>
+            {% endif %}
+            <a href="{{ url_for('event.detail', id=event.id) }}" class="card-link" data-zh="查看详情" data-en="View Details">查看详情</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p data-zh="暂无活动，敬请期待" data-en="No events yet. Stay tuned!">暂无活动，敬请期待</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

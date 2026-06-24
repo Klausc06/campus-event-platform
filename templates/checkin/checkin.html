@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}活动签到 - 校园活动平台{% endblock %}
+
+{% block content %}
+<div class="checkin-wrap">
+    <div class="checkin-card glass">
+        <div class="event-label">{{ event.title }}</div>
+        <h2 data-zh="活 动 签 到" data-en="CHECK IN">活 动 签 到</h2>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.code(class="form-control", placeholder="输入签到码", **{'data-zh-placeholder': '输入签到码', 'data-en-placeholder': 'Enter check-in code', 'autofocus': 'true'}) }}
+            </div>
+            {{ form.submit(class="btn btn-primary", style="width:100%;justify-content:center") }}
+        </form>
+    </div>
+</div>
+{% endblock %}

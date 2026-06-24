@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实验报告——基于Flask的校园活动报名与签到平台</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --primary: #1a1a2e;
+    --accent: #4361ee;
+    --text: #2b2b2b;
+    --muted: #666;
+    --bg: #fff;
+    --table-header: #e8edf5;
+    --table-stripe: #f8f9fc;
+    --border: #d0d5dd;
+    --code-bg: #f4f6fa;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.8;
+    font-size: 14px;
+  }
+
+  @media print {
+    body { font-size: 12pt; }
+    .page-break { page-break-before: always; }
+    .no-break { page-break-inside: avoid; }
+    .cover { page-break-after: always; }
+    .toc { page-break-after: always; }
+    nav { display: none; }
+  }
+
+  @media screen {
+    .report-body { max-width: 900px; margin: 0 auto; padding: 40px 60px; }
+  }
+
+  @media print {
+    .report-body { padding: 0; max-width: 100%; }
+  }
+
+  /* Cover */
+  .cover {
+    text-align: center;
+    padding: 120px 40px 80px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .cover h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+  }
+  .cover .subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    margin-bottom: 60px;
+  }
+  .cover .project-name {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 60px;
+    padding: 12px 40px;
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    display: inline-block;
+  }
+  .cover .meta-table {
+    width: 360px;
+    margin: 0 auto;
+    text-align: left;
+  }
+  .cover .meta-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+  }
+  .cover .meta-table td:first-child {
+    font-weight: 600;
+    width: 100px;
+    color: var(--muted);
+  }
+  .cover .meta-table td:last-child {
+    border-bottom: 1px dotted var(--border);
+  }
+  .cover .date {
+    margin-top: 60px;
+    font-size: 16px;
+    color: var(--muted);
+  }
+
+  /* TOC */
+  .toc { padding: 40px 0; }
+  .toc h2 { text-align: center; margin-bottom: 30px; font-size: 20px; }
+  .toc ol { list-style: none; counter-reset: toc; max-width: 500px; margin: 0 auto; }
+  .toc li {
+    counter-increment: toc;
+    padding: 8px 0;
+    border-bottom: 1px dotted var(--border);
+    font-size: 15px;
+  }
+  .toc li a {
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    justify-content: space-between;
+  }
+  .toc li a:hover { color: var(--accent); }
+  .toc li a::before { content: counter(toc) ". "; font-weight: 600; }
+
+  /* Headings */
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 50px 0 20px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent);
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary);
+    margin: 30px 0 12px;
+  }
+  h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 20px 0 8px;
+  }
+
+  p { margin: 10px 0; text-align: justify; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--table-header);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  tr:nth-child(even) td { background: var(--table-stripe); }
+
+  /* Code */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 12px 0;
+    overflow-x: auto;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    page-break-inside: avoid;
+  }
+  code {
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 12.5px;
+  }
+  p code, li code {
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+
+  /* Code syntax colors */
+  .kw { color: #7c3aed; font-weight: 600; }
+  .fn { color: #2563eb; }
+  .st { color: #059669; }
+  .cm { color: #9ca3af; font-style: italic; }
+  .dc { color: #d97706; }
+  .num { color: #dc2626; }
+  .op { color: #6366f1; }
+  .cls { color: #0891b2; font-weight: 600; }
+
+  /* Lists */
+  ul, ol { margin: 10px 0 10px 24px; }
+  li { margin: 4px 0; }
+
+  /* Mermaid */
+  .mermaid {
+    text-align: center;
+    margin: 20px 0;
+    padding: 16px;
+    background: var(--table-stripe);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  /* Nav */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    z-index: 100;
+    font-size: 13px;
+  }
+  nav a {
+    color: var(--text);
+    text-decoration: none;
+    margin-right: 16px;
+    font-family: "DM Sans", sans-serif;
+  }
+  nav a:hover { color: var(--accent); }
+  @media print { nav { display: none; } }
+  @media screen { .cover { padding-top: 160px; } }
+
+  /* Highlight box */
+  .note {
+    background: #eff6ff;
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+  }
+
+  /* Project tree */
+  .tree {
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 13px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    line-height: 1.7;
+  }
+
+  /* Color swatch */
+  .color-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+  .color-swatch {
+    width: 32px; height: 32px; border-radius: 6px;
+    border: 1px solid var(--border); flex-shrink: 0;
+  }
+
+  /* Status badge */
+  .pass {
+    display: inline-block;
+    background: #dcfce7;
+    color: #166534;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .section { margin-bottom: 40px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#cover">封面</a>
+  <a href="#s1">实验目的</a>
+  <a href="#s2">需求分析</a>
+  <a href="#s3">系统设计</a>
+  <a href="#s4">数据库设计</a>
+  <a href="#s5">编码实现</a>
+  <a href="#s6">UI设计</a>
+  <a href="#s7">测试结果</a>
+  <a href="#s8">部署</a>
+  <a href="#s9">AI辅助</a>
+  <a href="#s10">思考题</a>
+  <a href="#s11">总结</a>
+</nav>
+
+<div class="report-body">
+
+<!-- ============ 封面 ============ -->
+<div class="cover" id="cover">
+  <h1>移动互联原理与开发技术</h1>
+  <p class="subtitle">分组综合实验——基于Flask的Web应用开发</p>
+  <div class="project-name">校园活动报名与签到平台</div>
+  <table class="meta-table">
+    <tr><td>实验课程</td><td>移动互联原理与开发技术</td></tr>
+    <tr><td>实验类型</td><td>分组综合实验</td></tr>
+    <tr><td>项目名称</td><td>校园活动报名与签到平台</td></tr>
+    <tr><td>小组成员</td><td style="height:60px;"></td></tr>
+    <tr><td>指导教师</td><td></td></tr>
+    <tr><td>所在院系</td><td></td></tr>
+    <tr><td>专业班级</td><td></td></tr>
+  </table>
+  <p class="date">2026年6月</p>
+</div>
+
+<!-- ============ 目录 ============ -->
+<div class="toc page-break">
+  <h2>目 录</h2>
+  <ol>
+    <li><a href="#s1">实验目的</a></li>
+    <li><a href="#s2">需求分析</a></li>
+    <li><a href="#s3">系统设计</a></li>
+    <li><a href="#s4">数据库设计</a></li>
+    <li><a href="#s5">编码实现</a></li>
+    <li><a href="#s6">UI设计</a></li>
+    <li><a href="#s7">测试结果</a></li>
+    <li><a href="#s8">部署与发布</a></li>
+    <li><a href="#s9">AI辅助开发说明</a></li>
+    <li><a href="#s10">思考题答案</a></li>
+    <li><a href="#s11">总结与反思</a></li>
+  </ol>
+</div>
+
+<!-- ============ 一、实验目的 ============ -->
+<h2 id="s1" class="page-break">一、实验目的</h2>
+<div class="section">
+<p>本实验旨在通过一个完整的Web应用项目开发，使学生深入理解并掌握以下核心能力：</p>
+<ol>
+  <li><strong>掌握Flask框架在项目开发中的应用流程</strong>：通过从零构建一个功能完整的Web应用，理解Flask的路由机制、模板渲染、表单处理、数据库ORM等核心概念，并能够熟练运用Flask扩展生态（Flask-SQLAlchemy、Flask-Login、Flask-Migrate等）完成实际开发任务。</li>
+  <li><strong>理解Web应用开发的系统工程方法</strong>：从需求分析、系统设计、数据库建模、编码实现到测试部署，完整经历软件工程的各个阶段，建立系统化的开发思维。</li>
+  <li><strong>熟练掌握Flask实现基本功能模块</strong>：包括用户认证（注册/登录/登出）、数据增删改查（CRUD）、表单验证、权限控制、分页查询等Web应用常见功能模块的实现。</li>
+  <li><strong>强化工程化开发意识</strong>：学习并实践项目结构组织、配置管理、环境隔离、数据库迁移、自动化测试等工程化开发规范，养成良好的编码习惯。</li>
+  <li><strong>培养团队协作和文档撰写能力</strong>：通过分组协作开发，学习版本控制、任务分工、接口约定等协作技巧，同时培养技术文档的撰写与表达能力。</li>
+</ol>
+</div>
+
+<!-- ============ 二、需求分析 ============ -->
+<h2 id="s2" class="page-break">二、需求分析</h2>
+<div class="section">
+
+<h3>2.1 功能需求</h3>
+<p>本平台面向校园场景，提供活动发布、报名、签到的全流程管理。核心功能需求如下：</p>
+<table>
+  <thead>
+    <tr><th>功能模块</th><th>功能项</th><th>描述</th></tr>
+  </thead>
+  <tbody>
+    <tr><td rowspan="3">用户系统</td><td>用户注册</td><td>新用户通过用户名、邮箱、密码注册账号，密码不少于8位</td></tr>
+    <tr><td>用户登录/登出</td><td>已注册用户通过用户名和密码登录，支持安全登出</td></tr>
+    <tr><td>密码安全</td><td>密码使用Werkzeug哈希存储，不明文保存</td></tr>
+    <tr><td rowspan="4">活动管理</td><td>创建活动</td><td>登录用户可创建活动，填写标题、描述、地点、时间、人数上限、签到码</td></tr>
+    <tr><td>编辑/删除活动</td><td>活动创建者或管理员可编辑或删除活动</td></tr>
+    <tr><td>活动列表与搜索</td><td>按时间倒序展示活动，支持按标题/地点模糊搜索</td></tr>
+    <tr><td>活动详情</td><td>展示活动完整信息、报名人数、签到人数</td></tr>
+    <tr><td rowspan="3">报名系统</td><td>活动报名</td><td>登录用户可报名参加活动，系统校验名额是否已满</td></tr>
+    <tr><td>取消报名</td><td>已报名用户可取消报名，名额自动释放</td></tr>
+    <tr><td>重复报名防护</td><td>同一用户对同一活动只能有一条有效报名记录</td></tr>
+    <tr><td rowspan="2">签到系统</td><td>签到码签到</td><td>已报名用户输入活动签到码完成签到</td></tr>
+    <tr><td>签到状态记录</td><td>记录签到时间，防止重复签到</td></tr>
+    <tr><td rowspan="3">管理面板</td><td>数据统计</td><td>管理员查看用户总数、活动总数、报名总数、签到总数</td></tr>
+    <tr><td>活动统计</td><td>每个活动的报名人数、签到人数、签到率</td></tr>
+    <tr><td>权限控制</td><td>仅管理员可访问管理面板</td></tr>
+  </tbody>
+</table>
+
+<h3>2.2 非功能需求</h3>
+<table>
+  <thead>
+    <tr><th>需求类别</th><th>具体要求</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>响应速度</td><td>页面加载时间不超过2秒，数据库查询使用索引优化</td></tr>
+    <tr><td>界面友好</td><td>采用Apple Liquid Glass设计风格，视觉效果现代简洁，操作流程清晰</td></tr>
+    <tr><td>安全性</td><td>密码哈希存储、CSRF防护、表单验证、权限校验</td></tr>
+    <tr><td>移动端适配</td><td>响应式布局，支持手机浏览器访问</td></tr>
+    <tr><td>可维护性</td><td>模块化架构，Blueprint分层，代码职责清晰</td></tr>
+    <tr><td>国际化</td><td>支持中英文界面切换</td></tr>
+  </tbody>
+</table>
+
+<h3>2.3 用户角色分析</h3>
+<table>
+  <thead>
+    <tr><th>角色</th><th>权限描述</th><th>典型操作</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>普通用户</strong></td>
+      <td>可浏览活动、报名/取消报名、签到、创建自己发起的活动</td>
+      <td>注册、登录、报名活动、签到、创建活动</td>
+    </tr>
+    <tr>
+      <td><strong>管理员</strong></td>
+      <td>拥有普通用户所有权限，另可访问管理面板、编辑/删除任意活动</td>
+      <td>查看统计数据、管理所有活动、查看签到率</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ============ 三、系统设计 ============ -->
+<h2 id="s3" class="page-break">三、系统设计</h2>
+<div class="section">
+
+<h3>3.1 系统架构设计</h3>
+<p>本项目采用Flask Application Factory模式，结合Blueprint实现模块化分层。各功能模块（认证、活动、签到、管理）独立为Blueprint，通过统一的扩展初始化和蓝图注册机制组装应用。</p>
+
+<div class="mermaid">
+graph TB
+    subgraph 入口层
+        RUN[run.py<br/>app = create_app]
+        SEED[seed.py<br/>演示数据]
+    end
+    subgraph 应用工厂
+        INIT["app/__init__.py<br/>create_app()"]
+    end
+    subgraph 扩展层
+        EXT["app/extensions.py<br/>db / login_manager / migrate / csrf"]
+    end
+    subgraph 蓝图模块
+        AUTH["auth/<br/>注册 · 登录 · 登出"]
+        EVENT["event/<br/>活动CRUD · 报名 · 取消"]
+        CHECKIN["checkin/<br/>签到验证"]
+        ADMIN["admin/<br/>数据面板 · 权限控制"]
+    end
+    subgraph 公共层
+        MODEL["models.py<br/>User · Event · Registration"]
+        FORM["forms.py<br/>WTForms表单"]
+        DEC["decorators.py<br/>admin_required"]
+        CFG["config.py<br/>Config · TestConfig"]
+    end
+    subgraph 数据层
+        DB[(SQLite<br/>app.db)]
+    end
+    RUN --> INIT
+    INIT --> EXT
+    INIT --> AUTH & EVENT & CHECKIN & ADMIN
+    AUTH & EVENT & CHECKIN & ADMIN --> MODEL & FORM
+    MODEL --> EXT
+    EXT --> DB
+    ADMIN --> DEC
+</div>
+
+<h3>3.2 模块关系图</h3>
+<p>四个功能模块通过Flask-Login共享用户会话，通过SQLAlchemy共享数据库连接，各自负责独立的业务逻辑。</p>
+
+<div class="mermaid">
+graph LR
+    AUTH[auth模块<br/>认证] -->|login_user<br/>logout_user| FL[Flask-Login]
+    EVENT[event模块<br/>活动管理] -->|current_user| FL
+    CHECKIN[checkin模块<br/>签到] -->|current_user| FL
+    ADMIN[admin模块<br/>管理面板] -->|admin_required| FL
+    AUTH --> DB[(DB)]
+    EVENT --> DB
+    CHECKIN --> DB
+    ADMIN --> DB
+    EVENT -->|Registration| MODEL[models.py]
+    CHECKIN -->|Registration| MODEL
+    ADMIN -->|User Event Registration| MODEL
+</div>
+
+<h3>3.3 ER图</h3>
+<p>系统包含三个核心实体：User（用户）、Event（活动）、Registration（报名记录）。User与Event之间通过Registration形成多对多关系。</p>
+
+<div class="mermaid">
+erDiagram
+    User ||--o{ Registration : "报名"
+    Event ||--o{ Registration : "包含"
+    User ||--o{ Event : "创建"
+    User {
+        int id PK
+        string username UK
+        string email UK
+        string password_hash
+        bool is_admin
+        datetime created_at
+    }
+    Event {
+        int id PK
+        string title
+        text description
+        string location
+        datetime start_time
+        datetime end_time
+        int max_participants
+        string checkin_code
+        int creator_id FK
+        datetime created_at
+    }
+    Registration {
+        int id PK
+        int user_id FK
+        int event_id FK
+        string status
+        datetime registered_at
+        bool checked_in
+        datetime checked_in_at
+    }
+</div>
+
+<h3>3.4 路由设计</h3>
+<table>
+  <thead>
+    <tr><th>URL</th><th>方法</th><th>视图函数</th><th>模块</th><th>说明</th><th>权限</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>/</code></td><td>GET</td><td>index</td><td>app</td><td>首页重定向到活动列表</td><td>公开</td></tr>
+    <tr><td><code>/auth/register</code></td><td>GET/POST</td><td>register</td><td>auth</td><td>用户注册</td><td>公开</td></tr>
+    <tr><td><code>/auth/login</code></td><td>GET/POST</td><td>login</td><td>auth</td><td>用户登录</td><td>公开</td></tr>
+    <tr><td><code>/auth/logout</code></td><td>POST</td><td>logout</td><td>auth</td><td>用户登出</td><td>登录</td></tr>
+    <tr><td><code>/event/</code></td><td>GET</td><td>list_events</td><td>event</td><td>活动列表+搜索</td><td>公开</td></tr>
+    <tr><td><code>/event/&lt;id&gt;</code></td><td>GET</td><td>detail</td><td>event</td><td>活动详情</td><td>公开</td></tr>
+    <tr><td><code>/event/create</code></td><td>GET/POST</td><td>create</td><td>event</td><td>创建活动</td><td>登录</td></tr>
+    <tr><td><code>/event/&lt;id&gt;/edit</code></td><td>GET/POST</td><td>edit</td><td>event</td><td>编辑活动</td><td>创建者/管理员</td></tr>
+    <tr><td><code>/event/&lt;id&gt;/delete</code></td><td>POST</td><td>delete</td><td>event</td><td>删除活动</td><td>创建者/管理员</td></tr>
+    <tr><td><code>/event/&lt;id&gt;/register</code></td><td>POST</td><td>register</td><td>event</td><td>报名活动</td><td>登录</td></tr>
+    <tr><td><code>/event/&lt;id&gt;/cancel</code></td><td>POST</td><td>cancel</td><td>event</td><td>取消报名</td><td>登录</td></tr>
+    <tr><td><code>/checkin/&lt;event_id&gt;</code></td><td>GET/POST</td><td>checkin</td><td>checkin</td><td>活动签到</td><td>登录+已报名</td></tr>
+    <tr><td><code>/admin/</code></td><td>GET</td><td>dashboard</td><td>admin</td><td>管理面板</td><td>管理员</td></tr>
+  </tbody>
+</table>
+
+<h3>3.5 技术选型</h3>
+<table>
+  <thead>
+    <tr><th>技术/库</th><th>版本</th><th>用途</th><th>选型理由</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Flask</td><td>3.x</td><td>Web框架</td><td>轻量灵活，课程指定框架</td></tr>
+    <tr><td>Flask-SQLAlchemy</td><td>3.x</td><td>ORM</td><td>Flask官方数据库扩展，简化SQLAlchemy使用</td></tr>
+    <tr><td>Flask-Login</td><td>0.6.x</td><td>用户认证</td><td>轻量级会话管理，支持remember-me</td></tr>
+    <tr><td>Flask-Migrate</td><td>4.x</td><td>数据库迁移</td><td>基于Alembic，支持版本化数据库变更</td></tr>
+    <tr><td>Flask-WTF</td><td>1.x</td><td>表单处理</td><td>CSRF保护、表单验证、WTForms集成</td></tr>
+    <tr><td>Werkzeug</td><td>3.x</td><td>WSGI工具库</td><td>密码哈希、Flask内置依赖</td></tr>
+    <tr><td>SQLite</td><td>3.x</td><td>数据库</td><td>零配置、文件型，适合课程项目和原型开发</td></tr>
+    <tr><td>pytest</td><td>8.x</td><td>测试框架</td><td>简洁的fixture机制，社区标准</td></tr>
+    <tr><td>Cpolar</td><td>-</td><td>内网穿透</td><td>可选，用于局域网外演示访问</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ============ 四、数据库设计 ============ -->
+<h2 id="s4" class="page-break">四、数据库设计</h2>
+<div class="section">
+
+<h3>4.1 User 表（用户表）</h3>
+<table>
+  <thead>
+    <tr><th>字段名</th><th>类型</th><th>约束</th><th>说明</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>id</td><td>Integer</td><td>PRIMARY KEY, AUTOINCREMENT</td><td>用户唯一标识</td></tr>
+    <tr><td>username</td><td>String(80)</td><td>UNIQUE, NOT NULL</td><td>用户名，登录凭据</td></tr>
+    <tr><td>email</td><td>String(120)</td><td>UNIQUE, NOT NULL</td><td>邮箱地址</td></tr>
+    <tr><td>password_hash</td><td>String(256)</td><td>NOT NULL</td><td>密码哈希值（Werkzeug pbkdf2）</td></tr>
+    <tr><td>is_admin</td><td>Boolean</td><td>DEFAULT False</td><td>是否为管理员</td></tr>
+    <tr><td>created_at</td><td>DateTime</td><td>DEFAULT utcnow</td><td>注册时间</td></tr>
+  </tbody>
+</table>
+
+<h3>4.2 Event 表（活动表）</h3>
+<table>
+  <thead>
+    <tr><th>字段名</th><th>类型</th><th>约束</th><th>说明</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>id</td><td>Integer</td><td>PRIMARY KEY, AUTOINCREMENT</td><td>活动唯一标识</td></tr>
+    <tr><td>title</td><td>String(200)</td><td>NOT NULL</td><td>活动标题</td></tr>
+    <tr><td>description</td><td>Text</td><td>可空</td><td>活动详细描述</td></tr>
+    <tr><td>location</td><td>String(200)</td><td>可空</td><td>活动地点</td></tr>
+    <tr><td>start_time</td><td>DateTime</td><td>NOT NULL</td><td>开始时间</td></tr>
+    <tr><td>end_time</td><td>DateTime</td><td>NOT NULL</td><td>结束时间</td></tr>
+    <tr><td>max_participants</td><td>Integer</td><td>DEFAULT 0</td><td>最大参与人数，0表示不限</td></tr>
+    <tr><td>checkin_code</td><td>String(50)</td><td>可空</td><td>签到码</td></tr>
+    <tr><td>creator_id</td><td>Integer</td><td>FK → user.id, NOT NULL</td><td>创建者ID</td></tr>
+    <tr><td>created_at</td><td>DateTime</td><td>DEFAULT utcnow</td><td>创建时间</td></tr>
+  </tbody>
+</table>
+
+<h3>4.3 Registration 表（报名表）</h3>
+<table>
+  <thead>
+    <tr><th>字段名</th><th>类型</th><th>约束</th><th>说明</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>id</td><td>Integer</td><td>PRIMARY KEY, AUTOINCREMENT</td><td>报名记录唯一标识</td></tr>
+    <tr><td>user_id</td><td>Integer</td><td>FK → user.id, NOT NULL</td><td>报名用户ID</td></tr>
+    <tr><td>event_id</td><td>Integer</td><td>FK → event.id, NOT NULL</td><td>活动ID</td></tr>
+    <tr><td>status</td><td>String(20)</td><td>DEFAULT 'confirmed'</td><td>报名状态：confirmed/cancelled</td></tr>
+    <tr><td>registered_at</td><td>DateTime</td><td>DEFAULT utcnow</td><td>报名时间</td></tr>
+    <tr><td>checked_in</td><td>Boolean</td><td>DEFAULT False</td><td>是否已签到</td></tr>
+    <tr><td>checked_in_at</td><td>DateTime</td><td>可空</td><td>签到时间</td></tr>
+  </tbody>
+</table>
+
+<h3>4.4 关系说明</h3>
+<ul>
+  <li><strong>User → Registration</strong>：一对多关系。一个用户可以报名多个活动。<code>db.relationship('Registration', backref='user', lazy='dynamic')</code></li>
+  <li><strong>Event → Registration</strong>：一对多关系。一个活动可以有多条报名记录。<code>db.relationship('Registration', backref='event', lazy='dynamic', cascade='all, delete-orphan')</code></li>
+  <li><strong>User → Event</strong>：一对多关系（创建者）。一个用户可以创建多个活动。<code>db.relationship('User', backref='created_events')</code></li>
+  <li><strong>User ↔ Event</strong>：通过Registration表实现多对多关系，报名状态和签到信息存储在Registration中。</li>
+</ul>
+
+<h3>4.5 约束说明</h3>
+<ul>
+  <li><strong>UniqueConstraint('user_id', 'event_id')</strong>：确保同一用户对同一活动只能有一条报名记录，防止重复报名。</li>
+  <li><strong>cascade='all, delete-orphan'</strong>：Event删除时，关联的Registration记录自动级联删除，避免孤立数据。</li>
+  <li><strong>UNIQUE约束</strong>：User表的username和email字段均设置唯一约束，防止重复注册。</li>
+  <li><strong>NOT NULL约束</strong>：关键业务字段（如username、email、password_hash、title、start_time等）不允许为空。</li>
+</ul>
+</div>
+
+<!-- ============ 五、编码实现 ============ -->
+<h2 id="s5" class="page-break">五、编码实现</h2>
+<div class="section">
+
+<h3>5.1 项目结构</h3>
+<div class="tree">
+campus-event-platform/<br>
+├── app/<br>
+│   ├── __init__.py          <span class="cm"># 应用工厂 create_app()</span><br>
+│   ├── extensions.py        <span class="cm"># 扩展实例化</span><br>
+│   ├── models.py            <span class="cm"># 数据模型</span><br>
+│   ├── forms.py             <span class="cm"># 表单定义</span><br>
+│   ├── decorators.py        <span class="cm"># 自定义装饰器</span><br>
+│   ├── auth/<br>
+│   │   ├── __init__.py      <span class="cm"># auth_bp 蓝图定义</span><br>
+│   │   └── routes.py        <span class="cm"># 注册/登录/登出路由</span><br>
+│   ├── event/<br>
+│   │   ├── __init__.py      <span class="cm"># event_bp 蓝图定义</span><br>
+│   │   └── routes.py        <span class="cm"># 活动CRUD/报名/取消路由</span><br>
+│   ├── checkin/<br>
+│   │   ├── __init__.py      <span class="cm"># checkin_bp 蓝图定义</span><br>
+│   │   └── routes.py        <span class="cm"># 签到路由</span><br>
+│   └── admin/<br>
+│       ├── __init__.py      <span class="cm"># admin_bp 蓝图定义</span><br>
+│       └── routes.py        <span class="cm"># 管理面板路由</span><br>
+├── templates/               <span class="cm"># Jinja2模板</span><br>
+├── static/                  <span class="cm"># 静态资源</span><br>
+├── tests/<br>
+│   ├── __init__.py<br>
+│   ├── conftest.py          <span class="cm"># pytest fixtures</span><br>
+│   ├── test_auth.py         <span class="cm"># 认证模块测试</span><br>
+│   ├── test_event.py        <span class="cm"># 活动模块测试</span><br>
+│   └── test_checkin.py      <span class="cm"># 签到模块测试</span><br>
+├── config.py                <span class="cm"># 配置类</span><br>
+├── run.py                   <span class="cm"># 启动入口</span><br>
+├── seed.py                  <span class="cm"># 演示数据脚本</span><br>
+└── requirements.txt         <span class="cm"># 依赖清单</span>
+</div>
+
+<h3>5.2 应用工厂函数 <code>create_app()</code></h3>
+<p>采用Application Factory模式，支持创建不同配置的应用实例（开发/测试），便于测试和部署。</p>
+<pre><code><span class="cm"># app/__init__.py</span>
+<span class="kw">import</span> os
+<span class="kw">from</span> flask <span class="kw">import</span> Flask, redirect, url_for
+<span class="kw">from</span> config <span class="kw">import</span> Config
+<span class="kw">from</span> app.extensions <span class="kw">import</span> csrf, db, login_manager, migrate
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+<span class="kw">def</span> <span class="fn">create_app</span>(config_class=Config):
+    app = <span class="cls">Flask</span>(
+        __name__,
+        template_folder=os.path.join(BASE_DIR, <span class="st">"templates"</span>),
+        static_folder=os.path.join(BASE_DIR, <span class="st">"static"</span>),
+    )
+    app.config.from_object(config_class)
+
+    <span class="cm"># 初始化扩展</span>
+    db.init_app(app)
+    login_manager.init_app(app)
+    migrate.init_app(app, db)
+    csrf.init_app(app)
+
+    <span class="cm"># 注册蓝图</span>
+    <span class="kw">from</span> app.auth <span class="kw">import</span> auth_bp
+    <span class="kw">from</span> app.event <span class="kw">import</span> event_bp
+    <span class="kw">from</span> app.checkin <span class="kw">import</span> checkin_bp
+    <span class="kw">from</span> app.admin <span class="kw">import</span> admin_bp
+
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(event_bp)
+    app.register_blueprint(checkin_bp)
+    app.register_blueprint(admin_bp)
+
+    <span class="dc">@app.route</span>(<span class="st">'/'</span>)
+    <span class="kw">def</span> <span class="fn">index</span>():
+        <span class="kw">return</span> redirect(url_for(<span class="st">'event.list_events'</span>))
+
+    <span class="kw">return</span> app</code></pre>
+
+<h3>5.3 扩展初始化 <code>extensions.py</code></h3>
+<p>将Flask扩展实例单独存放，避免循环导入。各扩展在<code>create_app()</code>中通过<code>init_app()</code>绑定应用。</p>
+<pre><code><span class="cm"># app/extensions.py</span>
+<span class="kw">from</span> flask_login <span class="kw">import</span> LoginManager
+<span class="kw">from</span> flask_migrate <span class="kw">import</span> Migrate
+<span class="kw">from</span> flask_sqlalchemy <span class="kw">import</span> SQLAlchemy
+<span class="kw">from</span> flask_wtf <span class="kw">import</span> CSRFProtect
+
+db = <span class="cls">SQLAlchemy</span>()
+login_manager = <span class="cls">LoginManager</span>()
+login_manager.login_view = <span class="st">"auth.login"</span>
+migrate = <span class="cls">Migrate</span>()
+csrf = <span class="cls">CSRFProtect</span>()</code></pre>
+
+<h3>5.4 User 模型</h3>
+<p>User模型继承Flask-Login的<code>UserMixin</code>，提供认证所需的<code>is_authenticated</code>等属性。密码使用Werkzeug的<code>generate_password_hash</code>进行哈希处理。</p>
+<pre><code><span class="cm"># app/models.py (User部分)</span>
+<span class="kw">class</span> <span class="cls">User</span>(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=<span class="kw">True</span>)
+    username = db.Column(db.String(<span class="num">80</span>), unique=<span class="kw">True</span>, nullable=<span class="kw">False</span>)
+    email = db.Column(db.String(<span class="num">120</span>), unique=<span class="kw">True</span>, nullable=<span class="kw">False</span>)
+    password_hash = db.Column(db.String(<span class="num">256</span>), nullable=<span class="kw">False</span>)
+    is_admin = db.Column(db.Boolean, default=<span class="kw">False</span>)
+    created_at = db.Column(db.DateTime, default=<span class="kw">lambda</span>: datetime.now(timezone.utc))
+
+    registrations = db.relationship(<span class="st">'Registration'</span>, backref=<span class="st">'user'</span>, lazy=<span class="st">'dynamic'</span>)
+
+    <span class="kw">def</span> <span class="fn">set_password</span>(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    <span class="kw">def</span> <span class="fn">check_password</span>(self, password):
+        <span class="kw">return</span> check_password_hash(self.password_hash, password)
+
+
+<span class="dc">@login_manager.user_loader</span>
+<span class="kw">def</span> <span class="fn">load_user</span>(user_id):
+    <span class="kw">return</span> db.session.get(User, <span class="cls">int</span>(user_id))</code></pre>
+
+<h3>5.5 Event 模型</h3>
+<p>Event模型通过<code>@property</code>装饰器封装报名人数、签到人数等计算逻辑，保持模板代码简洁。</p>
+<pre><code><span class="cm"># app/models.py (Event部分)</span>
+<span class="kw">class</span> <span class="cls">Event</span>(db.Model):
+    id = db.Column(db.Integer, primary_key=<span class="kw">True</span>)
+    title = db.Column(db.String(<span class="num">200</span>), nullable=<span class="kw">False</span>)
+    description = db.Column(db.Text)
+    location = db.Column(db.String(<span class="num">200</span>))
+    start_time = db.Column(db.DateTime, nullable=<span class="kw">False</span>)
+    end_time = db.Column(db.DateTime, nullable=<span class="kw">False</span>)
+    max_participants = db.Column(db.Integer, default=<span class="num">0</span>)
+    checkin_code = db.Column(db.String(<span class="num">50</span>))
+    creator_id = db.Column(db.Integer, db.ForeignKey(<span class="st">'user.id'</span>), nullable=<span class="kw">False</span>)
+    created_at = db.Column(db.DateTime, default=<span class="kw">lambda</span>: datetime.now(timezone.utc))
+
+    creator = db.relationship(<span class="st">'User'</span>, backref=<span class="st">'created_events'</span>)
+    registrations = db.relationship(<span class="st">'Registration'</span>, backref=<span class="st">'event'</span>,
+                                    lazy=<span class="st">'dynamic'</span>, cascade=<span class="st">'all, delete-orphan'</span>)
+
+    <span class="dc">@property</span>
+    <span class="kw">def</span> <span class="fn">registered_count</span>(self):
+        <span class="kw">return</span> self.registrations.filter_by(status=<span class="st">'confirmed'</span>).count()
+
+    <span class="dc">@property</span>
+    <span class="kw">def</span> <span class="fn">is_full</span>(self):
+        <span class="kw">if</span> self.max_participants == <span class="num">0</span>:
+            <span class="kw">return</span> <span class="kw">False</span>
+        <span class="kw">return</span> self.registered_count >= self.max_participants</code></pre>
+
+<h3>5.6 注册路由</h3>
+<p>注册流程：验证表单 → 检查用户名/邮箱唯一性 → 创建用户 → 重定向到登录页。密码通过<code>set_password()</code>哈希后存储。</p>
+<pre><code><span class="cm"># app/auth/routes.py</span>
+<span class="dc">@auth_bp.route</span>(<span class="st">'/register'</span>, methods=[<span class="st">'GET'</span>, <span class="st">'POST'</span>])
+<span class="kw">def</span> <span class="fn">register</span>():
+    <span class="kw">if</span> current_user.is_authenticated:
+        <span class="kw">return</span> redirect(url_for(<span class="st">'event.list_events'</span>))
+    form = <span class="cls">RegisterForm</span>()
+    <span class="kw">if</span> form.validate_on_submit():
+        <span class="kw">if</span> User.query.filter_by(username=form.username.data).first():
+            flash(<span class="st">'用户名已存在'</span>, <span class="st">'danger'</span>)
+            <span class="kw">return</span> render_template(<span class="st">'auth/register.html'</span>, form=form)
+        <span class="kw">if</span> User.query.filter_by(email=form.email.data).first():
+            flash(<span class="st">'邮箱已被注册'</span>, <span class="st">'danger'</span>)
+            <span class="kw">return</span> render_template(<span class="st">'auth/register.html'</span>, form=form)
+        user = <span class="cls">User</span>(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash(<span class="st">'注册成功，请登录'</span>, <span class="st">'success'</span>)
+        <span class="kw">return</span> redirect(url_for(<span class="st">'auth.login'</span>))
+    <span class="kw">return</span> render_template(<span class="st">'auth/register.html'</span>, form=form)</code></pre>
+
+<h3>5.7 登录路由</h3>
+<p>登录流程：查询用户 → 校验密码 → 调用<code>login_user()</code>建立会话 → 重定向到next参数或首页。</p>
+<pre><code><span class="cm"># app/auth/routes.py</span>
+<span class="dc">@auth_bp.route</span>(<span class="st">'/login'</span>, methods=[<span class="st">'GET'</span>, <span class="st">'POST'</span>])
+<span class="kw">def</span> <span class="fn">login</span>():
+    <span class="kw">if</span> current_user.is_authenticated:
+        <span class="kw">return</span> redirect(url_for(<span class="st">'event.list_events'</span>))
+    form = <span class="cls">LoginForm</span>()
+    <span class="kw">if</span> form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        <span class="kw">if</span> user <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> <span class="kw">not</span> user.check_password(form.password.data):
+            flash(<span class="st">'用户名或密码错误'</span>, <span class="st">'danger'</span>)
+            <span class="kw">return</span> render_template(<span class="st">'auth/login.html'</span>, form=form)
+        login_user(user)
+        next_page = request.args.get(<span class="st">'next'</span>)
+        <span class="kw">return</span> redirect(next_page <span class="kw">or</span> url_for(<span class="st">'event.list_events'</span>))
+    <span class="kw">return</span> render_template(<span class="st">'auth/login.html'</span>, form=form)</code></pre>
+
+<h3>5.8 报名路由</h3>
+<p>报名逻辑处理三种情况：已取消的重新报名、已报名的提示、新报名。同时校验名额上限。</p>
+<pre><code><span class="cm"># app/event/routes.py</span>
+<span class="dc">@event_bp.route</span>(<span class="st">'/&lt;int:id&gt;/register'</span>, methods=[<span class="st">'POST'</span>])
+<span class="dc">@login_required</span>
+<span class="kw">def</span> <span class="fn">register</span>(id):
+    event = db.get_or_404(Event, id)
+    existing = Registration.query.filter_by(
+        user_id=current_user.id, event_id=event.id
+    ).first()
+    <span class="kw">if</span> existing:
+        <span class="kw">if</span> existing.status == <span class="st">'cancelled'</span>:
+            <span class="kw">if</span> event.is_full:
+                flash(<span class="st">'名额已满，无法重新报名'</span>, <span class="st">'warning'</span>)
+                <span class="kw">return</span> redirect(url_for(<span class="st">'event.detail'</span>, id=event.id))
+            existing.status = <span class="st">'confirmed'</span>
+            db.session.commit()
+            flash(<span class="st">'已重新报名'</span>, <span class="st">'success'</span>)
+        <span class="kw">else</span>:
+            flash(<span class="st">'您已报名此活动'</span>, <span class="st">'info'</span>)
+    <span class="kw">else</span>:
+        <span class="kw">if</span> event.is_full:
+            flash(<span class="st">'名额已满，无法报名'</span>, <span class="st">'warning'</span>)
+            <span class="kw">return</span> redirect(url_for(<span class="st">'event.detail'</span>, id=event.id))
+        reg = <span class="cls">Registration</span>(user_id=current_user.id, event_id=event.id)
+        db.session.add(reg)
+        db.session.commit()
+        flash(<span class="st">'报名成功'</span>, <span class="st">'success'</span>)
+    <span class="kw">return</span> redirect(url_for(<span class="st">'event.detail'</span>, id=event.id))</code></pre>
+
+<h3>5.9 签到路由</h3>
+<p>签到流程：校验活动存在 → 校验已报名 → 校验未签到 → 比对签到码 → 更新签到状态和时间。</p>
+<pre><code><span class="cm"># app/checkin/routes.py</span>
+<span class="dc">@checkin_bp.route</span>(<span class="st">'/&lt;int:event_id&gt;'</span>, methods=[<span class="st">'GET'</span>, <span class="st">'POST'</span>])
+<span class="dc">@login_required</span>
+<span class="kw">def</span> <span class="fn">checkin</span>(event_id):
+    event = db.session.get(Event, event_id)
+    <span class="kw">if</span> <span class="kw">not</span> event:
+        flash(<span class="st">'活动不存在'</span>, <span class="st">'warning'</span>)
+        <span class="kw">return</span> redirect(url_for(<span class="st">'event.list_events'</span>))
+
+    reg = Registration.query.filter_by(
+        user_id=current_user.id, event_id=event_id, status=<span class="st">'confirmed'</span>,
+    ).first()
+
+    <span class="kw">if</span> <span class="kw">not</span> reg:
+        flash(<span class="st">'你尚未报名此活动，无法签到'</span>, <span class="st">'warning'</span>)
+        <span class="kw">return</span> redirect(url_for(<span class="st">'event.detail'</span>, id=event_id))
+
+    <span class="kw">if</span> reg.checked_in:
+        flash(<span class="st">'你已经签到过了'</span>, <span class="st">'info'</span>)
+        <span class="kw">return</span> redirect(url_for(<span class="st">'event.detail'</span>, id=event_id))
+
+    form = <span class="cls">CheckinForm</span>()
+    <span class="kw">if</span> form.validate_on_submit():
+        <span class="kw">if</span> form.code.data.strip() == event.checkin_code:
+            reg.checked_in = <span class="kw">True</span>
+            reg.checked_in_at = datetime.now(timezone.utc)
+            db.session.commit()
+            flash(<span class="st">'签到成功！'</span>, <span class="st">'success'</span>)
+            <span class="kw">return</span> redirect(url_for(<span class="st">'event.detail'</span>, id=event_id))
+        <span class="kw">else</span>:
+            flash(<span class="st">'签到码错误'</span>, <span class="st">'danger'</span>)
+
+    <span class="kw">return</span> render_template(<span class="st">'checkin/checkin.html'</span>, form=form, event=event)</code></pre>
+
+<h3>5.10 管理面板路由</h3>
+<p>管理面板使用<code>before_request</code>钩子统一校验管理员权限，统计全局数据并计算每个活动的签到率。</p>
+<pre><code><span class="cm"># app/admin/routes.py</span>
+<span class="dc">@admin_bp.before_request</span>
+<span class="dc">@login_required</span>
+<span class="dc">@admin_required</span>
+<span class="kw">def</span> <span class="fn">require_admin</span>():
+    <span class="kw">pass</span>
+
+<span class="dc">@admin_bp.route</span>(<span class="st">'/'</span>)
+<span class="kw">def</span> <span class="fn">dashboard</span>():
+    total_users = User.query.count()
+    total_events = Event.query.count()
+    total_registrations = Registration.query.filter_by(status=<span class="st">'confirmed'</span>).count()
+    total_checkins = Registration.query.filter_by(
+        status=<span class="st">'confirmed'</span>, checked_in=<span class="kw">True</span>
+    ).count()
+
+    events = Event.query.order_by(Event.created_at.desc()).all()
+    event_stats = []
+    <span class="kw">for</span> event <span class="kw">in</span> events:
+        registered = event.registered_count
+        checked = event.checked_in_count
+        rate = <span class="cls">round</span>(checked / registered * <span class="num">100</span>, <span class="num">1</span>) <span class="kw">if</span> registered > <span class="num">0</span> <span class="kw">else</span> <span class="num">0</span>
+        event_stats.append({
+            <span class="st">'event'</span>: event, <span class="st">'registered'</span>: registered,
+            <span class="st">'checked_in'</span>: checked, <span class="st">'rate'</span>: rate,
+        })
+
+    <span class="kw">return</span> render_template(<span class="st">'admin/dashboard.html'</span>, **<span class="cls">locals</span>())</code></pre>
+
+<h3>5.11 权限装饰器</h3>
+<p>自定义<code>admin_required</code>装饰器，配合Flask-Login的<code>current_user</code>实现基于角色的访问控制。</p>
+<pre><code><span class="cm"># app/decorators.py</span>
+<span class="kw">from</span> functools <span class="kw">import</span> wraps
+<span class="kw">from</span> flask <span class="kw">import</span> abort
+<span class="kw">from</span> flask_login <span class="kw">import</span> current_user
+
+<span class="kw">def</span> <span class="fn">admin_required</span>(f):
+    <span class="dc">@wraps</span>(f)
+    <span class="kw">def</span> <span class="fn">decorated_function</span>(*args, **kwargs):
+        <span class="kw">if</span> <span class="kw">not</span> current_user.is_admin:
+            abort(<span class="num">403</span>)
+        <span class="kw">return</span> f(*args, **kwargs)
+    <span class="kw">return</span> decorated_function</code></pre>
+</div>
+
+<!-- ============ 六、UI设计 ============ -->
+<h2 id="s6" class="page-break">六、UI设计</h2>
+<div class="section">
+
+<h3>6.1 设计理念</h3>
+<p>本项目UI采用<strong>Apple Liquid Glass</strong>风格，灵感来源于macOS/iOS的毛玻璃（Frosted Glass）视觉语言。核心设计理念为：</p>
+<ul>
+  <li><strong>通透感</strong>：通过<code>backdrop-filter: blur()</code>实现毛玻璃效果，营造层次丰富的视觉纵深</li>
+  <li><strong>轻量感</strong>：大面积留白、细线边框、低饱和度配色，减少视觉压迫</li>
+  <li><strong>一致性</strong>：统一的圆角、阴影、间距规范，确保各页面风格协调</li>
+  <li><strong>可访问性</strong>：支持浅色/深色主题、中英文切换，满足不同使用场景</li>
+</ul>
+
+<h3>6.2 色彩方案</h3>
+<table>
+  <thead>
+    <tr><th>变量名</th><th>浅色主题</th><th>深色主题</th><th>用途</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--glass-bg</code></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:rgba(255,255,255,0.7)"></span>rgba(255,255,255,0.7)</span></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:rgba(30,30,30,0.7)"></span>rgba(30,30,30,0.7)</span></td>
+      <td>毛玻璃卡片背景</td>
+    </tr>
+    <tr>
+      <td><code>--glass-border</code></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:rgba(255,255,255,0.3)"></span>rgba(255,255,255,0.3)</span></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:rgba(255,255,255,0.1)"></span>rgba(255,255,255,0.1)</span></td>
+      <td>毛玻璃边框</td>
+    </tr>
+    <tr>
+      <td><code>--accent</code></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:#4361ee"></span>#4361ee</span></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:#6381ff"></span>#6381ff</span></td>
+      <td>主色调/强调色</td>
+    </tr>
+    <tr>
+      <td><code>--text-primary</code></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:#1a1a2e"></span>#1a1a2e</span></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:#e0e0e0"></span>#e0e0e0</span></td>
+      <td>主要文字</td>
+    </tr>
+    <tr>
+      <td><code>--text-secondary</code></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:#666"></span>#666666</span></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:#999"></span>#999999</span></td>
+      <td>次要文字</td>
+    </tr>
+    <tr>
+      <td><code>--bg-gradient</code></td>
+      <td colspan="2" style="text-align:center;">线性渐变背景（蓝紫系）</td>
+      <td>页面背景渐变</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>6.3 字体选择</h3>
+<ul>
+  <li><strong>中文正文</strong>：Noto Serif SC（思源宋体）—— 适合长文阅读，学术气质</li>
+  <li><strong>英文/数字</strong>：DM Sans —— Google Fonts几何无衬线体，现代简洁</li>
+  <li><strong>代码</strong>：SF Mono / Fira Code —— 等宽字体，支持连字</li>
+  <li>通过<code>font-family</code>回退链确保跨平台兼容</li>
+</ul>
+
+<h3>6.4 毛玻璃效果实现原理</h3>
+<p>毛玻璃效果通过CSS <code>backdrop-filter</code>属性实现，核心代码如下：</p>
+<pre><code>.glass-card {
+    background: <span class="kw">var</span>(--glass-bg);            <span class="cm">/* 半透明背景 */</span>
+    backdrop-filter: <span class="fn">blur</span>(20px);             <span class="cm">/* 核心：背景模糊 */</span>
+    -webkit-backdrop-filter: <span class="fn">blur</span>(20px);    <span class="cm">/* Safari兼容 */</span>
+    border: <span class="num">1</span>px solid <span class="kw">var</span>(--glass-border);  <span class="cm">/* 细边框增加立体感 */</span>
+    border-radius: <span class="num">16</span>px;                     <span class="cm">/* 大圆角 */</span>
+    box-shadow: <span class="num">0</span> <span class="num">8</span>px <span class="num">32</span>px <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.1</span>);  <span class="cm">/* 柔和阴影 */</span>
+}</code></pre>
+<p>工作原理：<code>backdrop-filter: blur(20px)</code>会对元素背后的内容应用高斯模糊，配合半透明背景色，呈现出类似磨砂玻璃的视觉效果。</p>
+
+<h3>6.5 响应式设计说明</h3>
+<p>采用移动优先的响应式策略，通过CSS媒体查询适配不同屏幕尺寸：</p>
+<ul>
+  <li><strong>移动端</strong>（&lt;768px）：单列布局，卡片全宽，导航折叠为汉堡菜单</li>
+  <li><strong>平板</strong>（768px-1024px）：双列卡片网格，侧边栏可折叠</li>
+  <li><strong>桌面</strong>（&gt;1024px）：三列卡片网格，固定侧边导航</li>
+  <li>使用<code>clamp()</code>函数实现流体排版，字体大小随视口平滑缩放</li>
+</ul>
+
+<h3>6.6 暗色模式实现</h3>
+<p>通过CSS自定义属性（CSS Variables）和<code>prefers-color-scheme</code>媒体查询实现：</p>
+<pre><code><span class="cm">/* 浅色主题（默认） */</span>
+:root {
+    --glass-bg: <span class="fn">rgba</span>(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>,<span class="num">0.7</span>);
+    --text-primary: <span class="num">#1a1a2e</span>;
+}
+
+<span class="cm">/* 深色主题（系统偏好） */</span>
+<span class="dc">@media</span> (<span class="kw">prefers-color-scheme</span>: dark) {
+    :root {
+        --glass-bg: <span class="fn">rgba</span>(<span class="num">30</span>,<span class="num">30</span>,<span class="num">30</span>,<span class="num">0.7</span>);
+        --text-primary: <span class="num">#e0e0e0</span>;
+    }
+}
+
+<span class="cm">/* 手动切换：在 &lt;html&gt; 上添加 data-theme="dark" */</span>
+[data-theme=<span class="st">"dark"</span>] {
+    --glass-bg: <span class="fn">rgba</span>(<span class="num">30</span>,<span class="num">30</span>,<span class="num">30</span>,<span class="num">0.7</span>);
+    --text-primary: <span class="num">#e0e0e0</span>;
+}</code></pre>
+
+<h3>6.7 中英文切换实现</h3>
+<p>通过JavaScript动态切换页面语言属性，配合<code>i18n</code>字典对象实现界面文本的中英文切换：</p>
+<ul>
+  <li>所有界面文本抽取到语言字典中，通过<code>data-i18n</code>属性标记可翻译元素</li>
+  <li>切换时遍历所有标记元素，更新<code>textContent</code></li>
+  <li>用户语言偏好存储在<code>localStorage</code>中，下次访问自动应用</li>
+</ul>
+</div>
+
+<!-- ============ 七、测试结果 ============ -->
+<h2 id="s7" class="page-break">七、测试结果</h2>
+<div class="section">
+
+<h3>7.1 测试框架</h3>
+<p>项目使用 <strong>pytest</strong> 作为测试框架，配合Flask的<code>test_client()</code>进行集成测试。测试数据库使用内存SQLite（<code>sqlite:///:memory:</code>），每个测试用例独立创建和销毁数据库，确保测试隔离。</p>
+
+<h3>7.2 测试Fixtures设计</h3>
+<pre><code><span class="cm"># tests/conftest.py</span>
+<span class="dc">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">app</span>():
+    app = create_app(TestConfig)
+    <span class="kw">with</span> app.app_context():
+        db.create_all()
+        <span class="kw">yield</span> app
+        db.drop_all()
+
+<span class="dc">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">client</span>(app):
+    <span class="kw">return</span> app.test_client()
+
+<span class="dc">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">auth_client</span>(client):
+    client.post(<span class="st">'/auth/register'</span>, data={
+        <span class="st">'username'</span>: <span class="st">'testuser'</span>, <span class="st">'email'</span>: <span class="st">'test@test.com'</span>,
+        <span class="st">'password'</span>: <span class="st">'testpass123'</span>, <span class="st">'confirm'</span>: <span class="st">'testpass123'</span>
+    })
+    client.post(<span class="st">'/auth/login'</span>, data={
+        <span class="st">'username'</span>: <span class="st">'testuser'</span>, <span class="st">'password'</span>: <span class="st">'testpass123'</span>
+    })
+    <span class="kw">return</span> client</code></pre>
+
+<h3>7.3 测试用例表格</h3>
+<table>
+  <thead>
+    <tr><th>模块</th><th>用例名称</th><th>预期结果</th><th>实际结果</th><th>状态</th></tr>
+  </thead>
+  <tbody>
+    <tr><td rowspan="4">认证模块</td><td>注册成功</td><td>302重定向到登录页</td><td>302 → /auth/login</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>注册重复用户名</td><td>提示"用户名已存在"</td><td>页面包含"用户名已存在"</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>登录成功</td><td>302重定向</td><td>302</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>登录错误密码</td><td>提示"用户名或密码错误"</td><td>页面包含错误提示</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>登出模块</td><td>登出成功</td><td>302重定向到登录页</td><td>302 → /auth/login</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td rowspan="5">活动模块</td><td>活动列表（空）</td><td>200 OK</td><td>200</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>创建活动（已登录）</td><td>302重定向</td><td>302</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>创建活动（未登录）</td><td>302重定向到登录页</td><td>302 → login</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>活动详情</td><td>200，包含活动标题</td><td>200，包含"Test Event"</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>删除活动</td><td>302重定向到列表</td><td>302 → /event/</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td rowspan="5">签到模块</td><td>报名活动</td><td>302重定向</td><td>302</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>正确签到码签到</td><td>提示"签到成功"</td><td>页面包含"签到成功"</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>错误签到码</td><td>提示"签到码错误"</td><td>页面包含"签到码错误"</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>未报名签到</td><td>提示"尚未报名"</td><td>页面包含"尚未报名"</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>重复签到</td><td>提示"已经签到过了"</td><td>页面包含"已经签到过了"</td><td><span class="pass">PASS</span></td></tr>
+  </tbody>
+</table>
+
+<h3>7.4 测试覆盖率说明</h3>
+<p>测试覆盖了所有核心业务流程：</p>
+<ul>
+  <li><strong>认证模块</strong>：注册（成功/重复用户名）、登录（成功/错误密码）、登出 —— 共5个用例</li>
+  <li><strong>活动模块</strong>：列表查询、创建（登录/未登录）、详情、编辑、删除 —— 共5个用例</li>
+  <li><strong>签到模块</strong>：报名、正确签到、错误签到码、未报名签到、重复签到 —— 共5个用例</li>
+  <li>共计 <strong>15个</strong> 测试用例，全部通过</li>
+</ul>
+</div>
+
+<!-- ============ 八、部署与发布 ============ -->
+<h2 id="s8" class="page-break">八、部署与发布</h2>
+<div class="section">
+
+<h3>8.1 本地部署步骤</h3>
+<pre><code><span class="cm"># 1. 克隆项目</span>
+git clone &lt;repo-url&gt;
+cd campus-event-platform
+
+<span class="cm"># 2. 创建虚拟环境</span>
+python -m venv venv
+source venv/bin/activate        <span class="cm"># macOS/Linux</span>
+<span class="cm"># venv\Scripts\activate         # Windows</span>
+
+<span class="cm"># 3. 安装依赖</span>
+pip install -r requirements.txt
+
+<span class="cm"># 4. 初始化数据库</span>
+flask db init
+flask db migrate -m <span class="st">"initial"</span>
+flask db upgrade
+
+<span class="cm"># 5. (可选) 填充演示数据</span>
+python seed.py
+
+<span class="cm"># 6. 启动开发服务器</span>
+python run.py</code></pre>
+
+<h3>8.2 依赖安装</h3>
+<p>项目依赖通过 <code>requirements.txt</code> 管理：</p>
+<pre><code>Flask>=3.0
+Flask-SQLAlchemy>=3.1
+Flask-Login>=0.6
+Flask-Migrate>=4.0
+Flask-WTF>=1.2
+Werkzeug>=3.0
+pytest>=8.0</code></pre>
+
+<h3>8.3 演示数据说明</h3>
+<p>运行 <code>python seed.py</code> 可自动生成以下演示数据：</p>
+<table>
+  <thead>
+    <tr><th>类型</th><th>账号</th><th>密码</th><th>说明</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>管理员</td><td>admin</td><td>admin123456</td><td>可访问管理面板</td></tr>
+    <tr><td>学生1-5</td><td>student1 ~ student5</td><td>12345678</td><td>普通用户</td></tr>
+  </tbody>
+</table>
+<p>同时生成5个校园活动（迎新晚会、Python工作坊、校园马拉松、职业规划讲座、电影放映之夜），以及部分报名和签到记录。</p>
+
+<h3>8.4 Cpolar局域网穿透（可选）</h3>
+<p>如需在校外或局域网外访问本地开发服务器，可使用Cpolar进行内网穿透：</p>
+<pre><code><span class="cm"># 1. 安装 Cpolar</span>
+<span class="cm"># 访问 https://www.cpolar.com 注册并下载</span>
+
+<span class="cm"># 2. 启动本地 Flask 服务</span>
+python run.py
+
+<span class="cm"># 3. 启动 Cpolar 隧道</span>
+cpolar http <span class="num">5000</span>
+
+<span class="cm"># 4. Cpolar 会分配一个公网 URL，如：</span>
+<span class="cm"># https://xxxx.cpolar.top</span>
+<span class="cm"># 通过该 URL 即可从外部访问本地服务</span></code></pre>
+</div>
+
+<!-- ============ 九、AI辅助开发说明 ============ -->
+<h2 id="s9" class="page-break">九、AI辅助开发说明</h2>
+<div class="section">
+
+<h3>9.1 AI工具</h3>
+<p>本项目开发过程中使用了 <strong>MiMo Code Agent</strong>（小米MiMo团队开发的AI编程助手）作为辅助开发工具。MiMo Code Agent具备代码生成、架构设计、代码审查、测试生成等能力，贯穿了项目开发的多个环节。</p>
+
+<h3>9.2 应用环节</h3>
+<table>
+  <thead>
+    <tr><th>开发环节</th><th>AI辅助内容</th><th>产出物</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>需求分析</td>
+      <td>AI调研同类校园活动平台的功能特性，梳理核心功能清单</td>
+      <td>功能需求列表、用户角色定义</td>
+    </tr>
+    <tr>
+      <td>架构设计</td>
+      <td>AI推荐Application Factory + Blueprint分层架构，设计模块划分方案</td>
+      <td>项目结构、路由设计表、ER图</td>
+    </tr>
+    <tr>
+      <td>UI设计</td>
+      <td>AI生成Liquid Glass风格的HTML/CSS前端代码，包含毛玻璃效果、响应式布局、暗色模式</td>
+      <td>模板文件、CSS样式表</td>
+    </tr>
+    <tr>
+      <td>代码生成</td>
+      <td>AI生成数据模型、路由处理器、表单定义、模板骨架等核心代码</td>
+      <td>models.py、routes.py、forms.py等</td>
+    </tr>
+    <tr>
+      <td>测试用例</td>
+      <td>AI基于业务逻辑生成pytest测试用例，覆盖认证、活动、签到模块</td>
+      <td>test_auth.py、test_event.py、test_checkin.py</td>
+    </tr>
+    <tr>
+      <td>代码审查</td>
+      <td>AI执行<code>make-interfaces-feel-better</code>审核，检查UI细节（阴影、圆角、排版、动画）</td>
+      <td>UI优化建议与修复</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>9.3 代码审查流程</h3>
+<p>本项目采用<strong>"实现→审核→修复→再审→通过"</strong>的迭代审查流程：</p>
+<ol>
+  <li><strong>实现</strong>：开发者（或AI辅助）完成功能代码的编写</li>
+  <li><strong>审核</strong>：AI使用<code>make-interfaces-feel-better</code>技能对UI代码进行审查，检查视觉细节（阴影层次、圆角一致性、字体渲染、动画过渡等）</li>
+  <li><strong>修复</strong>：根据AI审查反馈，修复发现的问题</li>
+  <li><strong>再审</strong>：AI对修复后的代码进行二次审查，确认问题已解决</li>
+  <li><strong>通过</strong>：审查通过后，代码进入最终集成</li>
+</ol>
+
+<h3>9.4 人工审查与验证</h3>
+<div class="note">
+<strong>重要说明</strong>：所有AI生成的代码均经过团队成员的人工审查和功能验证。具体包括：
+<ul>
+  <li>逐行审查AI生成的代码，确保逻辑正确、符合项目规范</li>
+  <li>在本地环境中运行测试，验证功能行为符合预期</li>
+  <li>对AI推荐的架构方案进行讨论和评估后采用</li>
+  <li>UI代码经过多轮人工调整，确保视觉效果达到设计要求</li>
+</ul>
+AI作为辅助工具，最终的代码质量和技术决策由团队成员负责。
+</div>
+</div>
+
+<!-- ============ 十、思考题答案 ============ -->
+<h2 id="s10" class="page-break">十、思考题答案</h2>
+<div class="section">
+
+<h3>Q1：需求分析的重要性？如何避免需求不明确？</h3>
+<p><strong>需求分析是软件开发的基石。</strong>在本项目开发初期，我们通过需求分析明确了"活动报名+签到"的核心业务流程，避免了开发过程中的方向偏离。如果需求分析不充分，可能导致开发出的功能与用户实际需求不匹配，造成返工和资源浪费。</p>
+<p>避免需求不明确的方法包括：（1）<strong>用户故事驱动</strong>：以"作为XX，我希望能XX，以便XX"的格式描述需求，确保每个功能都有明确的使用者和使用场景；（2）<strong>原型验证</strong>：在编码前制作低保真原型，让团队成员和潜在用户提前体验交互流程；（3）<strong>迭代细化</strong>：采用敏捷开发方式，将大需求拆分为小的用户故事，每个迭代聚焦核心功能，逐步完善；（4）<strong>文档化</strong>：将需求以结构化文档的形式记录，包括功能需求表、非功能需求、用户角色定义等，作为开发的参考基准。</p>
+
+<h3>Q2：为何不用app.run()作为生产服务器？WSGI服务器的作用？</h3>
+<p><strong>Flask内置的开发服务器（app.run()）不适合生产环境。</strong>Flask官方文档明确指出，内置服务器是为开发便利而设计的，默认单线程处理请求，性能和安全性均无法满足生产需求。它不支持并发处理、缺乏安全加固（如HTTPS、请求超时），且未经过安全审计。</p>
+<p><strong>WSGI服务器</strong>（如Gunicorn、uWSGI）是生产环境的标准选择。WSGI（Web Server Gateway Interface）定义了Python Web应用与Web服务器之间的标准接口。WSGI服务器的作用包括：（1）<strong>并发处理</strong>：通过多worker进程/线程同时处理多个请求，提升吞吐量；（2）<strong>进程管理</strong>：自动管理worker进程的生命周期，支持优雅重启；（3）<strong>安全隔离</strong>：将应用进程与HTTP请求处理分离，减少攻击面；（4）<strong>反向代理集成</strong>：通常配合Nginx使用，Nginx处理静态文件和负载均衡，WSGI服务器运行Python应用。</p>
+<p>生产部署示例：<code>gunicorn -w 4 -b 0.0.0.0:8000 "app:create_app()"</code></p>
+
+<h3>Q3：如何通过Flask实现用户认证和权限管理？</h3>
+<p><strong>Flask-Login是Flask生态中最常用的认证扩展。</strong>在本项目中，用户认证的实现分为以下几个层面：</p>
+<p>（1）<strong>会话管理</strong>：Flask-Login通过<code>login_user(user)</code>将用户ID存储在安全的Cookie中，后续请求通过<code>@login_required</code>装饰器验证用户是否已登录。<code>current_user</code>代理对象提供对当前登录用户的全局访问。</p>
+<p>（2）<strong>密码安全</strong>：使用Werkzeug的<code>generate_password_hash()</code>对密码进行PBKDF2哈希处理后存储，验证时使用<code>check_password_hash()</code>比对，避免明文存储密码。</p>
+<p>（3）<strong>权限管理</strong>：通过User模型的<code>is_admin</code>字段区分角色，配合自定义的<code>@admin_required</code>装饰器实现基于角色的访问控制（RBAC）。管理蓝图使用<code>before_request</code>钩子统一拦截非管理员请求。</p>
+<p>（4）<strong>CSRF防护</strong>：Flask-WTF的<code>CSRFProtect</code>为所有POST表单自动生成和验证CSRF Token，防止跨站请求伪造攻击。</p>
+
+<h3>Q4：访问量增大时如何优化Flask应用性能？</h3>
+<p><strong>当访问量增大时，可从以下几个层面优化Flask应用性能：</strong></p>
+<p>（1）<strong>数据库优化</strong>：为高频查询字段（如<code>Registration.user_id</code>、<code>Registration.event_id</code>）添加数据库索引；使用<code>joinedload()</code>或<code>subqueryload()</code>预加载关联数据，减少N+1查询问题；对复杂统计查询使用原生SQL或数据库视图。</p>
+<p>（2）<strong>缓存策略</strong>：引入Redis或Memcached作为缓存层，缓存活动列表、用户会话等高频读取数据；使用Flask-Caching扩展实现视图级缓存；对静态资源配置CDN和浏览器缓存。</p>
+<p>（3）<strong>应用服务器优化</strong>：使用Gunicorn等WSGI服务器增加worker数量；配合Nginx作为反向代理，处理静态文件和负载均衡；使用异步框架（如Quart）或Celery处理耗时任务。</p>
+<p>（4）<strong>架构层面</strong>：引入读写分离（主从数据库）；对大表进行分表或分区；使用消息队列解耦高并发写操作；考虑容器化部署（Docker + Kubernetes）实现水平扩展。</p>
+</div>
+
+<!-- ============ 十一、总结与反思 ============ -->
+<h2 id="s11" class="page-break">十一、总结与反思</h2>
+<div class="section">
+
+<h3>11.1 项目收获</h3>
+<p>通过本项目的完整开发，我们在以下方面获得了显著提升：</p>
+<ul>
+  <li><strong>Flask框架实战能力</strong>：从路由定义、模板渲染到数据库ORM，完整掌握了Flask Web开发的核心技术栈。特别是Application Factory模式和Blueprint分层架构的实践，让我们理解了大型Flask项目的组织方式。</li>
+  <li><strong>全栈开发思维</strong>：从后端Python代码到前端HTML/CSS/JavaScript，从数据库设计到API路由，建立了全栈开发的系统性认知。</li>
+  <li><strong>工程化开发习惯</strong>：学会了使用虚拟环境隔离依赖、通过配置类管理不同环境、使用数据库迁移工具管理schema变更、编写自动化测试保障代码质量。</li>
+  <li><strong>团队协作能力</strong>：通过Git版本控制、任务分工、代码审查等协作实践，提升了团队开发的效率和规范性。</li>
+  <li><strong>AI辅助开发经验</strong>：探索了AI工具在软件开发中的应用方式，学会了如何有效地利用AI辅助需求分析、代码生成和代码审查，同时也认识到人工审查和验证的不可替代性。</li>
+</ul>
+
+<h3>11.2 遇到的问题与解决方案</h3>
+<table>
+  <thead>
+    <tr><th>问题</th><th>原因分析</th><th>解决方案</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>循环导入</td>
+      <td>模型和扩展之间的互相引用</td>
+      <td>将扩展实例抽取到独立的<code>extensions.py</code>，在工厂函数中初始化</td>
+    </tr>
+    <tr>
+      <td>测试数据库隔离</td>
+      <td>测试间数据相互影响</td>
+      <td>使用内存SQLite + 每个测试用例独立create/drop</td>
+    </tr>
+    <tr>
+      <td>CSRF Token冲突</td>
+      <td>测试时CSRF验证导致POST请求失败</td>
+      <td>测试配置中设置<code>WTF_CSRF_ENABLED = False</code></td>
+    </tr>
+    <tr>
+      <td>毛玻璃兼容性</td>
+      <td>Safari需要<code>-webkit-</code>前缀</td>
+      <td>同时使用<code>backdrop-filter</code>和<code>-webkit-backdrop-filter</code></td>
+    </tr>
+    <tr>
+      <td>时区处理</td>
+      <td>本地时间与UTC时间不一致</td>
+      <td>统一使用<code>datetime.now(timezone.utc)</code>存储UTC时间</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>11.3 工程化开发流程体会</h3>
+<p>本次实验让我们深刻体会到，<strong>软件开发不仅仅是编写代码，更是一个系统工程</strong>。一个完整的开发流程包括需求分析、系统设计、编码实现、测试验证、部署上线等多个环节，每个环节都有其独特的价值和不可替代性。</p>
+<p>在需求分析阶段投入的时间，可以在后续开发中节省数倍的返工成本。良好的架构设计可以显著降低代码的维护难度。自动化测试虽然前期需要投入时间编写，但可以在后续迭代中快速发现回归问题，保障系统稳定性。</p>
+<p>特别值得一提的是，<strong>AI辅助开发</strong>正在改变传统的开发模式。AI工具在代码生成、架构建议、代码审查等方面展现了强大的能力，但同时也需要开发者具备判断AI产出质量的能力。AI是工具而非替代品，最终的技术决策和质量把控仍然需要人来完成。</p>
+</div>
+
+</div><!-- end report-body -->
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose',
+    er: { useMaxWidth: true },
+    flowchart: { useMaxWidth: true, htmlLabels: true },
+    themeVariables: {
+      fontSize: '14px',
+      fontFamily: '"DM Sans", "Noto Sans SC", sans-serif'
+    }
+  });
+</script>
+
+</body>
+</html>

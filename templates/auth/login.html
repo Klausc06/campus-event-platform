@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}登录 - 校园活动平台{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+    <div class="auth-card glass">
+        <h2 data-zh="登 录" data-en="Sign In">登 录</h2>
+        <div class="sub" data-zh="欢迎回来" data-en="Welcome back">欢迎回来</div>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.username.label }}
+                {{ form.username(class="form-control", placeholder="请输入用户名", **{'data-zh-placeholder': '请输入用户名', 'data-en-placeholder': 'Enter your username'}) }}
+            </div>
+            <div class="form-group">
+                {{ form.password.label }}
+                {{ form.password(class="form-control", placeholder="请输入密码", **{'data-zh-placeholder': '请输入密码', 'data-en-placeholder': 'Enter your password'}) }}
+            </div>
+            {{ form.submit(class="btn btn-primary", style="width:100%;justify-content:center") }}
+        </form>
+        <div class="switch">
+            <span data-zh="还没有账号？" data-en="No account yet? ">还没有账号？</span>
+            <a href="{{ url_for('auth.register') }}" data-zh="立即注册" data-en="Register">立即注册</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}编辑活动 - 校园活动平台{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1 data-zh="编 辑 活 动" data-en="Edit Event">编 辑 活 动</h1>
+    <div class="accent-line"></div>
+</section>
+
+<div class="auth-wrap">
+    <div class="auth-card glass" style="max-width: 520px;">
+        <h2 data-zh="编辑" data-en="Edit">编辑</h2>
+        <div class="sub">{{ event.title }}</div>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.title.label }}
+                {{ form.title(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.description.label }}
+                {{ form.description(class="form-control", rows=4) }}
+            </div>
+            <div class="form-group">
+                {{ form.location.label }}
+                {{ form.location(class="form-control") }}
+                <div class="form-helper" data-zh="线下场地请注明楼栋及房间号" data-en="Include building and room number for in-person events">线下场地请注明楼栋及房间号</div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    {{ form.start_time.label }}
+                    {{ form.start_time(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.end_time.label }}
+                    {{ form.end_time(class="form-control") }}
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.max_participants.label }}
+                {{ form.max_participants(class="form-control") }}
+                <div class="form-helper" data-zh="填写 0 表示不限制参与人数" data-en="Enter 0 for unlimited capacity">填写 0 表示不限制参与人数</div>
+            </div>
+            <div class="form-group">
+                {{ form.checkin_code.label }}
+                {{ form.checkin_code(class="form-control") }}
+                <div class="form-helper" data-zh="参与者需要输入此码完成签到" data-en="Participants enter this code to check in">参与者需要输入此码完成签到</div>
+            </div>
+            <div class="actions" style="margin-top: 16px;">
+                {{ form.submit(class="btn btn-primary") }}
+                <a href="{{ url_for('event.detail', id=event.id) }}" class="btn btn-glass" data-zh="取消" data-en="Cancel">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
