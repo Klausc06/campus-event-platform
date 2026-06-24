@@ -32,7 +32,7 @@
 |---------|-------------|
 | **Liquid Glass Design** | Apple WWDC25风格毛玻璃效果，40px backdrop-filter blur，折射高光，同心圆角 |
 | **Dark/Light Theme** | 深浅主题切换，CSS变量驱动，localStorage持久化 |
-| **Chinese/English** | 中英文界面切换，data-zh/data-en属性，JS动态替换 |
+| **Chinese/English** | 中英文界面切换，translations.py字典 + Jinja2 t()函数，双语DB字段 |
 | **Responsive** | 移动端优先，640px断点，Bootstrap 5网格 |
 | **Micro-interactions** | 卡片悬浮上浮、按钮scale(0.96)点击反馈、滚动淡入动画、Flash消息自动消失 |
 | **Accessibility** | 最小40x40px触摸区域、font-variant-numeric: tabular-nums、text-wrap: balance |
@@ -173,6 +173,7 @@ campus-event-platform/
 │   ├── forms.py             # WTForms: LoginForm, RegisterForm, EventForm, CheckinForm
 │   ├── decorators.py        # @admin_required decorator
 │   ├── logging.py           # structured logging + request tracing
+│   ├── translations.py      # i18n dictionary (120+ entries), t() and t_category() functions
 │   ├── auth/
 │   │   ├── __init__.py      # auth_bp (url_prefix=/auth)
 │   │   └── routes.py        # register, login, logout (POST-only)
@@ -201,10 +202,13 @@ campus-event-platform/
 │   ├── test_event.py        # event CRUD + registration tests
 │   ├── test_checkin.py      # check-in flow tests
 │   └── test_errors.py       # error handler tests
+├── api/
+│   └── index.py             # Vercel serverless entry point (imports create_app)
 ├── config.py                # Config, TestConfig
 ├── run.py                   # entry point
-├── seed.py                  # demo data seeder
+├── seed.py                  # demo data seeder (includes bilingual title_en/description_en)
 ├── requirements.txt         # pinned dependencies
+├── vercel.json              # Vercel deployment config (@vercel/python + @vercel/static)
 ├── DESIGN.md                # design system documentation (Chinese)
 ├── report.html              # lab report with Mermaid diagrams
 ├── index.html               # redirects to report.html
@@ -281,6 +285,16 @@ campus-event-platform/
 - **How to use**: Apply `@admin_required` on any route function. Must be used **after** `@login_required` (decorator order: outermost first).
 - **Dependencies**: Imports `abort` from Flask, `current_user` from Flask-Login. Imported by `app/admin/routes.py`.
 - **Gotchas**: Decorator order matters. `@login_required` must be applied before `@admin_required` (i.e., `@login_required` should be the outer decorator). If reversed, `current_user` may be anonymous.
+
+---
+
+#### `app/translations.py` — i18n Dictionary
+
+- **What it does**: Contains the `TRANSLATIONS` dictionary (zh/en, 120+ entries) and two functions: `t(key, lang)` for general text translation and `t_category(cat, lang)` for category name translation. Registered as Jinja2 globals in `create_app()`.
+- **How to add a new language**: Add a new key (e.g., `"ja"`) to `TRANSLATIONS` with all entries, update `t()` and `t_category()` to support the new language, add a toggle button in `base.html`.
+- **How to add a new translation key**: Add the key to both `"zh"` and `"en"` dicts in `TRANSLATIONS`, then use `{{ t("new_key", lang) }}` in templates.
+- **Dependencies**: Imported by `app/__init__.py`. Used by all templates via Jinja2 globals.
+- **Gotchas**: `t()` returns the key itself as fallback if a translation is missing — always ensure both zh and en entries exist. The `lang` variable must be passed to templates (set via cookie/session in `before_request`).
 
 ---
 
@@ -497,6 +511,15 @@ campus-event-platform/
 
 ---
 
+#### `api/index.py` — Vercel Serverless Entry Point
+
+- **What it does**: Entry point for Vercel's `@vercel/python` builder. Imports `create_app()`, auto-creates database tables, and seeds demo data on first request. All HTTP requests are routed here via `vercel.json`.
+- **How it works**: `vercel.json` maps all routes to `api/index.py`. The `@vercel/python` builder runs this as a WSGI app. SQLite uses `/tmp/app.db` (ephemeral, resets on cold start).
+- **Dependencies**: Imports `create_app` from `app`, `db` from `app.extensions`, `seed_data` from `seed`.
+- **Gotchas**: `/tmp` is ephemeral on Vercel — data resets on cold start. Logging must use console only (no file write). Do not store persistent data in SQLite on Vercel.
+
+---
+
 #### `config.py` — Configuration
 
 - **What it does**: Defines `Config` class (dev config with SQLite, CSRF enabled, secret key from env) and `TestConfig` (in-memory SQLite, CSRF disabled, testing mode).
@@ -619,6 +642,8 @@ campus-event-platform/
 | GET | `/admin/export/<event_id>` | ✓+admin | CSV export for single event |
 | GET | `/admin/export/all` | ✓+admin | CSV export for all registrations |
 | GET | `/admin/logs` | ✓+admin | Log viewer panel |
+| POST | `/api/translate` | — | Translation API (CSRF-exempt, zh↔en dictionary) |
+| GET | `/api/events` | — | Bilingual event list JSON (title_en, description_en, etc.) |
 
 ## Data Models
 
@@ -627,10 +652,13 @@ User (1) ──── (*) Registration (*) ──── (1) Event
   │                                         │
   ├── id                                    ├── id
   ├── username (unique)                     ├── title
-  ├── email (unique)                        ├── description
-  ├── password_hash                         ├── location
-  ├── is_admin                              ├── start_time / end_time
-  └── created_at                                                                        ├── max_participants
+  ├── email (unique)                        ├── title_en (bilingual)
+  ├── password_hash                         ├── description
+  ├── is_admin                              ├── description_en (bilingual)
+  └── created_at                            ├── location
+                                            ├── location_en (bilingual)
+                                            ├── start_time / end_time
+                                            ├── max_participants
                                             ├── checkin_code
                                             ├── category (enum: 学术/体育/文艺/社交/志愿服务/其他)
                                             ├── creator_id → User
@@ -732,6 +760,35 @@ qr_b64 = base64.b64encode(buf.getvalue()).decode()
 ```
 
 **Why**: Generating QR codes server-side with the `qrcode` library avoids client-side JS dependencies and works without JavaScript. The image is embedded as a base64 data URI — no external hosting or static file management needed.
+
+### Global i18n via Jinja2 `t()` Function
+
+```python
+# app/translations.py — 120+ entries in TRANSLATIONS dict
+def t(key, lang="zh"): ...
+def t_category(cat, lang="zh"): ...
+
+# app/__init__.py — register as Jinja2 globals
+app.jinja_env.globals['t'] = t
+app.jinja_env.globals['t_category'] = t_category
+```
+
+**Why**: Server-side dictionary lookup in Jinja2 templates replaces the earlier `data-zh`/`data-en` attribute approach. Centralizes all UI strings in one file, supports easy addition of new languages, and avoids client-side JS text replacement. Event model adds `title_en`, `description_en`, `location_en` for pre-translated bilingual DB fields.
+
+### Global CSS Rules (Font, Tabular-Nums, Balance)
+
+```css
+h1, h2, h3, h4, h5, h6, .desc, .hero p {
+    font-family: "Noto Serif SC", "Songti SC", serif;
+}
+.nav, .btn, .badge, .pill, .page-btn, .stat-card label {
+    font-family: "DM Sans", "Noto Serif SC", sans-serif;
+}
+body, td, th, p, li { font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, h5, h6 { text-wrap: balance; }
+```
+
+**Why**: One selector list per global rule (font-family hierarchy, tabular-nums, text-wrap:balance, container centering) instead of per-component declarations. Reduces CSS duplication and ensures consistent typography across all components.
 
 ### CSV Export with UTF-8 BOM
 

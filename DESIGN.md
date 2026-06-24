@@ -30,8 +30,8 @@
 | `--bg` | `#EDEAE4` | 页面背景 |
 | `--bg-gradient` | `linear-gradient(160deg, #EDEAE4 0%, #E4DED5 50%, #DDD7CE 100%)` | 渐变背景 |
 | `--ink` | `#1A1A1A` | 主文字 |
-| `--ink-secondary` | `#4A4A4A` | 次要文字 |
-| `--ink-muted` | `#8A8A8A` | 弱化文字 |
+| `--ink-secondary` | `#3A3A3A` | 次要文字 |
+| `--ink-muted` | `#5A5A5A` | 弱化文字 |
 | `--accent` | `#C45A3A` | 主题强调色（赤陶色） |
 | `--accent-hover` | `#B04E32` | 强调色 hover |
 | `--accent-soft` | `rgba(196,90,58,0.12)` | 强调色淡底 |
@@ -220,7 +220,9 @@
 
 ### 卡片 (.card + .glass)
 
-- 继承 `.glass` 所有效果
+- 继承 `.glass` 效果，但移除装饰性边框和伪元素：
+  - `border: none`（无边框，更干净的外观）
+  - 不使用 `::before` / `::after` 伪元素（去除顶部折射光线和内部折射渐变）
 - 入场动画：`cardEnter` keyframes，0.4s ease，从 `translateY(12px)` 滑入
 - 多卡片使用 stagger animation（通过 CSS delay 实现）
 - 内部结构：`.card-header` + `.meta` + `.desc` + `.card-footer`
@@ -546,43 +548,177 @@ function setTheme(t) {
 
 ---
 
-## 8. 多语言支持
+## 8. 多语言支持（i18n 系统）
 
-### 实现机制
+### 架构概述
 
-使用 `data-zh` 和 `data-en` 属性存储双语文本：
+项目采用 **服务端 i18n 字典 + Jinja2 全局函数** 的方案，取代早期的 `data-zh`/`data-en` 属性方案。核心文件为 `app/translations.py`，包含 120+ 条翻译条目。
 
-```html
-<a data-zh="活动" data-en="Events">活动</a>
-<button data-zh="退出" data-en="Logout">退出</button>
+### translations.py 结构
+
+```python
+# app/translations.py
+TRANSLATIONS = {
+    "zh": {
+        "page_title": "校园活动平台",
+        "nav_events": "活动",
+        "nav_admin": "管理面板",
+        "btn_register": "报名",
+        "btn_cancel": "取消报名",
+        "btn_checkin": "签到",
+        # ... 120+ 条目
+    },
+    "en": {
+        "page_title": "Campus Events",
+        "nav_events": "Events",
+        "nav_admin": "Admin",
+        "btn_register": "Register",
+        "btn_cancel": "Cancel",
+        "btn_checkin": "Check In",
+        # ... 120+ 条目
+    }
+}
+
+def t(key, lang="zh"):
+    """翻译函数：根据 key 和语言返回对应文本"""
+    return TRANSLATIONS.get(lang, {}).get(key, key)
+
+def t_category(cat, lang="zh"):
+    """分类翻译：将中文分类名转为英文或保持中文"""
+    CATEGORIES = {"学术": "Academic", "体育": "Sports", "文艺": "Arts",
+                  "社交": "Social", "志愿服务": "Volunteering", "其他": "Other"}
+    if lang == "en":
+        return CATEGORIES.get(cat, cat)
+    return cat
 ```
 
-### setLang() 函数
+### Jinja2 全局函数注册
 
-```javascript
-function setLang(l) {
-    // 更新文本内容
-    document.querySelectorAll('[data-zh]').forEach(function(el) {
-        el.textContent = el.getAttribute('data-' + l);
-    });
-    // 更新 placeholder
-    document.querySelectorAll('[data-zh-placeholder]').forEach(function(el) {
-        el.placeholder = el.getAttribute('data-' + l + '-placeholder');
-    });
-    // 更新 toggle 按钮状态
-    // 持久化到 localStorage
-    localStorage.setItem('lang', l);
+在 `create_app()` 中将 `t` 和 `t_category` 注册为 Jinja2 全局函数：
+
+```python
+from app.translations import t, t_category
+app.jinja_env.globals['t'] = t
+app.jinja_env.globals['t_category'] = t_category
+```
+
+### 模板使用方式
+
+```html
+<!-- 静态文本使用 t() 函数 -->
+<a href="{{ url_for('event.list_events') }}">{{ t("nav_events", lang) }}</a>
+<button>{{ t("btn_register", lang) }}</button>
+
+<!-- 分类名使用 t_category() -->
+<span>{{ t_category(event.category, lang) }}</span>
+```
+
+### 双语数据库字段
+
+Event 模型新增 `title_en`、`description_en`、`location_en` 字段，用于预翻译的英文内容：
+
+```python
+class Event(db.Model):
+    title = db.Column(db.String(200), nullable=False)          # 中文标题
+    title_en = db.Column(db.String(200))                        # 英文标题
+    description = db.Column(db.Text)                            # 中文描述
+    description_en = db.Column(db.Text)                         # 英文描述
+    location = db.Column(db.String(200))                        # 中文地点
+    location_en = db.Column(db.String(200))                     # 英文地点
+```
+
+在 `seed.py` 中预填充英文翻译，模板中根据 `lang` 变量选择显示哪个字段。
+
+---
+
+## 8b. CSS 架构规则
+
+### 全局 vs 局部规则
+
+CSS 采用 **全局选择器列表** 统一规则，避免逐元素重复声明：
+
+```css
+/* 字体层次：衬线用于标题和正文，无衬线用于 UI 元素 */
+h1, h2, h3, h4, h5, h6,
+.detail-body, .desc, .hero p {
+    font-family: "Noto Serif SC", "Songti SC", serif;
+}
+
+.nav, .btn, .badge, .pill, .page-btn, .stat-card label,
+.form-label, .admin-table th, .footer {
+    font-family: "DM Sans", "Noto Serif SC", sans-serif;
+}
+
+/* 数字等宽 */
+body, td, th, p, li, .stat-number, .badge, .rate {
+    font-variant-numeric: tabular-nums;
+}
+
+/* 标题平衡换行 */
+h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+}
+
+/* 容器居中 */
+.report-body, .main-content, .container {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
 }
 ```
 
-### 扩展指南
+### 设计原则
 
-添加新语言（如日语）：
+- **一处声明，全局生效**：一个选择器列表覆盖所有适用元素，不为每个组件单独写 `font-family`
+- **font-family 层次**：衬线（Noto Serif SC）用于标题/正文/描述，无衬线（DM Sans）用于导航/按钮/标签/表格
+- **tabular-nums 全局**：所有数字显示区域使用等宽数字，避免布局跳动
+- **text-wrap: balance**：所有标题使用平衡换行，避免单字成行
 
-1. 在 HTML 元素上添加 `data-ja="日本語"` 属性
-2. 在 `setLang()` 函数中添加对 `data-ja` 的处理
-3. 在语言 toggle 中添加新按钮：`<button onclick="setLang('ja')">JP</button>`
-4. 在 `localStorage` 键名中保持 `'lang'` 不变
+---
+
+## 8c. Translation API
+
+### POST /api/translate
+
+翻译 API 端点，支持中英双向翻译。CSRF 豁免，供前端异步调用。
+
+```python
+# app/__init__.py 或单独的 api blueprint
+@app.route('/api/translate', methods=['POST'])
+@csrf.exempt
+def api_translate():
+    data = request.get_json()
+    text = data.get('text', '')
+    source = data.get('source', 'zh')  # zh 或 en
+    target = data.get('target', 'en')  # en 或 zh
+    # 基于字典的翻译（非 ML）
+    result = translate_dict(text, source, target)
+    return jsonify({"translated": result})
+```
+
+### GET /api/events
+
+返回活动列表的双语 JSON，供外部集成或前端 AJAX 使用：
+
+```python
+@app.route('/api/events')
+def api_events():
+    events = Event.query.order_by(Event.start_time.desc()).all()
+    return jsonify([{
+        "id": e.id,
+        "title": e.title,
+        "title_en": e.title_en,
+        "description": e.description,
+        "description_en": e.description_en,
+        "location": e.location,
+        "location_en": e.location_en,
+        "category": e.category,
+        "start_time": e.start_time.isoformat(),
+        "end_time": e.end_time.isoformat(),
+        "max_participants": e.max_participants,
+        "registered_count": e.registered_count,
+    } for e in events])
+```
 
 ---
 
