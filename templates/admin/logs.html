@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}日志 - 管理面板{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>系统日志</h2>
+  <div>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-glass btn-sm">返回面板</a>
+  </div>
+</div>
+
+<div class="log-viewer glass">
+  <div class="log-header">
+    <span class="log-filename">logs/app.log</span>
+    <span class="log-lines">{{ total_lines }} lines</span>
+  </div>
+  <pre class="log-content">{{ log_content }}</pre>
+</div>
+
+<div class="log-viewer glass mt-3">
+  <div class="log-header">
+    <span class="log-filename">Recent Errors (last 50)</span>
+  </div>
+  <pre class="log-content log-errors">{{ error_lines }}</pre>
+</div>
+{% endblock %}

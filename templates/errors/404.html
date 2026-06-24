@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}404 - 页面不存在{% endblock %}
+{% block content %}
+<div class="error-page">
+  <div class="error-code">404</div>
+  <h1>页面不存在</h1>
+  <p class="error-msg">你访问的页面不存在或已被移除。</p>
+  <div class="error-detail glass">
+    <div class="detail-label">REQUEST INFO</div>
+    <div class="detail-row"><span>URL:</span> <code>{{ request.url }}</code></div>
+    <div class="detail-row"><span>Method:</span> <code>{{ request.method }}</code></div>
+    <div class="detail-row"><span>Request ID:</span> <code>{{ g.get('request_id', '-') }}</code></div>
+  </div>
+  <a href="{{ url_for('event.list_events') }}" class="btn btn-primary">返回首页</a>
+</div>
+{% endblock %}

@@ -9,3 +9,4 @@ qrcode==8.0
 Pillow==11.1.0
 email_validator==2.2.0
 pytest==8.3.5
+flask-debugtoolbar==0.16.0

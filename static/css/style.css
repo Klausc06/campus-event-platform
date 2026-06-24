@@ -644,6 +644,114 @@ body {
 
 main { padding-top: 1rem; padding-bottom: 2rem; }
 
+.error-page {
+  text-align: center;
+  padding: 80px 20px 40px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.error-code {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 96px;
+  font-weight: 300;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.error-page h1 {
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+  text-wrap: balance;
+}
+.error-msg {
+  color: var(--ink-muted);
+  margin-bottom: 32px;
+}
+.error-detail {
+  text-align: left;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.detail-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--ink-muted);
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+.detail-row {
+  display: flex;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--glass-border-subtle);
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-row span { color: var(--ink-muted); min-width: 100px; }
+.detail-row code { color: var(--accent); font-family: 'DM Sans', monospace; font-size: 13px; }
+.traceback {
+  font-family: 'DM Sans', 'SF Mono', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--danger, #A03030);
+  background: var(--glass-bg);
+  padding: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--glass-border);
+  max-height: 400px;
+  overflow-y: auto;
+}
+.request-id {
+  display: inline-block;
+  font-family: 'DM Sans', monospace;
+  font-size: 18px;
+  color: var(--accent);
+  padding: 8px 16px;
+  background: var(--accent-soft, rgba(196,90,58,0.12));
+  border-radius: 4px;
+  letter-spacing: 2px;
+}
+.log-viewer {
+  padding: 20px 24px;
+}
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--glass-border-subtle);
+}
+.log-filename {
+  font-family: 'DM Sans', monospace;
+  font-size: 12px;
+  color: var(--ink-muted);
+  letter-spacing: 1px;
+}
+.log-lines {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+.log-content {
+  font-family: 'DM Sans', 'SF Mono', monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  max-height: 500px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--ink-secondary);
+}
+.log-errors {
+  color: var(--danger, #A03030);
+}
+
 @media (max-width: 640px) {
   .hero { padding: 40px 20px 20px; }
   .hero h1 { font-size: 26px; letter-spacing: 2px; }
