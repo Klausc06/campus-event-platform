@@ -2,8 +2,8 @@
   --bg: #EDEAE4;
   --bg-gradient: linear-gradient(160deg, #EDEAE4 0%, #E4DED5 50%, #DDD7CE 100%);
   --ink: #1A1A1A;
-  --ink-secondary: #4A4A4A;
-  --ink-muted: #8A8A8A;
+  --ink-secondary: #3A3A3A;
+  --ink-muted: #5A5A5A;
   --accent: #C45A3A;
   --accent-hover: #B04E32;
   --accent-soft: rgba(196, 90, 58, 0.12);
@@ -41,8 +41,8 @@
   --bg: #0E0E12;
   --bg-gradient: linear-gradient(160deg, #0E0E12 0%, #141418 50%, #18181E 100%);
   --ink: #F0EDE8;
-  --ink-secondary: #B8B4AE;
-  --ink-muted: #6A6660;
+  --ink-secondary: #C8C4BE;
+  --ink-muted: #9A9690;
   --accent: #E07050;
   --accent-hover: #E88060;
   --accent-soft: rgba(224, 112, 80, 0.15);
@@ -93,11 +93,13 @@ body {
   border-radius: var(--glass-radius);
   box-shadow: var(--glass-shadow);
   position: relative;
-  overflow: hidden;
   transition: background 0.35s cubic-bezier(0.4,0,0.2,1), box-shadow 0.35s cubic-bezier(0.4,0,0.2,1), transform 0.35s cubic-bezier(0.4,0,0.2,1);
 }
 
-.glass::before {
+/* glass highlight only on nav and stat cards, not on event cards */
+.nav.glass::before,
+.stat-card.glass::before,
+.detail.glass::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
@@ -106,7 +108,8 @@ body {
   z-index: 1;
 }
 
-.glass::after {
+.nav.glass::after,
+.detail.glass::after {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
@@ -200,7 +203,7 @@ body {
 
 .toggle button:hover:not(.active) { color: var(--ink); }
 
-.hero { padding: 56px 32px 28px; max-width: 640px; }
+.hero { padding: 56px 32px 28px; max-width: 640px; margin: 0 auto; }
 
 .hero h1 {
   font-size: 34px;
@@ -222,7 +225,7 @@ body {
 
 .hero .accent-line { width: 36px; height: 2px; background: var(--accent); margin: 14px 0 0; border-radius: 1px; }
 
-.search-wrap { padding: 0 32px; margin-bottom: 28px; max-width: 440px; }
+.search-wrap { padding: 0 32px; margin-bottom: 28px; max-width: 440px; margin-left: auto; margin-right: auto; }
 
 .search-box {
   display: flex;
@@ -254,7 +257,7 @@ body {
 
 .search-box input::placeholder { color: var(--ink-muted); font-weight: 300; }
 
-.cards { padding: 0 32px 40px; display: flex; flex-direction: column; gap: 14px; max-width: 680px; }
+.cards { padding: 0 32px 40px; display: flex; flex-direction: column; gap: 14px; max-width: 680px; margin: 0 auto; }
 
 .cards .card { animation: cardEnter 0.4s ease both; }
 
@@ -283,10 +286,10 @@ body {
 
 .card .meta {
   font-size: 13px;
-  color: var(--ink-muted);
+  color: var(--ink-secondary);
   margin-bottom: 8px;
   font-family: 'DM Sans', sans-serif;
-  font-weight: 300;
+  font-weight: 500;
   letter-spacing: 0.3px;
 }
 
@@ -756,6 +759,8 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
   padding: 0 32px;
   margin-bottom: 24px;
   max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -816,6 +821,7 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
   gap: 6px;
   padding: 0 32px 40px;
   max-width: 680px;
+  margin: 0 auto;
 }
 
 .page-btn {

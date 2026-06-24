@@ -19,12 +19,15 @@
 <div class="category-pills">
     <a href="{{ url_for('event.list_events', q=q) }}" class="pill {% if not category %}active{% endif %}" data-zh="全部" data-en="All">全部</a>
     {% for c in categories %}
-    <a href="{{ url_for('event.list_events', q=q, category=c) }}" class="pill {% if category == c %}active{% endif %}">{{ c }}</a>
+    <a href="{{ url_for('event.list_events', q=q, category=c) }}" class="pill {% if category == c %}active{% endif %}"
+       data-zh="{{ c }}"
+       data-en="{% if c == '学术' %}Academic{% elif c == '体育' %}Sports{% elif c == '文艺' %}Arts{% elif c == '社交' %}Social{% elif c == '志愿服务' %}Volunteer{% else %}Other{% endif %}"
+    >{{ c }}</a>
     {% endfor %}
 </div>
 
 {% if current_user.is_authenticated %}
-<div style="padding: 0 32px; margin-bottom: 16px; max-width: 680px;">
+<div style="padding: 0 32px; margin-bottom: 16px; max-width: 680px; margin-left: auto; margin-right: auto;">
     <a href="{{ url_for('event.create') }}" class="btn btn-primary" data-zh="创建新活动" data-en="Create Event">创建新活动</a>
 </div>
 {% endif %}

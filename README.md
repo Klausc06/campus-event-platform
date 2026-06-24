@@ -1,46 +1,168 @@
-# Campus Event Platform
+# 校园活动报名与签到平台 / Campus Event Registration Platform
 
-> Flask campus event registration & check-in platform — Apple Liquid Glass design system
+> 基于 Flask 的校园活动管理 Web 应用，采用 Apple Liquid Glass 设计风格
 >
-> **Features**: Event CRUD, registration with soft-delete, code-based check-in, **QR code check-in**, admin dashboard with **CSV export**, **pagination**, **category filtering**, bilingual UI (EN/ZH), dark/light theme
+> A Flask-based campus event management web application with Apple Liquid Glass design
 
-## Quick Start
+## Links
 
-### Prerequisites
+| Surface | URL |
+|---------|-----|
+| **Main App (Vercel)** | https://campus-event-platform-six.vercel.app |
+| **Lab Report (GitHub Pages)** | https://klausc06.github.io/campus-event-platform/report.html |
+| **GitHub Repository** | https://github.com/Klausc06/campus-event-platform |
+
+## Features / 功能
+
+### Core Modules / 核心模块
+
+| Module | Features | Status |
+|--------|----------|--------|
+| **用户系统** / Auth | 注册/登录/退出、密码哈希(Werkzeug)、CSRF防护、开放重定向防护 | ✅ |
+| **活动管理** / Events | 创建/编辑/删除/搜索、分页(每页9个)、分类筛选(学术/体育/文艺/社交/志愿服务/其他) | ✅ |
+| **报名系统** / Registration | 一键报名/取消(软删除)、名额校验、防重复报名(UniqueConstraint) | ✅ |
+| **签到系统** / Check-in | 签到码签到(hmac timing-safe比较)、QR码签到(生成+打印)、签到状态记录 | ✅ |
+| **管理面板** / Admin | 数据统计(用户/活动/报名/签到)、签到率进度条、单活动/批量CSV导出(UTF-8 BOM) | ✅ |
+| **错误处理** / Errors | 自定义404/500页面(Liquid Glass风格)、500页面DEBUG模式显示堆栈跟踪 | ✅ |
+| **日志系统** / Logging | 结构化日志(dictConfig)、请求ID追踪(UUID)、请求计时、日志文件轮转、管理员日志查看器 | ✅ |
+
+### UI Features / 界面特性
+
+| Feature | Description |
+|---------|-------------|
+| **Liquid Glass Design** | Apple WWDC25风格毛玻璃效果，40px backdrop-filter blur，折射高光，同心圆角 |
+| **Dark/Light Theme** | 深浅主题切换，CSS变量驱动，localStorage持久化 |
+| **Chinese/English** | 中英文界面切换，data-zh/data-en属性，JS动态替换 |
+| **Responsive** | 移动端优先，640px断点，Bootstrap 5网格 |
+| **Micro-interactions** | 卡片悬浮上浮、按钮scale(0.96)点击反馈、滚动淡入动画、Flash消息自动消失 |
+| **Accessibility** | 最小40x40px触摸区域、font-variant-numeric: tabular-nums、text-wrap: balance |
+
+## Tech Stack / 技术栈
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Backend** | Flask 3.x | Web框架，Application Factory + 4 Blueprints |
+| **ORM** | Flask-SQLAlchemy 3.x | 数据库操作，ORM参数化查询防SQL注入 |
+| **Auth** | Flask-Login 0.6.x | 用户会话管理，@login_required |
+| **Forms** | Flask-WTF 1.x + WTForms 3.x | 表单验证、CSRF防护(CSRFProtect全局) |
+| **Migrations** | Flask-Migrate 4.x | 数据库版本迁移(Alembic) |
+| **Database** | SQLite 3.x | 零配置文件型数据库，课程项目适用 |
+| **Templates** | Jinja2 (Flask内置) | SSR服务端渲染，自动转义防XSS |
+| **Frontend** | Bootstrap 5 (CDN) + Custom CSS | 响应式网格 + Liquid Glass设计系统(881行) |
+| **QR Code** | qrcode + Pillow | 生成签到二维码(base64 PNG) |
+| **Testing** | pytest 8.x | 20个测试用例，TestConfig内存SQLite |
+| **Logging** | Python dictConfig | 结构化日志、RotatingFileHandler、请求ID追踪 |
+| **Deployment** | Vercel (serverless) + GitHub Pages (static) | 动态应用 + 静态报告 |
+
+## Architecture / 架构
+
+```
+                    ┌──────────────┐
+                    │   run.py     │
+                    └──────┬───────┘
+                           │
+                    ┌──────▼───────┐
+                    │  create_app() │  ← Application Factory
+                    └──────┬───────┘
+                           │
+         ┌─────────────────┼─────────────────┐
+         │                 │                 │
+    ┌────▼────┐     ┌──────▼──────┐    ┌─────▼─────┐
+    │extensions│     │  blueprints │    │  logging  │
+    │db,login, │     │ auth/event/ │    │  + hooks  │
+    │migrate,  │     │ checkin/    │    │           │
+    │csrf      │     │ admin       │    │           │
+    └────┬─────┘     └──────┬──────┘    └───────────┘
+         │                  │
+    ┌────▼──────────────────▼────┐
+    │        SQLite DB           │
+    │  User / Event / Registration│
+    └────────────────────────────┘
+```
+
+## Quick Start / 快速开始
+
+### Prerequisites / 环境要求
 
 - Python 3.8+
 - pip
 
-### Install
+### Local Development / 本地开发
 
 ```bash
-git clone <repo-url> && cd campus-event-platform
+# Clone / 克隆
+git clone https://github.com/Klausc06/campus-event-platform.git
+cd campus-event-platform
+
+# Virtual environment / 虚拟环境
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate        # macOS/Linux
+# venv\Scripts\activate         # Windows
+
+# Install dependencies / 安装依赖
 pip install -r requirements.txt
+
+# Seed demo data / 创建演示数据
+python3 seed.py
+
+# Run / 启动
+python3 run.py                  # → http://127.0.0.1:5000
 ```
 
-### Seed & Run
+### Demo Accounts / 演示账号
+
+| Role / 角色 | Username / 用户名 | Password / 密码 |
+|-------------|-------------------|-----------------|
+| Admin / 管理员 | `admin` | `admin123456` |
+| Student / 学生 | `student1` – `student5` | `12345678` |
+
+### Run Tests / 运行测试
 
 ```bash
-python3 seed.py        # creates 6 users + 5 events + sample registrations
-python3 run.py         # → http://127.0.0.1:5000
+python3 -m pytest tests/ -v     # 20 tests, all passing
 ```
 
-### Demo Accounts
+## Deployment / 部署
 
-| Role | Username | Password |
-|------|----------|----------|
-| Admin | `admin` | `admin123456` |
-| Student | `student1` – `student5` | `12345678` |
+### Vercel (Production / 生产环境)
 
-### Run Tests
+The main app is deployed on Vercel as a serverless Python application:
+
+主站部署在 Vercel，serverless 架构：
 
 ```bash
-python3 -m pytest tests/ -v
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy / 部署
+vercel --prod
 ```
 
-## Project Structure
+**Key config / 关键配置**:
+- `vercel.json` — routes all requests to `api/index.py`
+- `api/index.py` — imports `create_app()`, auto-creates tables and seeds demo data
+- SQLite uses `/tmp/app.db` on Vercel (ephemeral filesystem, resets on cold start)
+- Logging falls back to console-only (no file write on serverless)
+
+### GitHub Pages (Static Report / 静态报告)
+
+The lab report (`report.html`) is deployed via GitHub Actions:
+
+```bash
+# Automatic on push to main
+# Workflow: .github/workflows/pages.yml
+```
+
+### Cpolar (Optional / 可选)
+
+For local network access without cloud deployment:
+
+```bash
+# Install Cpolar, then:
+cpolar http 5000               # → public URL
+```
+
+## Project Structure / 项目结构
 
 ```
 campus-event-platform/
