@@ -343,14 +343,17 @@
     margin-right: 12px;
     font-family: "DM Sans", "Noto Serif SC", sans-serif;
     font-weight: 500;
-    padding: 4px 10px;
+    padding: 10px 12px;
     border-radius: 8px;
-    transition: color 0.2s, background 0.2s;
+    transition: color 0.2s, background 0.2s, transform 0.15s;
     letter-spacing: 0.3px;
   }
   nav a:hover {
     color: var(--accent);
     background: rgba(196,90,58,0.06);
+  }
+  nav a:active {
+    transform: scale(0.96);
   }
   nav a.active {
     color: var(--accent);
@@ -1128,14 +1131,14 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
     </tr>
     <tr>
       <td><code>--accent</code></td>
-      <td><span class="color-row"><span class="color-swatch" style="background:#4361ee"></span>#4361ee</span></td>
-      <td><span class="color-row"><span class="color-swatch" style="background:#6381ff"></span>#6381ff</span></td>
-      <td>主色调/强调色</td>
+      <td><span class="color-row"><span class="color-swatch" style="background:#C45A3A"></span>#C45A3A</span></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:#E07050"></span>#E07050</span></td>
+      <td>主色调/强调色（陶土橘）</td>
     </tr>
     <tr>
       <td><code>--text-primary</code></td>
-      <td><span class="color-row"><span class="color-swatch" style="background:#1a1a2e"></span>#1a1a2e</span></td>
-      <td><span class="color-row"><span class="color-swatch" style="background:#e0e0e0"></span>#e0e0e0</span></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:#1A1A1A"></span>#1A1A1A</span></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:#F0EDE8"></span>#F0EDE8</span></td>
       <td>主要文字</td>
     </tr>
     <tr>
@@ -1186,7 +1189,7 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
 <pre><code><span class="cm">/* 浅色主题（默认） */</span>
 :root {
     --glass-bg: <span class="fn">rgba</span>(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>,<span class="num">0.7</span>);
-    --text-primary: <span class="num">#1a1a2e</span>;
+    --text-primary: <span class="num">#1A1A1A</span>;
 }
 
 <span class="cm">/* 深色主题（系统偏好） */</span>
