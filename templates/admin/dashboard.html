@@ -3,7 +3,7 @@
 
 {% block content %}
 <section class="hero">
-    <h1 data-zh="管 理 面 板" data-en="Admin Dashboard">管 理 面 板</h1>
+    <h1>{{ t("管 理 面 板") }}</h1>
     <div class="accent-line"></div>
 </section>
 
@@ -11,32 +11,32 @@
     <div class="stat-row">
         <div class="stat-card glass accent-edge">
             <div class="num">{{ total_users }}</div>
-            <div class="label" data-zh="注册用户" data-en="Users">注册用户</div>
+            <div class="label">{{ t("注册用户") }}</div>
         </div>
         <div class="stat-card glass accent-edge">
             <div class="num">{{ total_events }}</div>
-            <div class="label" data-zh="活动总数" data-en="Events">活动总数</div>
+            <div class="label">{{ t("活动总数") }}</div>
         </div>
         <div class="stat-card glass green-edge">
             <div class="num">{{ total_registrations }}</div>
-            <div class="label" data-zh="报名人次" data-en="Registrations">报名人次</div>
+            <div class="label">{{ t("报名人次") }}</div>
         </div>
         <div class="stat-card glass green-edge">
             <div class="num">{{ total_checkins }}</div>
-            <div class="label" data-zh="签到人次" data-en="Check-ins">签到人次</div>
+            <div class="label">{{ t("签到人次") }}</div>
         </div>
     </div>
 
     <div style="text-align:right;margin-bottom:1rem;">
-        <a href="{{ url_for('admin.export_all') }}" class="card-link btn-glass" data-zh="导出全部" data-en="Export All">导出全部</a>
+        <a href="{{ url_for('admin.export_all') }}" class="card-link btn-glass">{{ t("导出全部") }}</a>
     </div>
 
     <div class="admin-table glass">
         <div class="admin-table-head">
-            <div data-zh="活动名称" data-en="Event">活动名称</div>
-            <div data-zh="报名" data-en="Signed Up">报名</div>
-            <div data-zh="签到率" data-en="Check-in Rate">签到率</div>
-            <div data-zh="操作" data-en="Action">操作</div>
+            <div>{{ t("活动名称") }}</div>
+            <div>{{ t("报名") }}</div>
+            <div>{{ t("签到率") }}</div>
+            <div>{{ t("操作") }}</div>
         </div>
         {% for stat in event_stats %}
         <div class="admin-row">
@@ -46,8 +46,8 @@
                 <span class="progress"><span class="fill" style="width:{{ stat.rate }}%"></span></span><span class="tabular-nums">{{ stat.rate }}%</span>
             </div>
             <div>
-                <a href="{{ url_for('event.detail', id=stat.event.id) }}" class="card-link" data-zh="查看" data-en="View">查看</a>
-                <a href="{{ url_for('admin.export_event', event_id=stat.event.id) }}" class="card-link btn-glass" data-zh="导出" data-en="Export">导出</a>
+                <a href="{{ url_for('event.detail', id=stat.event.id) }}" class="card-link">{{ t("查看") }}</a>
+                <a href="{{ url_for('admin.export_event', event_id=stat.event.id) }}" class="card-link btn-glass">{{ t("导出") }}</a>
             </div>
         </div>
         {% endfor %}

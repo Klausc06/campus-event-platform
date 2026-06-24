@@ -3,44 +3,44 @@
 {% block content %}
 <div class="error-page">
   <div class="error-code">500</div>
-  <h1>服务器内部错误</h1>
-  <p class="error-msg">服务器遇到了一个错误。以下是详细信息：</p>
+  <h1>{{ t("服务器内部错误") }}</h1>
+  <p class="error-msg">{{ t("服务器遇到了一个错误。以下是详细信息：") }}</p>
 
   {% if config.DEBUG %}
   <div class="error-detail glass">
-    <div class="detail-label">ERROR TRACEBACK</div>
+    <div class="detail-label">{{ t("错误追踪") }}</div>
     <pre class="traceback">{{ traceback }}</pre>
   </div>
 
   <div class="error-detail glass">
-    <div class="detail-label">REQUEST INFO</div>
+    <div class="detail-label">{{ t("请求信息") }}</div>
     <div class="detail-row"><span>URL:</span> <code>{{ request.url }}</code></div>
-    <div class="detail-row"><span>Method:</span> <code>{{ request.method }}</code></div>
-    <div class="detail-row"><span>Request ID:</span> <code>{{ g.get('request_id', '-') }}</code></div>
-    <div class="detail-row"><span>Remote Addr:</span> <code>{{ request.remote_addr }}</code></div>
+    <div class="detail-row"><span>{{ t("方法：") }}</span> <code>{{ request.method }}</code></div>
+    <div class="detail-row"><span>{{ t("请求ID：") }}</span> <code>{{ g.get('request_id', '-') }}</code></div>
+    <div class="detail-row"><span>{{ t("远程地址：") }}</span> <code>{{ request.remote_addr }}</code></div>
   </div>
 
   {% if request.form %}
   <div class="error-detail glass">
-    <div class="detail-label">FORM DATA</div>
+    <div class="detail-label">{{ t("表单数据") }}</div>
     <pre>{{ request.form | tojson(indent=2) }}</pre>
   </div>
   {% endif %}
 
   {% if request.args %}
   <div class="error-detail glass">
-    <div class="detail-label">QUERY STRING</div>
+    <div class="detail-label">{{ t("查询参数") }}</div>
     <pre>{{ request.args | tojson(indent=2) }}</pre>
   </div>
   {% endif %}
   {% else %}
   <div class="error-detail glass">
-    <div class="detail-label">INFO</div>
-    <p>请联系管理员，提供以下 Request ID：</p>
+    <div class="detail-label">{{ t("信息") }}</div>
+    <p>{{ t("请联系管理员，提供以下 Request ID：") }}</p>
     <code class="request-id">{{ g.get('request_id', '-') }}</code>
   </div>
   {% endif %}
 
-  <a href="{{ url_for('event.list_events') }}" class="btn btn-primary">返回首页</a>
+  <a href="{{ url_for('event.list_events') }}" class="btn btn-primary">{{ t("返回首页") }}</a>
 </div>
 {% endblock %}

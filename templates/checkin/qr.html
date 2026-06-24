@@ -5,16 +5,16 @@
 <div class="checkin-wrap">
     <div class="checkin-card glass" style="max-width:440px">
         <div class="event-label">{{ event.title }}</div>
-        <h2 data-zh="签 到 二 维 码" data-en="CHECK-IN QR">签 到 二 维 码</h2>
+        <h2>{{ t("签 到 二 维 码") }}</h2>
         <div class="qr-image-wrap">
             <img src="{{ qr_data_uri }}" alt="QR Code" width="300" height="300" style="border-radius:12px;background:#fff;padding:8px;outline:1px solid rgba(0,0,0,0.1);outline-offset:-1px">
         </div>
         {% if event.checkin_code %}
-        <div class="qr-code-label" data-zh="签到码" data-en="Check-in Code">签到码</div>
+        <div class="qr-code-label">{{ t("签到码") }}</div>
         <div class="qr-code-value">{{ event.checkin_code }}</div>
         {% endif %}
         <div style="margin-top:20px;position:relative;z-index:2">
-            <a href="{{ url_for('event.detail', id=event.id) }}" class="card-link" data-zh="返回活动" data-en="Back to Event">返回活动</a>
+            <a href="{{ url_for('event.detail', id=event.id) }}" class="card-link">{{ t("返回活动") }}</a>
         </div>
     </div>
 </div>

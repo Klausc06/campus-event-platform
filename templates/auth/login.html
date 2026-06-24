@@ -4,23 +4,23 @@
 {% block content %}
 <div class="auth-wrap">
     <div class="auth-card glass">
-        <h2 data-zh="登 录" data-en="Sign In">登 录</h2>
-        <div class="sub" data-zh="欢迎回来" data-en="Welcome back">欢迎回来</div>
+        <h2>{{ t("登 录") }}</h2>
+        <div class="sub">{{ t("欢迎回来") }}</div>
         <form method="post">
             {{ form.hidden_tag() }}
             <div class="form-group">
-                {{ form.username.label }}
-                {{ form.username(class="form-control", placeholder="请输入用户名", **{'data-zh-placeholder': '请输入用户名', 'data-en-placeholder': 'Enter your username'}) }}
+                <label for="username">{{ t("用户名") }}</label>
+                {{ form.username(class="form-control", placeholder=t("请输入用户名")) }}
             </div>
             <div class="form-group">
-                {{ form.password.label }}
-                {{ form.password(class="form-control", placeholder="请输入密码", **{'data-zh-placeholder': '请输入密码', 'data-en-placeholder': 'Enter your password'}) }}
+                <label for="password">{{ t("密码") }}</label>
+                {{ form.password(class="form-control", placeholder=t("请输入密码")) }}
             </div>
-            {{ form.submit(class="btn btn-primary", style="width:100%;justify-content:center") }}
+            {{ form.submit(class="btn btn-primary", style="width:100%;justify-content:center", value=t("登录")) }}
         </form>
         <div class="switch">
-            <span data-zh="还没有账号？" data-en="No account yet? ">还没有账号？</span>
-            <a href="{{ url_for('auth.register') }}" data-zh="立即注册" data-en="Register">立即注册</a>
+            <span>{{ t("还没有账号？") }}</span>
+            <a href="{{ url_for('auth.register') }}">{{ t("立即注册") }}</a>
         </div>
     </div>
 </div>

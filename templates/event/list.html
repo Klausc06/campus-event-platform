@@ -3,32 +3,30 @@
 
 {% block content %}
 <section class="hero">
-    <h1 data-zh="探 索 校 园 活 动" data-en="Explore Campus Events">探 索 校 园 活 动</h1>
-    <div class="subtitle" data-zh="发现身边正在发生的精彩" data-en="Discover what's happening around you">发现身边正在发生的精彩</div>
+    <h1>{{ t("探 索 校 园 活 动") }}</h1>
+    <div class="subtitle">{{ t("发现身边正在发生的精彩") }}</div>
     <div class="accent-line"></div>
 </section>
 
 <div class="search-wrap">
     <form method="get" class="search-box">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" name="q" value="{{ q }}" placeholder="搜索活动名称或地点..." data-zh-placeholder="搜索活动名称或地点..." data-en-placeholder="Search events or locations...">
+        <input type="text" name="q" value="{{ q }}" placeholder="{{ t('搜索活动名称或地点...') }}">
         {% if category %}<input type="hidden" name="category" value="{{ category }}">{% endif %}
     </form>
 </div>
 
 <div class="category-pills">
-    <a href="{{ url_for('event.list_events', q=q) }}" class="pill {% if not category %}active{% endif %}" data-zh="全部" data-en="All">全部</a>
+    <a href="{{ url_for('event.list_events', q=q) }}" class="pill {% if not category %}active{% endif %}">{{ t("全部") }}</a>
     {% for c in categories %}
     <a href="{{ url_for('event.list_events', q=q, category=c) }}" class="pill {% if category == c %}active{% endif %}"
-       data-zh="{{ c }}"
-       data-en="{% if c == '学术' %}Academic{% elif c == '体育' %}Sports{% elif c == '文艺' %}Arts{% elif c == '社交' %}Social{% elif c == '志愿服务' %}Volunteer{% else %}Other{% endif %}"
-    >{{ c }}</a>
+    >{{ t_category(c) }}</a>
     {% endfor %}
 </div>
 
 {% if current_user.is_authenticated %}
 <div style="padding: 0 32px; margin-bottom: 16px; max-width: 680px; margin-left: auto; margin-right: auto;">
-    <a href="{{ url_for('event.create') }}" class="btn btn-primary" data-zh="创建新活动" data-en="Create Event">创建新活动</a>
+        <a href="{{ url_for('event.create') }}" class="btn btn-primary">{{ t("创建新活动") }}</a>
 </div>
 {% endif %}
 
@@ -38,9 +36,7 @@
         <div class="card-header">
             <h3 data-zh="{{ event.title }}" data-en="{{ event.title_en or event.title }}">{{ event.title }}</h3>
             <span class="tag category-tag"
-                  data-zh="{{ event.category }}"
-                  data-en="{% if event.category == '学术' %}Academic{% elif event.category == '体育' %}Sports{% elif event.category == '文艺' %}Arts{% elif event.category == '社交' %}Social{% elif event.category == '志愿服务' %}Volunteer{% else %}Other{% endif %}"
-            >{{ event.category }}</span>
+            >{{ t_category(event.category) }}</span>
         </div>
         <div class="meta">
             <span data-zh="{{ event.start_time.strftime('%Y-%m-%d %H:%M') }}" data-en="{{ event.start_time.strftime('%Y-%m-%d %H:%M') }}">{{ event.start_time.strftime('%Y-%m-%d %H:%M') }}</span>
@@ -53,20 +49,20 @@
         {% endif %}
         <div class="card-footer">
             {% if event.is_full %}
-            <span class="badge full" data-zh="名额已满" data-en="Full">{{ event.registered_count }}/{{ event.max_participants }}</span>
+            <span class="badge full">{{ event.registered_count }}/{{ event.max_participants }} {{ t("名额已满") }}</span>
             {% elif event.max_participants > 0 and (event.registered_count / event.max_participants) > 0.7 %}
-            <span class="badge warn" data-zh="即将满员" data-en="Almost Full">{{ event.registered_count }}/{{ event.max_participants }}</span>
+            <span class="badge warn">{{ event.registered_count }}/{{ event.max_participants }} {{ t("即将满员") }}</span>
             {% else %}
-            <span class="badge open" data-zh="报名中" data-en="Open">
-                {{ event.registered_count }}{% if event.max_participants > 0 %}/{{ event.max_participants }}{% endif %}
+            <span class="badge open">
+                {{ event.registered_count }}{% if event.max_participants > 0 %}/{{ event.max_participants }}{% endif %} {{ t("报名中") }}
             </span>
             {% endif %}
-            <a href="{{ url_for('event.detail', id=event.id) }}" class="card-link" data-zh="查看详情" data-en="View Details">查看详情</a>
+            <a href="{{ url_for('event.detail', id=event.id) }}" class="card-link">{{ t("查看详情") }}</a>
         </div>
     </div>
     {% else %}
     <div class="empty-state">
-        <p data-zh="暂无活动，敬请期待" data-en="No events yet. Stay tuned!">暂无活动，敬请期待</p>
+        <p>{{ t("暂无活动，敬请期待") }}</p>
     </div>
     {% endfor %}
 </div>
@@ -74,9 +70,9 @@
 {% if pagination.pages > 1 %}
 <div class="pagination">
     {% if pagination.has_prev %}
-    <a href="{{ url_for('event.list_events', page=pagination.prev_num, q=q, category=category) }}" class="page-btn" data-zh="上一页" data-en="Previous">上一页</a>
+    <a href="{{ url_for('event.list_events', page=pagination.prev_num, q=q, category=category) }}" class="page-btn">{{ t("上一页") }}</a>
     {% else %}
-    <span class="page-btn disabled" data-zh="上一页" data-en="Previous">上一页</span>
+    <span class="page-btn disabled">{{ t("上一页") }}</span>
     {% endif %}
 
     {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
@@ -88,9 +84,9 @@
     {% endfor %}
 
     {% if pagination.has_next %}
-    <a href="{{ url_for('event.list_events', page=pagination.next_num, q=q, category=category) }}" class="page-btn" data-zh="下一页" data-en="Next">下一页</a>
+    <a href="{{ url_for('event.list_events', page=pagination.next_num, q=q, category=category) }}" class="page-btn">{{ t("下一页") }}</a>
     {% else %}
-    <span class="page-btn disabled" data-zh="下一页" data-en="Next">下一页</span>
+    <span class="page-btn disabled">{{ t("下一页") }}</span>
     {% endif %}
 </div>
 {% endif %}

@@ -5,13 +5,13 @@
 <div class="checkin-wrap">
     <div class="checkin-card glass">
         <div class="event-label">{{ event.title }}</div>
-        <h2 data-zh="活 动 签 到" data-en="CHECK IN">活 动 签 到</h2>
+        <h2>{{ t("活 动 签 到") }}</h2>
         <form method="post">
             {{ form.hidden_tag() }}
             <div class="form-group">
-                {{ form.code(class="form-control", placeholder="输入签到码", **{'data-zh-placeholder': '输入签到码', 'data-en-placeholder': 'Enter check-in code', 'autofocus': 'true'}) }}
+                {{ form.code(class="form-control", placeholder=t("输入签到码"), autofocus="true") }}
             </div>
-            {{ form.submit(class="btn btn-primary", style="width:100%;justify-content:center") }}
+            {{ form.submit(class="btn btn-primary", style="width:100%;justify-content:center", value=t("签到")) }}
         </form>
     </div>
 </div>

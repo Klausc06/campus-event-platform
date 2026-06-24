@@ -41,6 +41,16 @@ def create_app(config_class=Config):
     app.register_blueprint(admin_bp)
     app.register_blueprint(translate_bp)
 
+    from app.translations import TRANSLATIONS, CATEGORY_MAP
+
+    @app.context_processor
+    def inject_translations():
+        def t(zh):
+            return TRANSLATIONS.get(zh, zh)
+        def t_category(zh):
+            return CATEGORY_MAP.get(zh, zh)
+        return dict(t=t, t_category=t_category)
+
     @app.errorhandler(404)
     def not_found(e):
         app.logger.warning("404 Not Found: %s", request.url)

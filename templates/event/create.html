@@ -3,23 +3,23 @@
 
 {% block content %}
 <section class="hero">
-    <h1 data-zh="创 建 活 动" data-en="Create Event">创 建 活 动</h1>
+    <h1>{{ t("创 建 活 动") }}</h1>
     <div class="accent-line"></div>
 </section>
 
 <div class="auth-wrap">
     <div class="auth-card glass" style="max-width: 520px;">
-        <h2 data-zh="新活动" data-en="New Event">新活动</h2>
-        <div class="sub" data-zh="填写活动信息" data-en="Fill in event details">填写活动信息</div>
+        <h2>{{ t("新活动") }}</h2>
+        <div class="sub">{{ t("填写活动信息") }}</div>
         <form method="post">
             {{ form.hidden_tag() }}
             <div class="form-group">
                 {{ form.title.label }}
-                {{ form.title(class="form-control", placeholder="活动名称", **{'data-zh-placeholder': '活动名称', 'data-en-placeholder': 'Event name'}) }}
+                {{ form.title(class="form-control", placeholder=t("活动名称")) }}
             </div>
             <div class="form-group">
                 {{ form.description.label }}
-                {{ form.description(class="form-control", rows=4, placeholder="活动详情介绍...", **{'data-zh-placeholder': '活动详情介绍...', 'data-en-placeholder': 'Event description...'}) }}
+                {{ form.description(class="form-control", rows=4, placeholder=t("活动详情介绍...")) }}
             </div>
             <div class="form-group">
                 {{ form.category.label }}
@@ -27,8 +27,8 @@
             </div>
             <div class="form-group">
                 {{ form.location.label }}
-                {{ form.location(class="form-control", placeholder="活动举办地点", **{'data-zh-placeholder': '活动举办地点', 'data-en-placeholder': 'Event location'}) }}
-                <div class="form-helper" data-zh="线下场地请注明楼栋及房间号" data-en="Include building and room number for in-person events">线下场地请注明楼栋及房间号</div>
+                {{ form.location(class="form-control", placeholder=t("活动举办地点")) }}
+                <div class="form-helper">{{ t("线下场地请注明楼栋及房间号") }}</div>
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -42,13 +42,13 @@
             </div>
             <div class="form-group">
                 {{ form.max_participants.label }}
-                {{ form.max_participants(class="form-control", placeholder="0 表示不限人数", **{'data-zh-placeholder': '0 表示不限人数', 'data-en-placeholder': '0 for unlimited'}) }}
-                <div class="form-helper" data-zh="填写 0 表示不限制参与人数" data-en="Enter 0 for unlimited capacity">填写 0 表示不限制参与人数</div>
+                {{ form.max_participants(class="form-control", placeholder=t("0 表示不限人数")) }}
+                <div class="form-helper">{{ t("填写 0 表示不限制参与人数") }}</div>
             </div>
             <div class="form-group">
                 {{ form.checkin_code.label }}
-                {{ form.checkin_code(class="form-control", placeholder="用于现场签到", **{'data-zh-placeholder': '用于现场签到', 'data-en-placeholder': 'Code for on-site check-in'}) }}
-                <div class="form-helper" data-zh="参与者需要输入此码完成签到" data-en="Participants enter this code to check in">参与者需要输入此码完成签到</div>
+                {{ form.checkin_code(class="form-control", placeholder=t("用于现场签到")) }}
+                <div class="form-helper">{{ t("参与者需要输入此码完成签到") }}</div>
             </div>
             <div style="margin-top: 16px;">
                 {{ form.submit(class="btn btn-primary", style="width:100%;justify-content:center") }}
