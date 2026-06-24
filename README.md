@@ -50,6 +50,7 @@ campus-event-platform/
 │   ├── models.py            # User, Event, Registration models
 │   ├── forms.py             # WTForms: LoginForm, RegisterForm, EventForm, CheckinForm
 │   ├── decorators.py        # @admin_required decorator
+│   ├── logging.py           # structured logging + request tracing
 │   ├── auth/
 │   │   ├── __init__.py      # auth_bp (url_prefix=/auth)
 │   │   └── routes.py        # register, login, logout (POST-only)
@@ -68,14 +69,16 @@ campus-event-platform/
 │   ├── auth/                # login.html, register.html
 │   ├── event/               # list.html, detail.html, create.html, edit.html
 │   ├── checkin/             # checkin.html, qr.html
-│   └── admin/               # dashboard.html
+│   ├── errors/              # 404.html, 500.html
+│   └── admin/               # dashboard.html, logs.html
 ├── static/css/
-│   └── style.css            # full Liquid Glass design system (659 lines)
+│   └── style.css            # full Liquid Glass design system (881 lines)
 ├── tests/
 │   ├── conftest.py          # fixtures: app, client, auth_client, sample_event
 │   ├── test_auth.py         # registration + login tests
 │   ├── test_event.py        # event CRUD + registration tests
-│   └── test_checkin.py      # check-in flow tests
+│   ├── test_checkin.py      # check-in flow tests
+│   └── test_errors.py       # error handler tests
 ├── config.py                # Config, TestConfig
 ├── run.py                   # entry point
 ├── seed.py                  # demo data seeder
@@ -102,7 +105,7 @@ campus-event-platform/
 
 #### `app/__init__.py` — Application Factory
 
-- **What it does**: Creates the Flask app via `create_app()`. Sets `template_folder` and `static_folder` to the project root (not inside `app/`), loads config, initializes all four extensions (db, login_manager, migrate, csrf), registers four blueprints (auth, event, checkin, admin), and defines the `/` index route that redirects to the event list.
+- **What it does**: Creates the Flask app via `create_app()`. Sets `template_folder` and `static_folder` to the project root (not inside `app/`), loads config, initializes all four extensions (db, login_manager, migrate, csrf) plus optional DebugToolbar, registers four blueprints (auth, event, checkin, admin), sets up structured logging and request hooks, registers 404/500 error handlers, and defines the `/` index route that redirects to the event list.
 - **How to add a new blueprint**:
   1. Create `app/newmodule/__init__.py` with `newmodule_bp = Blueprint('newmodule', __name__, url_prefix='/newmodule')`
   2. Create `app/newmodule/routes.py` with route functions decorated by `@newmodule_bp.route(...)`
@@ -114,7 +117,7 @@ campus-event-platform/
 
 #### `app/extensions.py` — Extension Instances
 
-- **What it does**: Creates singleton instances of SQLAlchemy (`db`), LoginManager (`login_manager`), Migrate (`migrate`), and CSRFProtect (`csrf`). Sets `login_manager.login_view = "auth.login"` so unauthenticated users get redirected to the login page.
+- **What it does**: Creates singleton instances of SQLAlchemy (`db`), LoginManager (`login_manager`), Migrate (`migrate`), CSRFProtect (`csrf`), and optionally DebugToolbarExtension (if `flask-debugtoolbar` is installed). Sets `login_manager.login_view = "auth.login"` so unauthenticated users get redirected to the login page.
 - **How to add a new extension**: Import the extension class, create an instance, then add `ext.init_app(app)` inside `create_app()` in `app/__init__.py`.
 - **Dependencies**: Imported by `app/__init__.py`, `app/models.py`, all route modules.
 - **Gotchas**: `login_manager.login_view` must match the `blueprint.endpoint` of your login route — currently `"auth.login"`. If you rename the auth blueprint or its login endpoint, update this string.
@@ -126,7 +129,7 @@ campus-event-platform/
 - **What it does**: Defines three models: `User` (with `UserMixin` for Flask-Login, password hashing via werkzeug), `Event` (with computed properties `registered_count`, `checked_in_count`, `is_full`, plus a `category` field and `CATEGORIES` list), and `Registration` (the many-to-many join table with extra fields). Also defines the `@login_manager.user_loader` callback and a module-level `CATEGORIES = ['Tech', 'Culture', 'Sports', 'Academic', 'Social', 'Other']` list used by forms and templates.
 - **How to add a new model**: Create a class inheriting `db.Model`, add `__tablename__`, columns, and relationships. Then run `flask db migrate -m 'add new model'` and `flask db upgrade`.
 - **How to add a field to an existing model**: Add a `db.Column(...)` to the class, then run `flask db migrate -m 'add field'` and `flask db upgrade`.
-- **How to add event categories**: Already implemented. `Event.category` is a `String(50)` column. The `CATEGORIES` list at module level is imported by `app/forms.py` for the `SelectField` choices and by templates for filter pills.
+- **How to add event categories**: Already implemented. `Event.category` is a `String(50)` column. The `CATEGORIES = ['学术', '体育', '文艺', '社交', '志愿服务', '其他']` list at module level is imported by `app/forms.py` for the `SelectField` choices and by templates for filter pills.
 - **Dependencies**: Imports `db`, `login_manager` from `app/extensions.py`. Imported by all route modules, `seed.py`, test fixtures.
 - **Gotchas**:
   - Always use `datetime.now(timezone.utc)` — never `datetime.now()`. Timezone-naive datetimes will cause comparison bugs.
@@ -156,6 +159,16 @@ campus-event-platform/
 - **How to use**: Apply `@admin_required` on any route function. Must be used **after** `@login_required` (decorator order: outermost first).
 - **Dependencies**: Imports `abort` from Flask, `current_user` from Flask-Login. Imported by `app/admin/routes.py`.
 - **Gotchas**: Decorator order matters. `@login_required` must be applied before `@admin_required` (i.e., `@login_required` should be the outer decorator). If reversed, `current_user` may be anonymous.
+
+---
+
+#### `app/logging.py` — Structured Logging
+
+- **What it does**: Sets up structured logging with `RequestFormatter` (adds request URL, method, IP, request_id to each log record), `RotatingFileHandler` (10MB max, 5 backups), and `StreamHandler` for console. `register_request_hooks()` adds `before_request`/`after_request` hooks that generate a unique `request_id` per request and log timing info. The request_id is also set as an `X-Request-ID` response header.
+- **How to change log level**: Set `LOG_LEVEL` in config (default `DEBUG`).
+- **How to change log file path**: Set `LOG_FILE` in config (default `logs/app.log`).
+- **Dependencies**: Imported by `app/__init__.py`. Uses `flask.g` and `flask.request`.
+- **Gotchas**: `request_id` fallback uses `""` (empty string) — not `"no-id"`. The `dictConfig` call replaces any existing loggers. Log directory is auto-created with `os.makedirs`.
 
 ---
 
@@ -237,6 +250,13 @@ campus-event-platform/
 - **How to add CSV export**: Already implemented. Two routes generate CSV responses using Python's `csv.writer` with `utf-8-sig` encoding (BOM). The dashboard template has export buttons.
 - **Dependencies**: Imports `admin_bp` from `app.admin`, `admin_required` from `app.decorators`, `db` from `app.extensions`, `User`, `Event`, `Registration` from `app.models`.
 - **Gotchas**: The `before_request` hook applies authentication to ALL admin routes — you don't need `@login_required` on individual routes. If you add a public admin route, you'll need to exempt it.
+
+---
+
+#### `templates/errors/404.html` & `templates/errors/500.html` — Error Pages
+
+- **What it does**: Custom error pages rendered by `@app.errorhandler(404)` and `@app.errorhandler(500)` in `app/__init__.py`. The 500 page shows a traceback in debug mode. Both use the glass design system.
+- **Dependencies**: Extends `base.html`. Uses `traceback` variable (500 only, debug mode).
 
 ---
 
@@ -415,6 +435,14 @@ campus-event-platform/
 
 ---
 
+#### `tests/test_errors.py` — Error Handler Tests
+
+- **What it does**: 4 tests covering: 404 page rendering, 500 page rendering with traceback in debug mode, X-Request-ID header in responses, and log file creation.
+- **Dependencies**: Uses `app` and `client` fixtures from `conftest.py`.
+- **Gotchas**: The 500 test registers a temporary `/test-error` route that raises `RuntimeError`. The log file test checks that `logs/app.log` is created after logging.
+
+---
+
 #### `requirements.txt` — Dependencies
 
 - **What it does**: Pins all Python dependencies with exact versions.
@@ -468,6 +496,7 @@ campus-event-platform/
 | GET | `/admin/` | ✓+admin | Admin dashboard |
 | GET | `/admin/export/<event_id>` | ✓+admin | CSV export for single event |
 | GET | `/admin/export/all` | ✓+admin | CSV export for all registrations |
+| GET | `/admin/logs` | ✓+admin | Log viewer panel |
 
 ## Data Models
 
@@ -481,7 +510,7 @@ User (1) ──── (*) Registration (*) ──── (1) Event
   ├── is_admin                              ├── start_time / end_time
   └── created_at                                                                        ├── max_participants
                                             ├── checkin_code
-                                            ├── category (enum: Tech/Culture/Sports/Academic/Social/Other)
+                                            ├── category (enum: 学术/体育/文艺/社交/志愿服务/其他)
                                             ├── creator_id → User
                                             └── created_at
 

@@ -764,9 +764,10 @@ erDiagram
     <tr><td><code>/event/&lt;id&gt;/cancel</code></td><td>POST</td><td>cancel</td><td>event</td><td>取消报名</td><td>登录</td></tr>
     <tr><td><code>/checkin/&lt;event_id&gt;</code></td><td>GET/POST</td><td>checkin</td><td>checkin</td><td>活动签到</td><td>登录+已报名</td></tr>
     <tr><td><code>/admin/</code></td><td>GET</td><td>dashboard</td><td>admin</td><td>管理面板</td><td>管理员</td></tr>
-    <tr><td><code>/checkin/&lt;id&gt;/qr</code></td><td>GET</td><td>qr_code</td><td>checkin</td><td><span data-zh="QR码签到页面" data-en="QR code check-in page">QR码签到页面</span></td><td>创建者/管理员</td></tr>
+    <tr><td><code>/checkin/&lt;id&gt;/qr</code></td><td>GET</td><td>qr</td><td>checkin</td><td><span data-zh="QR码签到页面" data-en="QR code check-in page">QR码签到页面</span></td><td>创建者/管理员</td></tr>
     <tr><td><code>/admin/export/&lt;id&gt;</code></td><td>GET</td><td>export_event</td><td>admin</td><td><span data-zh="单活动CSV导出" data-en="Per-event CSV export">单活动CSV导出</span></td><td>管理员</td></tr>
     <tr><td><code>/admin/export/all</code></td><td>GET</td><td>export_all</td><td>admin</td><td><span data-zh="全部活动批量CSV导出" data-en="Bulk CSV export for all events">全部活动批量CSV导出</span></td><td>管理员</td></tr>
+    <tr><td><code>/admin/logs</code></td><td>GET</td><td>logs</td><td>admin</td><td><span data-zh="日志查看面板" data-en="Log viewer panel">日志查看面板</span></td><td>管理员</td></tr>
   </tbody>
 </table>
 
@@ -823,7 +824,7 @@ erDiagram
     <tr><td>end_time</td><td>DateTime</td><td>NOT NULL</td><td>结束时间</td></tr>
     <tr><td>max_participants</td><td>Integer</td><td>DEFAULT 0</td><td>最大参与人数，0表示不限</td></tr>
     <tr><td>checkin_code</td><td>String(50)</td><td>可空</td><td>签到码</td></tr>
-    <tr><td>category</td><td>String(20)</td><td>DEFAULT '其他'</td><td><span data-zh="活动分类：学术/体育/文艺/社交/志愿服务/其他" data-en="Event category: Academic/Sports/Arts/Social/Volunteering/Other">活动分类：学术/体育/文艺/社交/志愿服务/其他</span></td></tr>
+    <tr><td>category</td><td>String(50)</td><td>DEFAULT '其他'</td><td><span data-zh="活动分类：学术/体育/文艺/社交/志愿服务/其他" data-en="Event category: Academic/Sports/Arts/Social/Volunteering/Other">活动分类：学术/体育/文艺/社交/志愿服务/其他</span></td></tr>
     <tr><td>creator_id</td><td>Integer</td><td>FK → user.id, NOT NULL</td><td>创建者ID</td></tr>
     <tr><td>created_at</td><td>DateTime</td><td>DEFAULT utcnow</td><td>创建时间</td></tr>
   </tbody>
@@ -894,7 +895,8 @@ campus-event-platform/<br>
 │   ├── conftest.py          <span class="cm"># pytest fixtures</span><br>
 │   ├── test_auth.py         <span class="cm"># 认证模块测试</span><br>
 │   ├── test_event.py        <span class="cm"># 活动模块测试</span><br>
-│   └── test_checkin.py      <span class="cm"># 签到模块测试</span><br>
+│   ├── test_checkin.py      <span class="cm"># 签到模块测试</span><br>
+│   └── test_errors.py       <span class="cm"># 错误处理测试</span><br>
 ├── config.py                <span class="cm"># 配置类</span><br>
 ├── run.py                   <span class="cm"># 启动入口</span><br>
 ├── seed.py                  <span class="cm"># 演示数据脚本</span><br>
@@ -905,9 +907,12 @@ campus-event-platform/<br>
 <p>采用Application Factory模式，支持创建不同配置的应用实例（开发/测试），便于测试和部署。</p>
 <pre><code><span class="cm"># app/__init__.py</span>
 <span class="kw">import</span> os
-<span class="kw">from</span> flask <span class="kw">import</span> Flask, redirect, url_for
+<span class="kw">import</span> traceback <span class="kw">as</span> tb
+<span class="kw">from</span> flask <span class="kw">import</span> Flask, redirect, render_template, request, url_for
+<span class="kw">from</span> werkzeug.exceptions <span class="kw">import</span> HTTPException
 <span class="kw">from</span> config <span class="kw">import</span> Config
-<span class="kw">from</span> app.extensions <span class="kw">import</span> csrf, db, login_manager, migrate
+<span class="kw">from</span> app.extensions <span class="kw">import</span> csrf, db, login_manager, migrate, toolbar
+<span class="kw">from</span> app.logging <span class="kw">import</span> setup_logging, register_request_hooks
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -924,6 +929,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     login_manager.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
+    <span class="kw">if</span> app.debug <span class="kw">and</span> toolbar <span class="kw">is not None</span>:
+        toolbar.init_app(app)
+
+    <span class="cm"># 初始化日志</span>
+    setup_logging(app)
+    register_request_hooks(app)
 
     <span class="cm"># 注册蓝图</span>
     <span class="kw">from</span> app.auth <span class="kw">import</span> auth_bp
@@ -935,6 +946,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     app.register_blueprint(event_bp)
     app.register_blueprint(checkin_bp)
     app.register_blueprint(admin_bp)
+
+    <span class="cm"># 错误处理</span>
+    <span class="dc">@app.errorhandler</span>(<span class="num">404</span>)
+    <span class="kw">def</span> <span class="fn">not_found</span>(e):
+        <span class="kw">return</span> render_template(<span class="st">"errors/404.html"</span>), <span class="num">404</span>
+
+    <span class="dc">@app.errorhandler</span>(<span class="num">500</span>)
+    <span class="kw">def</span> <span class="fn">internal_error</span>(e):
+        trace = <span class="kw">None</span>
+        <span class="kw">if</span> app.debug:
+            trace = <span class="st">""</span>.join(tb.format_exception(type(e), e, e.__traceback__))
+        <span class="kw">return</span> render_template(<span class="st">"errors/500.html"</span>, traceback=trace), <span class="num">500</span>
 
     <span class="dc">@app.route</span>(<span class="st">'/'</span>)
     <span class="kw">def</span> <span class="fn">index</span>():
@@ -949,6 +972,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 <span class="kw">from</span> flask_migrate <span class="kw">import</span> Migrate
 <span class="kw">from</span> flask_sqlalchemy <span class="kw">import</span> SQLAlchemy
 <span class="kw">from</span> flask_wtf <span class="kw">import</span> CSRFProtect
+
+<span class="kw">try</span>:
+    <span class="kw">from</span> flask_debugtoolbar <span class="kw">import</span> DebugToolbarExtension
+    toolbar = <span class="cls">DebugToolbarExtension</span>()
+<span class="kw">except</span> <span class="cls">ImportError</span>:
+    toolbar = <span class="kw">None</span>
 
 db = <span class="cls">SQLAlchemy</span>()
 login_manager = <span class="cls">LoginManager</span>()
@@ -992,7 +1021,7 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
     end_time = db.Column(db.DateTime, nullable=<span class="kw">False</span>)
     max_participants = db.Column(db.Integer, default=<span class="num">0</span>)
     checkin_code = db.Column(db.String(<span class="num">50</span>))
-    category = db.Column(db.String(<span class="num">20</span>), default=<span class="st">'其他'</span>)
+     category = db.Column(db.String(<span class="num">50</span>), default=<span class="st">'其他'</span>)
     creator_id = db.Column(db.Integer, db.ForeignKey(<span class="st">'user.id'</span>), nullable=<span class="kw">False</span>)
     created_at = db.Column(db.DateTime, default=<span class="kw">lambda</span>: datetime.now(timezone.utc))
 
@@ -1178,13 +1207,13 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
 
 <span class="dc">@checkin_bp.route</span>(<span class="st">'/&lt;int:event_id&gt;/qr'</span>)
 <span class="dc">@login_required</span>
-<span class="kw">def</span> <span class="fn">qr_code</span>(event_id):
+<span class="kw">def</span> <span class="fn">qr</span>(event_id):
     event = db.session.<span class="fn">get</span>(Event, event_id)
     <span class="kw">if not</span> event <span class="kw">or</span> (event.creator_id != current_user.id <span class="kw">and not</span> current_user.is_admin):
         <span class="fn">abort</span>(<span class="num">403</span>)
     checkin_url = request.host_url.<span class="fn">rstrip</span>(<span class="st">'/'</span>) + url_for(<span class="st">'checkin.checkin'</span>, event_id=event.id)
-    qr_data = <span class="fn">get_qr_code</span>(checkin_url)
-    <span class="kw">return</span> <span class="fn">render_template</span>(<span class="st">'checkin/qr.html'</span>, event=event, qr_data=qr_data)</code></pre>
+    qr_data_uri = <span class="fn">get_qr_code</span>(checkin_url)
+    <span class="kw">return</span> <span class="fn">render_template</span>(<span class="st">'checkin/qr.html'</span>, event=event, qr_data_uri=qr_data_uri)</code></pre>
 
 <h3>5.13 <span data-zh="CSV导出" data-en="CSV Export">CSV导出</span></h3>
 <p><span data-zh="支持单个活动报名名单导出和全部活动批量导出。使用UTF-8 BOM确保Excel正确显示中文，RFC 5987编码文件名防止乱码。查询采用单次JOIN避免N+1问题。" data-en="Supports per-event attendee list export and bulk export for all events. Uses UTF-8 BOM for Excel Chinese compatibility, RFC 5987 filename encoding. Single JOIN query avoids N+1 problem.">支持单个活动报名名单导出和全部活动批量导出。使用UTF-8 BOM确保Excel正确显示中文，RFC 5987编码文件名防止乱码。查询采用单次JOIN避免N+1问题。</span></p>
@@ -1259,8 +1288,38 @@ CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>
     pagination = query.<span class="fn">paginate</span>(page=page, per_page=<span class="num">9</span>, error_out=<span class="kw">False</span>)
     <span class="kw">return</span> <span class="fn">render_template</span>(<span class="st">'event/list.html'</span>,
                            events=pagination.items, pagination=pagination,
-                           categories=CATEGORIES, current_category=category)</code></pre>
-</div>
+                           categories=CATEGORIES, category=category)</code></pre>
+
+<h3>5.16 <span data-zh="日志系统" data-en="Logging System">日志系统</span></h3>
+<p><span data-zh="项目实现了结构化日志系统，支持请求追踪、文件轮转和控制台输出。每个请求分配唯一request_id，日志记录请求方法、URL、IP地址和响应耗时。" data-en="The project implements a structured logging system with request tracing, file rotation, and console output. Each request gets a unique request_id, and logs record request method, URL, IP address, and response duration.">项目实现了结构化日志系统，支持请求追踪、文件轮转和控制台输出。每个请求分配唯一request_id，日志记录请求方法、URL、IP地址和响应耗时。</span></p>
+<pre><code><span class="cm"># app/logging.py — 日志初始化</span>
+<span class="kw">from</span> logging.config <span class="kw">import</span> dictConfig
+
+<span class="kw">def</span> <span class="fn">setup_logging</span>(app):
+    log_file = app.config.get(<span class="st">'LOG_FILE'</span>) <span class="kw">or</span> os.path.join(...)
+    dictConfig({
+        <span class="st">"version"</span>: <span class="num">1</span>,
+        <span class="st">"formatters"</span>: {<span class="st">"default"</span>: {<span class="st">"format"</span>: <span class="st">"[%(asctime)s] %(request_id)s ..."</span>}},
+        <span class="st">"handlers"</span>: {
+            <span class="st">"console"</span>: {<span class="st">"class"</span>: <span class="st">"logging.StreamHandler"</span>},
+            <span class="st">"file"</span>: {<span class="st">"class"</span>: <span class="st">"logging.handlers.RotatingFileHandler"</span>,
+                      <span class="st">"maxBytes"</span>: <span class="num">10_000_000</span>, <span class="st">"backupCount"</span>: <span class="num">5</span>},
+        },
+    })
+
+<span class="cm"># app/logging.py — 请求钩子</span>
+<span class="dc">@app.before_request</span>
+<span class="kw">def</span> <span class="fn">log_request_start</span>():
+    g.request_id = request.headers.get(<span class="st">"X-Request-ID"</span>, <span class="st">""</span>) <span class="kw">or</span> str(uuid.uuid4())[:<span class="num">8</span>]
+    g.start_time = time.time()
+
+<span class="dc">@app.after_request</span>
+<span class="kw">def</span> <span class="fn">log_request_end</span>(response):
+    duration = time.time() - g.start_time
+    app.logger.info(<span class="st">"<<< %s %s %s %.3fs"</span>, request.method, request.url,
+                    response.status_code, duration)
+    response.headers[<span class="st">"X-Request-ID"</span>] = g.request_id
+    <span class="kw">return</span> response</code></pre>
 
 <!-- ============ 六、UI设计 ============ -->
 <h2 id="s6" class="page-break">六、UI设计</h2>
@@ -1283,13 +1342,13 @@ CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>
   <tbody>
     <tr>
       <td><code>--glass-bg</code></td>
-      <td><span class="color-row"><span class="color-swatch" style="background:rgba(255,255,255,0.7)"></span>rgba(255,255,255,0.7)</span></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:rgba(255,255,255,0.42)"></span>rgba(255,255,255,0.42)</span></td>
       <td><span class="color-row"><span class="color-swatch" style="background:rgba(30,30,30,0.7)"></span>rgba(30,30,30,0.7)</span></td>
       <td>毛玻璃卡片背景</td>
     </tr>
     <tr>
       <td><code>--glass-border</code></td>
-      <td><span class="color-row"><span class="color-swatch" style="background:rgba(255,255,255,0.3)"></span>rgba(255,255,255,0.3)</span></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:rgba(255,255,255,0.6)"></span>rgba(255,255,255,0.6)</span></td>
       <td><span class="color-row"><span class="color-swatch" style="background:rgba(255,255,255,0.1)"></span>rgba(255,255,255,0.1)</span></td>
       <td>毛玻璃边框</td>
     </tr>
@@ -1300,13 +1359,13 @@ CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>
       <td>主色调/强调色（陶土橘）</td>
     </tr>
     <tr>
-      <td><code>--text-primary</code></td>
+      <td><code>--ink</code></td>
       <td><span class="color-row"><span class="color-swatch" style="background:#1A1A1A"></span>#1A1A1A</span></td>
       <td><span class="color-row"><span class="color-swatch" style="background:#F0EDE8"></span>#F0EDE8</span></td>
       <td>主要文字</td>
     </tr>
     <tr>
-      <td><code>--text-secondary</code></td>
+      <td><code>--ink-secondary</code></td>
       <td><span class="color-row"><span class="color-swatch" style="background:#666"></span>#666666</span></td>
       <td><span class="color-row"><span class="color-swatch" style="background:#999"></span>#999999</span></td>
       <td>次要文字</td>
@@ -1334,40 +1393,31 @@ CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>
     backdrop-filter: <span class="fn">blur</span>(20px);             <span class="cm">/* 核心：背景模糊 */</span>
     -webkit-backdrop-filter: <span class="fn">blur</span>(20px);    <span class="cm">/* Safari兼容 */</span>
     border: <span class="num">1</span>px solid <span class="kw">var</span>(--glass-border);  <span class="cm">/* 细边框增加立体感 */</span>
-    border-radius: <span class="num">16</span>px;                     <span class="cm">/* 大圆角 */</span>
+    border-radius: <span class="kw">var</span>(--glass-radius);        <span class="cm">/* 20px 统一圆角 */</span>
     box-shadow: <span class="num">0</span> <span class="num">8</span>px <span class="num">32</span>px <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.1</span>);  <span class="cm">/* 柔和阴影 */</span>
 }</code></pre>
 <p>工作原理：<code>backdrop-filter: blur(20px)</code>会对元素背后的内容应用高斯模糊，配合半透明背景色，呈现出类似磨砂玻璃的视觉效果。</p>
 
 <h3>6.5 响应式设计说明</h3>
-<p>采用移动优先的响应式策略，通过CSS媒体查询适配不同屏幕尺寸：</p>
+<p>采用单一断点（640px）的响应式策略，通过CSS媒体查询区分移动端和桌面端：</p>
 <ul>
-  <li><strong>移动端</strong>（&lt;768px）：单列布局，卡片全宽，导航折叠为汉堡菜单</li>
-  <li><strong>平板</strong>（768px-1024px）：双列卡片网格，侧边栏可折叠</li>
-  <li><strong>桌面</strong>（&gt;1024px）：三列卡片网格，固定侧边导航</li>
-  <li>使用<code>clamp()</code>函数实现流体排版，字体大小随视口平滑缩放</li>
+  <li><strong>桌面端</strong>（&gt;640px）：默认布局，卡片最大宽度680px，详情信息网格2列</li>
+  <li><strong>移动端</strong>（&le;640px）：单列布局，padding缩减至20px，详情信息网格变为1列，统计卡片垂直堆叠，表单双列变单列</li>
+  <li>断点设置在<code>@media (max-width: 640px)</code>，无中间尺寸</li>
 </ul>
 
 <h3>6.6 暗色模式实现</h3>
-<p>通过CSS自定义属性（CSS Variables）和<code>prefers-color-scheme</code>媒体查询实现：</p>
+<p>通过CSS自定义属性（CSS Variables）和<code>[data-theme]</code>属性选择器实现，支持手动切换和<code>localStorage</code>持久化：</p>
 <pre><code><span class="cm">/* 浅色主题（默认） */</span>
-:root {
-    --glass-bg: <span class="fn">rgba</span>(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>,<span class="num">0.7</span>);
-    --text-primary: <span class="num">#1A1A1A</span>;
+:root, [data-theme=<span class="st">"light"</span>] {
+    --glass-bg: <span class="fn">rgba</span>(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>,<span class="num">0.42</span>);
+    --ink: <span class="num">#1A1A1A</span>;
 }
 
-<span class="cm">/* 深色主题（系统偏好） */</span>
-<span class="dc">@media</span> (<span class="kw">prefers-color-scheme</span>: dark) {
-    :root {
-        --glass-bg: <span class="fn">rgba</span>(<span class="num">30</span>,<span class="num">30</span>,<span class="num">30</span>,<span class="num">0.7</span>);
-        --text-primary: <span class="num">#e0e0e0</span>;
-    }
-}
-
-<span class="cm">/* 手动切换：在 &lt;html&gt; 上添加 data-theme="dark" */</span>
+<span class="cm">/* 深色主题 */</span>
 [data-theme=<span class="st">"dark"</span>] {
-    --glass-bg: <span class="fn">rgba</span>(<span class="num">30</span>,<span class="num">30</span>,<span class="num">30</span>,<span class="num">0.7</span>);
-    --text-primary: <span class="num">#e0e0e0</span>;
+    --glass-bg: <span class="fn">rgba</span>(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>,<span class="num">0.06</span>);
+    --ink: <span class="num">#F0EDE8</span>;
 }</code></pre>
 
 <h3>6.7 中英文切换实现</h3>
@@ -1383,12 +1433,12 @@ CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>
 <pre><code><span class="cm">&lt;!-- templates/event/list.html — 分类筛选标签 --&gt;</span>
 &lt;div class=<span class="st">"category-pills"</span>&gt;
   &lt;a href=<span class="st">"{{ url_for('event.list_events') }}"</span>
-     class=<span class="st">"pill {% if not current_category %}active{% endif %}"</span>&gt;
+     class=<span class="st">"pill {% if not category %}active{% endif %}"</span>&gt;
     <span data-zh="全部" data-en="All">全部</span>
   &lt;/a&gt;
   {% for cat in categories %}
   &lt;a href=<span class="st">"{{ url_for('event.list_events', category=cat) }}"</span>
-     class=<span class="st">"pill {% if current_category == cat %}active{% endif %}"</span>&gt;
+     class=<span class="st">"pill {% if category == cat %}active{% endif %}"</span>&gt;
     {{ cat }}
   &lt;/a&gt;
   {% endfor %}
@@ -1426,7 +1476,7 @@ CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>
     &lt;a href=<span class="st">"{{ url_for('event.list_events', page=p) }}"</span>
        class=<span class="st">"page-btn {% if p == pagination.page %}active{% endif %}"</span>&gt;{{ p }}&lt;/a&gt;
     {% else %}
-    &lt;span class=<span class="st">"page-ellipsis"</span>&gt;&hellip;&lt;/span&gt;
+    &lt;span class=<span class="st">"page-btn ellipsis"</span>&gt;&hellip;&lt;/span&gt;
     {% endif %}
   {% endfor %}
   {% if pagination.has_next %}
@@ -1461,7 +1511,7 @@ CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>
 &lt;div class=<span class="st">"qr-page"</span>&gt;
   &lt;h2&gt;{{ event.title }}&lt;/h2&gt;
   &lt;p class=<span class="st">"qr-subtitle"</span>&gt;<span data-zh="扫描二维码签到" data-en="Scan QR code to check in">扫描二维码签到</span>&lt;/p&gt;
-  &lt;img src=<span class="st">"{{ qr_data }}"</span> alt=<span class="st">"QR Code"</span> class=<span class="st">"qr-image"</span>&gt;
+  &lt;img src=<span class="st">"{{ qr_data_uri }}"</span> alt=<span class="st">"QR Code"</span> class=<span class="st">"qr-image"</span>&gt;
   &lt;button onclick=<span class="st">"window.print()"</span> class=<span class="st">"btn-print"</span>&gt;
     <span data-zh="打印QR码" data-en="Print QR Code">打印QR码</span>
   &lt;/button&gt;
@@ -1540,6 +1590,11 @@ CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>
     <tr><td>错误签到码</td><td>提示"签到码错误"</td><td>页面包含"签到码错误"</td><td><span class="pass">PASS</span></td></tr>
     <tr><td>未报名签到</td><td>提示"尚未报名"</td><td>页面包含"尚未报名"</td><td><span class="pass">PASS</span></td></tr>
     <tr><td>重复签到</td><td>提示"已经签到过了"</td><td>页面包含"已经签到过了"</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td rowspan="5">错误处理</td><td>404页面</td><td>404状态码</td><td>404，包含"404"</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>500页面</td><td>500状态码</td><td>500，包含"500"</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>Request ID</td><td>响应包含X-Request-ID</td><td>header存在</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>日志文件创建</td><td>logs/app.log存在</td><td>文件存在</td><td><span class="pass">PASS</span></td></tr>
+    <tr><td>编辑活动</td><td>302重定向</td><td>302</td><td><span class="pass">PASS</span></td></tr>
   </tbody>
 </table>
 
@@ -1547,9 +1602,10 @@ CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>
 <p>测试覆盖了所有核心业务流程：</p>
 <ul>
   <li><strong>认证模块</strong>：注册（成功/重复用户名）、登录（成功/错误密码）、登出 —— 共5个用例</li>
-  <li><strong>活动模块</strong>：列表查询、创建（登录/未登录）、详情、编辑、删除 —— 共5个用例</li>
+  <li><strong>活动模块</strong>：列表查询、创建（登录/未登录）、详情、编辑、删除 —— 共6个用例</li>
   <li><strong>签到模块</strong>：报名、正确签到、错误签到码、未报名签到、重复签到 —— 共5个用例</li>
-  <li>共计 <strong>15个</strong> 测试用例，全部通过</li>
+  <li><strong>错误处理模块</strong>：404页面、500页面、Request ID、日志文件 —— 共4个用例</li>
+  <li>共计 <strong>20个</strong> 测试用例，全部通过</li>
 </ul>
 </div>
 
@@ -1657,7 +1713,7 @@ cpolar http <span class="num">5000</span>
     <tr>
       <td>测试用例</td>
       <td>AI基于业务逻辑生成pytest测试用例，覆盖认证、活动、签到模块</td>
-      <td>test_auth.py、test_event.py、test_checkin.py</td>
+      <td>test_auth.py、test_event.py、test_checkin.py、test_errors.py</td>
     </tr>
     <tr>
       <td>代码审查</td>

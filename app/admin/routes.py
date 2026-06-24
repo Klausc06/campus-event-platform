@@ -72,7 +72,6 @@ def export_event(event_id):
             r.checked_in_at.strftime('%Y-%m-%d %H:%M:%S') if r.checked_in_at else '',
         ])
 
-    output.seek(0)
     filename = f'{event.title}_registrations.csv'
     encoded = quote(filename)
     return Response(
@@ -103,7 +102,6 @@ def export_all():
             r.checked_in_at.strftime('%Y-%m-%d %H:%M:%S') if r.checked_in_at else '',
         ])
 
-    output.seek(0)
     filename = 'all_events_registrations.csv'
     encoded = quote(filename)
     return Response(

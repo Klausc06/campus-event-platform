@@ -380,43 +380,31 @@
 
 响应式：移动端 gap 缩至 4px，padding 缩至 `6px 10px`。
 
-### QR 码页面 (.qr-card)
+### QR 码页面 (.checkin-card + .qr-image-wrap)
 
-居中布局，包含活动信息与 QR 码图片，支持打印。
+居中布局，复用 `.checkin-card.glass` 容器，包含活动信息与 QR 码图片。
 
 | 类名 | 用途 | 样式 |
 |------|------|------|
-| `.qr-card` | 卡片容器 | 毛玻璃背景 + 居中 flex |
-| `.qr-image` | QR 码图片 | 固定尺寸 + 微妙边框 |
+| `.checkin-card` | 卡片容器 | 毛玻璃背景 + 居中 flex |
+| `.qr-image-wrap` | QR 码图片容器 | margin 20px + z-index 2 |
+| `.qr-code-label` | 签到码标签 | 11px DM Sans，ink-muted |
+| `.qr-code-value` | 签到码数值 | 28px DM Sans 300，letter-spacing 4px |
 
 核心属性：
 
 ```css
-.qr-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: var(--glass-radius);
-  box-shadow: var(--glass-shadow);
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
+.checkin-card {
+  padding: 44px 32px;
+  max-width: 380px;
+  width: 100%;
   text-align: center;
-  max-width: 420px;
-  margin: 0 auto;
-  position: relative;
-  overflow: hidden;
 }
 
-.qr-image {
-  width: 200px;
-  height: 200px;
-  border-radius: 12px;
-  outline: 1px solid rgba(0,0,0,0.1);
-  outline-offset: 4px;
+.qr-image-wrap {
+  margin: 20px 0;
+  position: relative;
+  z-index: 2;
 }
 ```
 
@@ -424,21 +412,19 @@
 
 ```css
 @media print {
-  .qr-card {
-    background: #fff;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    box-shadow: none;
-    border: 1px solid #ddd;
-    break-inside: avoid;
+  .nav, .site-footer, .card-link { display: none !important; }
+  body { background: #fff !important; }
+  .glass {
+    background: none !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
   }
-  .qr-image {
-    outline: none;
-  }
+  .glass::before, .glass::after { display: none !important; }
 }
 ```
 
-响应式：移动端 padding 缩至 24px，`.qr-image` 尺寸缩至 160px。
+响应式：移动端 padding 缩至 24px。
 
 ### 导出按钮 (.btn-glass.btn-sm)
 

@@ -2,7 +2,6 @@ import logging
 import time
 import uuid
 from logging.config import dictConfig
-from logging.handlers import RotatingFileHandler
 
 import os
 from flask import g, has_request_context, request
@@ -14,12 +13,12 @@ class RequestFormatter(logging.Formatter):
             record.url = request.url
             record.method = request.method
             record.remote_addr = request.remote_addr
-            record.request_id = getattr(g, "request_id", "no-id")
+            record.request_id = getattr(g, "request_id", "")
         else:
             record.url = "-"
             record.method = "-"
             record.remote_addr = "-"
-            record.request_id = "-"
+            record.request_id = ""
         return super().format(record)
 
 
@@ -83,7 +82,7 @@ def register_request_hooks(app):
             request.url,
             response.status_code,
             duration,
-            getattr(g, "request_id", "no-id"),
+            getattr(g, "request_id", ""),
         )
         response.headers["X-Request-ID"] = getattr(g, "request_id", "")
         return response
