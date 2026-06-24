@@ -93,6 +93,39 @@ body {
   margin-right: auto;
 }
 
+/* Global font: serif for headings, sans for UI elements */
+h1, h2, h3, h4, h5, h6 { font-family: 'Noto Serif SC', 'Georgia', serif; }
+label, .badge, .tag, .pill, .btn, .meta, .card-link, nav a, .page-btn,
+.toggle button, .form-helper, .detail-label, th, .stat-card .label,
+.detail .info-item .label, .checkin-card .event-label, .log-filename,
+.log-lines, .section-tag, .color-row, .admin-table-head {
+  font-family: 'DM Sans', 'Noto Serif SC', sans-serif;
+}
+
+/* Global tabular-nums */
+.badge, .stat-card .num, .admin-row .num, .page-btn, .progress,
+.tabular-nums, td.num, .log-lines {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Global balance for headings */
+h1, h2, h3 { text-wrap: balance; }
+
+/* Global font families */
+h1, h2, h3, h4, h5, h6 { font-family: 'Noto Serif SC', 'Georgia', serif; }
+label, .badge, .tag, .pill, .btn, .meta, .stat-label, .card-link,
+nav a, .page-btn, .toggle button, .form-helper, .detail-label,
+.admin-table-head, .log-filename, .log-lines, .color-row, .section-tag,
+th, .stat-card .label, .detail .info-item .label, .checkin-card .event-label {
+}
+
+/* Global tabular-nums for numbers */
+.badge, .stat-card .num, .admin-row .num, .page-btn, .progress,
+.tabular-nums, td.num, .log-lines {
+}
+
+/* Global balance for headings */
+
 .glass {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
@@ -172,7 +205,6 @@ body {
   font-size: 14px;
   letter-spacing: 0.5px;
   transition: color 0.3s;
-  font-family: 'DM Sans', sans-serif;
   font-weight: 400;
   padding: 8px 4px;
 }
@@ -198,7 +230,6 @@ body {
   color: var(--ink-muted);
   cursor: pointer;
   font-size: 12px;
-  font-family: 'DM Sans', sans-serif;
   letter-spacing: 0.5px;
   transition: background 0.25s ease, color 0.25s ease;
 }
@@ -220,13 +251,11 @@ body {
   line-height: 1.4;
   margin-bottom: 10px;
   color: var(--ink);
-  text-wrap: balance;
 }
 
 .hero .subtitle {
   font-size: 15px;
   color: var(--ink-muted);
-  font-family: 'DM Sans', sans-serif;
   font-weight: 300;
   letter-spacing: 0.3px;
 }
@@ -281,7 +310,6 @@ body {
 .card h3 { font-size: 18px; font-weight: 400; letter-spacing: 1.5px; color: var(--ink); }
 
 .card .tag {
-  font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   letter-spacing: 0.5px;
   padding: 4px 10px;
@@ -296,7 +324,6 @@ body {
   font-size: 13px;
   color: var(--ink-secondary);
   margin-bottom: 8px;
-  font-family: 'DM Sans', sans-serif;
   font-weight: 500;
   letter-spacing: 0.3px;
 }
@@ -308,14 +335,12 @@ body {
 .card-footer { display: flex; justify-content: space-between; align-items: center; }
 
 .badge {
-  font-family: 'DM Sans', sans-serif;
   font-size: 12px;
   letter-spacing: 0.3px;
   padding: 5px 14px;
   border-radius: 20px;
   font-weight: 500;
   display: inline-block;
-  font-variant-numeric: tabular-nums;
 }
 
 .badge.open { background: var(--success-soft); color: var(--success); }
@@ -323,7 +348,6 @@ body {
 .badge.warn { background: var(--warn-soft); color: var(--warn); }
 
 .card-link {
-  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   color: var(--ink-secondary);
   text-decoration: none;
@@ -339,7 +363,6 @@ body {
   padding: 0 32px;
   margin: 20px auto 16px;
   max-width: 680px;
-  font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   color: var(--ink-muted);
   letter-spacing: 3px;
@@ -350,11 +373,9 @@ body {
 
 .detail { padding: 32px; }
 
-.detail h2 { font-size: 26px; font-weight: 300; letter-spacing: 2px; margin-bottom: 20px; text-wrap: balance; }
 
 .detail .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
 
-.detail .info-item .label { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink-muted); letter-spacing: 1px; margin-bottom: 3px; }
 
 .detail .info-item .value { font-size: 15px; color: var(--ink); font-weight: 300; }
 
@@ -366,7 +387,6 @@ body {
   padding: 12px 24px;
   border-radius: 12px;
   font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
   letter-spacing: 0.5px;
   cursor: pointer;
   transition: background 0.25s, transform 0.25s, box-shadow 0.25s, color 0.25s ease;
@@ -427,13 +447,10 @@ body {
 
 .auth-card { padding: 44px 32px; max-width: 380px; width: 100%; }
 
-.auth-card h2 { font-size: 24px; font-weight: 300; letter-spacing: 3px; margin-bottom: 6px; text-wrap: balance; }
 
-.auth-card .sub { font-size: 13px; color: var(--ink-muted); margin-bottom: 28px; font-family: 'DM Sans', sans-serif; }
 
 .form-group { margin-bottom: 18px; position: relative; z-index: 2; }
 
-.form-group label { display: block; font-size: 11px; color: var(--ink-muted); letter-spacing: 1px; margin-bottom: 6px; font-family: 'DM Sans', sans-serif; text-transform: uppercase; }
 
 .form-group input,
 .form-group textarea,
@@ -464,13 +481,11 @@ body {
 
 .form-group textarea { resize: vertical; }
 
-.form-helper { font-size: 12px; color: var(--ink-muted); margin-top: 4px; font-family: 'DM Sans', sans-serif; }
 
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
 .auth-card .btn { width: 100%; justify-content: center; margin-top: 6px; }
 
-.auth-card .switch { text-align: center; margin-top: 18px; font-size: 13px; color: var(--ink-muted); font-family: 'DM Sans', sans-serif; position: relative; z-index: 2; }
 
 .auth-card .switch a { color: var(--accent); text-decoration: none; transition: opacity 0.2s; }
 
@@ -480,9 +495,7 @@ body {
 
 .checkin-card { padding: 44px 32px; max-width: 380px; width: 100%; text-align: center; }
 
-.checkin-card .event-label { font-size: 13px; color: var(--ink-muted); margin-bottom: 6px; letter-spacing: 1px; font-family: 'DM Sans', sans-serif; }
 
-.checkin-card h2 { font-size: 24px; font-weight: 300; letter-spacing: 3px; margin-bottom: 24px; text-wrap: balance; }
 
 .checkin-card input {
   width: 100%;
@@ -497,7 +510,6 @@ body {
   -webkit-backdrop-filter: blur(12px);
   color: var(--ink);
   outline: none;
-  font-family: 'DM Sans', sans-serif;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   margin-bottom: 14px;
 }
@@ -512,7 +524,6 @@ body {
 
 .stat-card { flex: 1; padding: 18px; border-radius: 16px; --glass-radius: 16px; }
 
-.stat-card .num { font-family: 'DM Sans', sans-serif; font-size: 28px; font-weight: 300; color: var(--ink); margin-bottom: 2px; font-variant-numeric: tabular-nums; }
 
 .stat-card .label { font-size: 12px; color: var(--ink-muted); letter-spacing: 0.5px; }
 
@@ -526,7 +537,6 @@ body {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
   padding: 12px 20px;
-  font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   color: var(--ink-muted);
   letter-spacing: 1px;
@@ -553,7 +563,6 @@ body {
 
 .admin-row .name { font-weight: 400; color: var(--ink); }
 
-.admin-row .num { font-family: 'DM Sans', sans-serif; color: var(--ink-secondary); font-variant-numeric: tabular-nums; }
 
 .progress {
   width: 72px;
@@ -571,7 +580,6 @@ body {
 .status-box {
   padding: 12px 16px;
   border-radius: 12px;
-  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.3px;
@@ -590,7 +598,6 @@ body {
   padding: 48px 20px;
   color: var(--ink-muted);
   font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
 }
 
 .admin-tools {
@@ -607,7 +614,6 @@ body {
   padding: 12px 18px;
   border-radius: 12px;
   font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
   letter-spacing: 0.3px;
   border: none;
   border-left: 3px solid var(--ink-muted);
@@ -645,13 +651,11 @@ body {
   padding: 2rem 0;
   color: var(--ink-muted);
   font-size: 12px;
-  font-family: 'DM Sans', sans-serif;
   letter-spacing: 0.5px;
   box-shadow: 0 -1px 0 var(--glass-border-subtle);
   margin-top: 3rem;
 }
 
-.tabular-nums { font-variant-numeric: tabular-nums; }
 
 main { padding-top: 1rem; padding-bottom: 2rem; }
 
@@ -662,7 +666,6 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
   
 }
 .error-code {
-  font-family: 'DM Sans', sans-serif;
   font-size: 96px;
   font-weight: 300;
   color: var(--accent);
@@ -674,7 +677,6 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
   font-weight: 300;
   letter-spacing: 3px;
   margin-bottom: 12px;
-  text-wrap: balance;
 }
 .error-msg {
   color: var(--ink-muted);
@@ -686,7 +688,6 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
   margin-bottom: 16px;
 }
 .detail-label {
-  font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   color: var(--ink-muted);
   letter-spacing: 2px;
@@ -701,9 +702,7 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
 }
 .detail-row:last-child { border-bottom: none; }
 .detail-row span { color: var(--ink-muted); min-width: 100px; }
-.detail-row code { color: var(--accent); font-family: 'DM Sans', monospace; font-size: 13px; }
 .traceback {
-  font-family: 'DM Sans', 'SF Mono', monospace;
   font-size: 12px;
   line-height: 1.7;
   white-space: pre-wrap;
@@ -718,7 +717,6 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
 }
 .request-id {
   display: inline-block;
-  font-family: 'DM Sans', monospace;
   font-size: 18px;
   color: var(--accent);
   padding: 8px 16px;
@@ -738,19 +736,15 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
   border-bottom: 1px solid var(--glass-border-subtle);
 }
 .log-filename {
-  font-family: 'DM Sans', monospace;
   font-size: 12px;
   color: var(--ink-muted);
   letter-spacing: 1px;
 }
 .log-lines {
-  font-family: 'DM Sans', sans-serif;
   font-size: 12px;
   color: var(--ink-muted);
-  font-variant-numeric: tabular-nums;
 }
 .log-content {
-  font-family: 'DM Sans', 'SF Mono', monospace;
   font-size: 11px;
   line-height: 1.6;
   max-height: 500px;
@@ -773,7 +767,6 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
 }
 
 .pill {
-  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   letter-spacing: 0.3px;
   padding: 8px 18px;
@@ -809,7 +802,6 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
 }
 
 .category-tag {
-  font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   letter-spacing: 0.5px;
   padding: 4px 10px;
@@ -831,7 +823,6 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
 }
 
 .page-btn {
-  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   letter-spacing: 0.3px;
   padding: 10px 14px;
@@ -843,7 +834,6 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border-subtle);
   transition: background 0.25s ease, color 0.25s ease, transform 0.15s;
-  font-variant-numeric: tabular-nums;
   cursor: pointer;
 }
 
