@@ -33,11 +33,13 @@ def create_app(config_class=Config):
     from app.event import event_bp
     from app.checkin import checkin_bp
     from app.admin import admin_bp
+    from app.translate import translate_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(event_bp)
     app.register_blueprint(checkin_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(translate_bp)
 
     @app.errorhandler(404)
     def not_found(e):

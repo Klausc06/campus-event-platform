@@ -34,8 +34,11 @@ def load_user(user_id):
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
+    title_en = db.Column(db.String(200), default='')
     description = db.Column(db.Text)
+    description_en = db.Column(db.Text, default='')
     location = db.Column(db.String(200))
+    location_en = db.Column(db.String(200), default='')
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
     max_participants = db.Column(db.Integer, default=0)
