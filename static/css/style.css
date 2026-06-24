@@ -85,6 +85,14 @@ body {
   transition: background 0.5s ease, color 0.3s ease;
 }
 
+/* Global container centering */
+.hero, .search-wrap, .cards, .detail-wrap, .auth-wrap, .auth-card,
+.checkin-wrap, .checkin-card, .admin-wrap, .category-pills, .pagination,
+.section-tag, .flash-container, .error-page {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .glass {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
@@ -203,7 +211,7 @@ body {
 
 .toggle button:hover:not(.active) { color: var(--ink); }
 
-.hero { padding: 56px 32px 28px; max-width: 640px; margin: 0 auto; }
+.hero { padding: 56px 32px 28px; max-width: 640px }
 
 .hero h1 {
   font-size: 34px;
@@ -225,7 +233,7 @@ body {
 
 .hero .accent-line { width: 36px; height: 2px; background: var(--accent); margin: 14px 0 0; border-radius: 1px; }
 
-.search-wrap { padding: 0 32px; margin-bottom: 28px; max-width: 440px; margin-left: auto; margin-right: auto; }
+.search-wrap { padding: 0 32px; margin-bottom: 28px; max-width: 440px }
 
 .search-box {
   display: flex;
@@ -257,7 +265,7 @@ body {
 
 .search-box input::placeholder { color: var(--ink-muted); font-weight: 300; }
 
-.cards { padding: 0 32px 40px; display: flex; flex-direction: column; gap: 14px; max-width: 680px; margin: 0 auto; }
+.cards { padding: 0 32px 40px; display: flex; flex-direction: column; gap: 14px; max-width: 680px }
 
 .cards .card { animation: cardEnter 0.4s ease both; }
 
@@ -338,7 +346,7 @@ body {
   text-transform: uppercase;
 }
 
-.detail-wrap { padding: 0 32px 40px; max-width: 680px; margin: 0 auto; }
+.detail-wrap { padding: 0 32px 40px; max-width: 680px }
 
 .detail { padding: 32px; }
 
@@ -415,7 +423,7 @@ body {
   border-radius: 10px;
 }
 
-.auth-wrap { padding: 0 32px 40px; max-width: 680px; margin: 0 auto; display: flex; justify-content: center; }
+.auth-wrap { padding: 0 32px 40px; max-width: 680px display: flex; justify-content: center; }
 
 .auth-card { padding: 44px 32px; max-width: 380px; width: 100%; }
 
@@ -468,7 +476,7 @@ body {
 
 .auth-card .switch a:hover { opacity: 0.7; }
 
-.checkin-wrap { padding: 0 32px 40px; max-width: 680px; margin: 0 auto; display: flex; justify-content: center; }
+.checkin-wrap { padding: 0 32px 40px; max-width: 680px display: flex; justify-content: center; }
 
 .checkin-card { padding: 44px 32px; max-width: 380px; width: 100%; text-align: center; }
 
@@ -498,7 +506,7 @@ body {
 
 .checkin-card input::placeholder { font-size: 14px; letter-spacing: 1px; color: var(--ink-muted); }
 
-.admin-wrap { padding: 0 32px 40px; max-width: 680px; margin: 0 auto; }
+.admin-wrap { padding: 0 32px 40px; max-width: 680px }
 
 .stat-row { display: flex; gap: 12px; margin-bottom: 20px; }
 
@@ -651,7 +659,7 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
   text-align: center;
   padding: 80px 20px 40px;
   max-width: 600px;
-  margin: 0 auto;
+  
 }
 .error-code {
   font-family: 'DM Sans', sans-serif;
@@ -821,7 +829,7 @@ main { padding-top: 1rem; padding-bottom: 2rem; }
   gap: 6px;
   padding: 0 32px 40px;
   max-width: 680px;
-  margin: 0 auto;
+  
 }
 
 .page-btn {
