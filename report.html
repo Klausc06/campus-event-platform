@@ -264,6 +264,7 @@
 
   /* ============ CODE BLOCKS (glass card) ============ */
   pre {
+    position: relative;
     background: var(--glass-bg);
     backdrop-filter: blur(var(--glass-blur));
     -webkit-backdrop-filter: blur(var(--glass-blur));
@@ -425,6 +426,46 @@
       transform: translateY(0);
     }
   }
+
+  /* ============ COPY BUTTON ============ */
+  pre .copy-btn,
+  .tree .copy-btn,
+  blockquote .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 10px 14px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--ink-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s, transform 0.15s;
+    z-index: 5;
+    letter-spacing: 0.5px;
+  }
+  pre .copy-btn:hover,
+  .tree .copy-btn:hover,
+  blockquote .copy-btn:hover {
+    color: var(--ink);
+    background: rgba(255,255,255,0.58);
+  }
+  pre .copy-btn:active,
+  .tree .copy-btn:active,
+  blockquote .copy-btn:active {
+    transform: scale(0.96);
+  }
+  pre .copy-btn.copied,
+  .tree .copy-btn.copied,
+  blockquote .copy-btn.copied {
+    color: var(--success);
+  }
+  .tree { position: relative; }
+  blockquote { position: relative; }
 
   /* ============ BLOCKQUOTE ============ */
   blockquote {
@@ -1553,6 +1594,26 @@ AI作为辅助工具，最终的代码质量和技术决策由团队成员负责
       headingTargets.forEach(function(t) { navObserver.observe(t.el); });
     }
   })();
+</script>
+
+<script>
+  document.querySelectorAll('pre, .tree, blockquote').forEach(el => {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', () => {
+      const code = el.querySelector('code') || el;
+      navigator.clipboard.writeText(code.textContent).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+    el.appendChild(btn);
+  });
 </script>
 
 </body>
