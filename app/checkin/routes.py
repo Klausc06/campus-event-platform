@@ -1,3 +1,4 @@
+import hmac
 from datetime import datetime, timezone
 
 from flask import render_template, redirect, url_for, flash
@@ -12,10 +13,7 @@ from app.forms import CheckinForm
 @checkin_bp.route('/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 def checkin(event_id):
-    event = db.session.get(Event, event_id)
-    if not event:
-        flash('活动不存在', 'warning')
-        return redirect(url_for('event.list_events'))
+    event = db.get_or_404(Event, event_id)
 
     reg = Registration.query.filter_by(
         user_id=current_user.id,
@@ -33,7 +31,7 @@ def checkin(event_id):
 
     form = CheckinForm()
     if form.validate_on_submit():
-        if form.code.data.strip() == event.checkin_code:
+        if hmac.compare_digest(form.code.data.strip(), event.checkin_code):
             reg.checked_in = True
             reg.checked_in_at = datetime.now(timezone.utc)
             db.session.commit()

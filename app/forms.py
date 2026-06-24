@@ -4,7 +4,7 @@ from wtforms import (
     DateTimeLocalField, IntegerField,
 )
 from wtforms.validators import (
-    DataRequired, Length, Email, EqualTo, NumberRange,
+    DataRequired, Length, Email, EqualTo, NumberRange, ValidationError,
 )
 
 
@@ -31,6 +31,10 @@ class EventForm(FlaskForm):
     max_participants = IntegerField('最大参与人数', validators=[NumberRange(min=0)])
     checkin_code = StringField('签到码')
     submit = SubmitField('提交')
+
+    def validate_end_time(self, field):
+        if self.start_time.data and field.data and field.data <= self.start_time.data:
+            raise ValidationError('结束时间必须晚于开始时间')
 
 
 class CheckinForm(FlaskForm):

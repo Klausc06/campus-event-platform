@@ -1,5 +1,9 @@
 import os
-from flask import Flask, redirect, url_for
+import traceback as tb
+
+from flask import Flask, redirect, render_template, request, url_for
+from werkzeug.exceptions import HTTPException
+
 from config import Config
 from app.extensions import csrf, db, login_manager, migrate, toolbar
 from app.logging import setup_logging, register_request_hooks
@@ -35,9 +39,6 @@ def create_app(config_class=Config):
     app.register_blueprint(checkin_bp)
     app.register_blueprint(admin_bp)
 
-    import traceback as tb
-    from flask import render_template, request
-
     @app.errorhandler(404)
     def not_found(e):
         app.logger.warning("404 Not Found: %s", request.url)
@@ -45,17 +46,20 @@ def create_app(config_class=Config):
 
     @app.errorhandler(500)
     def internal_error(e):
-        trace = "".join(tb.format_exception(type(e), e, e.__traceback__))
         app.logger.exception("500 Internal Server Error")
+        trace = None
+        if app.debug:
+            trace = "".join(tb.format_exception(type(e), e, e.__traceback__))
         return render_template("errors/500.html", traceback=trace), 500
 
     @app.errorhandler(Exception)
     def handle_exception(e):
-        from werkzeug.exceptions import HTTPException
         if isinstance(e, HTTPException):
             return e
-        trace = "".join(tb.format_exception(type(e), e, e.__traceback__))
         app.logger.exception("Unhandled exception: %s", str(e))
+        trace = None
+        if app.debug:
+            trace = "".join(tb.format_exception(type(e), e, e.__traceback__))
         return render_template("errors/500.html", traceback=trace), 500
 
     @app.route('/')

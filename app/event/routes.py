@@ -12,8 +12,9 @@ def list_events():
     q = request.args.get('q', '').strip()
     query = Event.query
     if q:
+        escaped_q = q.replace('%', '\\%').replace('_', '\\_')
         query = query.filter(
-            (Event.title.ilike(f'%{q}%')) | (Event.location.ilike(f'%{q}%'))
+            (Event.title.ilike(f'%{escaped_q}%')) | (Event.location.ilike(f'%{escaped_q}%'))
         )
     events = query.order_by(Event.start_time.desc()).all()
     return render_template('event/list.html', events=events, q=q)

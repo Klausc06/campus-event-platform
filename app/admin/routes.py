@@ -1,7 +1,8 @@
 import os
 
-from flask import render_template
+from flask import current_app, render_template
 from flask_login import login_required, current_user
+from sqlalchemy import func
 
 from app.admin import admin_bp
 from app.decorators import admin_required
@@ -23,18 +24,16 @@ def dashboard():
     total_registrations = Registration.query.filter_by(status='confirmed').count()
     total_checkins = Registration.query.filter_by(status='confirmed', checked_in=True).count()
 
-    events = Event.query.order_by(Event.created_at.desc()).all()
+    stats = db.session.query(
+        Event,
+        func.count(Registration.id).filter(Registration.status == 'confirmed').label('registered'),
+        func.count(Registration.id).filter(Registration.status == 'confirmed', Registration.checked_in == True).label('checked_in'),
+    ).outerjoin(Registration).group_by(Event.id).order_by(Event.created_at.desc()).all()
+
     event_stats = []
-    for event in events:
-        registered = event.registered_count
-        checked = event.checked_in_count
-        rate = round(checked / registered * 100, 1) if registered > 0 else 0
-        event_stats.append({
-            'event': event,
-            'registered': registered,
-            'checked_in': checked,
-            'rate': rate,
-        })
+    for event, registered, checked_in in stats:
+        rate = round(checked_in / registered * 100, 1) if registered > 0 else 0
+        event_stats.append({'event': event, 'registered': registered, 'checked_in': checked_in, 'rate': rate})
 
     return render_template(
         'admin/dashboard.html',
@@ -48,8 +47,7 @@ def dashboard():
 
 @admin_bp.route("/logs")
 def logs():
-    log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "logs")
-    log_file = os.path.join(log_dir, "app.log")
+    log_file = current_app.config['LOG_FILE']
 
     log_content = ""
     error_lines = ""
