@@ -38,6 +38,8 @@ def setup_logging(app):
 
     try:
         os.makedirs(log_dir, exist_ok=True)
+        with open(log_file, "a"):
+            pass
         handlers["file"] = {
             "class": "logging.handlers.RotatingFileHandler",
             "filename": log_file,
@@ -47,7 +49,7 @@ def setup_logging(app):
             "level": "DEBUG",
         }
         handler_list = ["console", "file"]
-    except OSError:
+    except (OSError, PermissionError):
         handler_list = ["console"]
 
     dictConfig(
