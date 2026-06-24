@@ -1,16 +1,20 @@
 import sys
 import os
-import traceback
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-try:
-    from app import create_app
-    app = create_app()
-except Exception:
-    from flask import Flask
-    app = Flask(__name__)
+from flask import Flask
 
-    @app.route("/")
-    def show_error():
-        return f"<pre>{traceback.format_exc()}</pre>", 500
+def _create():
+    try:
+        from app import create_app
+        return create_app()
+    except Exception:
+        fallback = Flask(__name__)
+        import traceback
+        @fallback.route("/")
+        def err():
+            return f"<pre>{traceback.format_exc()}</pre>", 500
+        return fallback
+
+app = _create()
