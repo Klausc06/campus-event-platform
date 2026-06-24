@@ -413,6 +413,17 @@
   /* ============ SECTION ============ */
   .section {
     margin-bottom: 48px;
+    position: relative;
+  }
+  .section-copy-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: 0;
+    transition: opacity 0.2s, color 0.2s, background 0.2s, transform 0.15s;
+  }
+  .section:hover .section-copy-btn {
+    opacity: 1;
   }
 
   @media screen {
@@ -430,7 +441,8 @@
   /* ============ COPY BUTTON ============ */
   pre .copy-btn,
   .tree .copy-btn,
-  blockquote .copy-btn {
+  blockquote .copy-btn,
+  .section-copy-btn {
     position: absolute;
     top: 8px;
     right: 8px;
@@ -450,18 +462,21 @@
   }
   pre .copy-btn:hover,
   .tree .copy-btn:hover,
-  blockquote .copy-btn:hover {
+  blockquote .copy-btn:hover,
+  .section-copy-btn:hover {
     color: var(--ink);
     background: rgba(255,255,255,0.58);
   }
   pre .copy-btn:active,
   .tree .copy-btn:active,
-  blockquote .copy-btn:active {
+  blockquote .copy-btn:active,
+  .section-copy-btn:active {
     transform: scale(0.96);
   }
   pre .copy-btn.copied,
   .tree .copy-btn.copied,
-  blockquote .copy-btn.copied {
+  blockquote .copy-btn.copied,
+  .section-copy-btn.copied {
     color: var(--success);
   }
   .tree { position: relative; }
@@ -1613,6 +1628,23 @@ AI作为辅助工具，最终的代码质量和技术决策由团队成员负责
       });
     });
     el.appendChild(btn);
+  });
+
+  document.querySelectorAll('.section').forEach(section => {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn section-copy-btn';
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText(section.innerText).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+    section.appendChild(btn);
   });
 </script>
 
