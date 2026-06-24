@@ -29,6 +29,8 @@
     --text-sm: 13px;
     --text-base: 15px;
     --text-md: 17px;
+    --text-lg: 20px;
+    --text-xl: 26px;
     --ls-wide: 3px;
     --ls-normal: 1px;
     --ls-tight: 0.3px;
@@ -54,7 +56,7 @@
     text-wrap: balance;
     font-family: "Noto Serif SC", "Songti SC", serif;
     font-weight: 300;
-    letter-spacing: 2px;
+    letter-spacing: var(--ls-normal);
     color: var(--ink);
   }
 
@@ -95,20 +97,20 @@
     align-items: center;
   }
   .cover h1 {
-    font-size: 26px;
+    font-size: var(--text-xl);
     font-weight: 300;
     letter-spacing: 4px;
     margin-bottom: 8px;
   }
   .cover .subtitle {
     font-size: var(--text-md);
-    color: var(--ink-muted);
+    color: var(--ink-secondary);
     margin-bottom: 60px;
     font-weight: 300;
     letter-spacing: var(--ls-normal);
   }
   .cover .project-name {
-    font-size: 20px;
+    font-size: var(--text-lg);
     font-weight: 400;
     color: var(--accent);
     margin-bottom: 60px;
@@ -143,7 +145,7 @@
   .cover .meta-table td:first-child {
     font-weight: 400;
     width: 100px;
-    color: var(--ink-muted);
+    color: var(--ink-secondary);
     letter-spacing: var(--ls-normal);
   }
   .cover .meta-table tr:last-child td {
@@ -152,8 +154,8 @@
   .cover .date {
     margin-top: 70px;
     font-size: var(--text-base);
-    color: var(--ink-muted);
-    letter-spacing: 2px;
+    color: var(--ink-secondary);
+    letter-spacing: var(--ls-normal);
   }
 
   @media screen { .cover { padding-top: 160px; } }
@@ -163,7 +165,7 @@
   .toc h2 {
     text-align: center;
     margin-bottom: 30px;
-    font-size: 22px;
+    font-size: var(--text-md);
     letter-spacing: var(--ls-wide);
     position: relative;
   }
@@ -204,7 +206,7 @@
 
   /* ============ HEADINGS ============ */
   h2 {
-    font-size: 24px;
+    font-size: var(--text-md);
     font-weight: 300;
     letter-spacing: var(--ls-wide);
     margin: 60px 0 24px;
@@ -243,7 +245,7 @@
     border-collapse: collapse;
     margin: 18px 0;
     font-size: var(--text-sm);
-    border-radius: 4px;
+    border-radius: 6px;
     overflow: hidden;
     box-shadow: var(--shadow-surface);
   }
@@ -254,7 +256,7 @@
     vertical-align: top;
   }
   th {
-    background: rgba(0,0,0,0.04);
+    background: #f0f2f5;
     font-weight: 600;
     white-space: nowrap;
     color: var(--ink);
@@ -266,16 +268,15 @@
     background: transparent;
   }
   tr:hover td {
-    background: rgba(0,0,0,0.02);
+    background: #f8fafb;
   }
 
   /* ============ CODE BLOCKS ============ */
   pre {
     position: relative;
-    background: rgba(0,0,0,0.03);
+    background: #f6f8fa;
     border: none;
-    border-left: 2px solid var(--accent);
-    border-radius: 4px;
+    border-radius: 6px;
     padding: 16px 20px;
     margin: 16px 0;
     overflow-x: auto;
@@ -292,7 +293,7 @@
   p code, li code, td code {
     background: rgba(196,90,58,0.08);
     padding: 1px 6px;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: var(--text-xs);
     color: var(--accent);
     font-family: var(--font-code);
@@ -317,8 +318,8 @@
     text-align: center;
     margin: 24px 0;
     padding: 20px;
-    background: rgba(0,0,0,0.02);
-    border-radius: 8px;
+    background: #f8fafb;
+    border-radius: 6px;
     box-shadow: var(--shadow-surface);
   }
 
@@ -352,7 +353,7 @@
     font-weight: 500;
     padding: 11px 12px;
     min-height: 40px;
-    border-radius: 8px;
+    border-radius: 6px;
     transition: color 0.2s, background 0.2s, transform 0.15s;
     letter-spacing: var(--ls-tight);
   }
@@ -370,11 +371,10 @@
 
   /* ============ NOTE / CALLOUT ============ */
   .note {
-    background: rgba(0,0,0,0.03);
-    border-left: 2px solid var(--accent);
+    background: #f6f8fa;
     padding: 14px 18px;
     margin: 18px 0;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: var(--text-sm);
   }
 
@@ -382,10 +382,9 @@
   .tree {
     font-family: var(--font-code);
     font-size: var(--text-sm);
-    background: rgba(0,0,0,0.03);
+    background: #f6f8fa;
     border: none;
-    border-left: 2px solid var(--accent);
-    border-radius: 4px;
+    border-radius: 6px;
     padding: 20px 24px;
     line-height: 1.8;
   }
@@ -393,7 +392,7 @@
   /* ============ COLOR SWATCH ============ */
   .color-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
   .color-swatch {
-    width: 32px; height: 32px; border-radius: 8px;
+    width: 32px; height: 32px; border-radius: 6px;
     border: 1px solid var(--line); flex-shrink: 0;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   }
@@ -443,6 +442,8 @@
   pre .copy-btn,
   .tree .copy-btn,
   blockquote .copy-btn,
+  .mermaid .copy-btn,
+  table .copy-btn,
   .section-copy-btn {
     position: absolute;
     top: 8px;
@@ -450,9 +451,9 @@
     padding: 12px 16px;
     min-height: 40px;
     min-width: 40px;
-    background: rgba(0,0,0,0.05);
+    background: #eceae5;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     color: var(--ink-muted);
     font-family: var(--font-ui);
     font-size: var(--text-xs);
@@ -464,6 +465,8 @@
   pre .copy-btn:hover,
   .tree .copy-btn:hover,
   blockquote .copy-btn:hover,
+  .mermaid .copy-btn:hover,
+  table .copy-btn:hover,
   .section-copy-btn:hover {
     color: var(--ink);
     background: rgba(255,255,255,0.58);
@@ -471,25 +474,30 @@
   pre .copy-btn:active,
   .tree .copy-btn:active,
   blockquote .copy-btn:active,
+  .mermaid .copy-btn:active,
+  table .copy-btn:active,
   .section-copy-btn:active {
     transform: scale(0.96);
   }
   pre .copy-btn.copied,
   .tree .copy-btn.copied,
   blockquote .copy-btn.copied,
+  .mermaid .copy-btn.copied,
+  table .copy-btn.copied,
   .section-copy-btn.copied {
     color: var(--success);
   }
   .tree { position: relative; }
   blockquote { position: relative; }
+  .mermaid { position: relative; }
+  table { position: relative; }
 
   /* ============ BLOCKQUOTE ============ */
   blockquote {
-    background: rgba(0,0,0,0.03);
-    border-left: 2px solid var(--accent);
+    background: #f6f8fa;
     padding: 14px 20px;
     margin: 16px 0;
-    border-radius: 4px;
+    border-radius: 6px;
     color: var(--ink-secondary);
     font-style: italic;
   }
@@ -653,38 +661,31 @@
 
 <div class="mermaid">
 graph TB
-    subgraph 入口层
-        RUN[run.py<br/>app = create_app]
-        SEED[seed.py<br/>演示数据]
+    subgraph 入口
+        RUN[run.py] --> APP[create_app]
     end
-    subgraph 应用工厂
-        INIT["app/__init__.py<br/>create_app()"]
+    subgraph 扩展
+        DB[(db)]
+        LOGIN[login_manager]
+        MIGRATE[migrate]
+        CSRF[csrf]
     end
-    subgraph 扩展层
-        EXT["app/extensions.py<br/>db / login_manager / migrate / csrf"]
+    subgraph 蓝图
+        AUTH[auth /注册/登录]
+        EVENT[event /活动CRUD]
+        CHECKIN[checkin /签到]
+        ADMIN[admin /管理面板]
     end
-    subgraph 蓝图模块
-        AUTH["auth/<br/>注册 · 登录 · 登出"]
-        EVENT["event/<br/>活动CRUD · 报名 · 取消"]
-        CHECKIN["checkin/<br/>签到验证"]
-        ADMIN["admin/<br/>数据面板 · 权限控制"]
+    subgraph 模型
+        USER[User]
+        EVT[Event]
+        REG[Registration]
     end
-    subgraph 公共层
-        MODEL["models.py<br/>User · Event · Registration"]
-        FORM["forms.py<br/>WTForms表单"]
-        DEC["decorators.py<br/>admin_required"]
-        CFG["config.py<br/>Config · TestConfig"]
-    end
-    subgraph 数据层
-        DB[(SQLite<br/>app.db)]
-    end
-    RUN --> INIT
-    INIT --> EXT
-    INIT --> AUTH & EVENT & CHECKIN & ADMIN
-    AUTH & EVENT & CHECKIN & ADMIN --> MODEL & FORM
-    MODEL --> EXT
-    EXT --> DB
-    ADMIN --> DEC
+    APP --> DB & LOGIN & MIGRATE & CSRF
+    APP --> AUTH & EVENT & CHECKIN & ADMIN
+    AUTH & EVENT & CHECKIN & ADMIN --> USER & EVT & REG
+    USER --> REG
+    EVT --> REG
 </div>
 
 <h3>3.2 模块关系图</h3>
@@ -692,17 +693,13 @@ graph TB
 
 <div class="mermaid">
 graph LR
-    AUTH[auth模块<br/>认证] -->|login_user<br/>logout_user| FL[Flask-Login]
-    EVENT[event模块<br/>活动管理] -->|current_user| FL
-    CHECKIN[checkin模块<br/>签到] -->|current_user| FL
-    ADMIN[admin模块<br/>管理面板] -->|admin_required| FL
-    AUTH --> DB[(DB)]
-    EVENT --> DB
-    CHECKIN --> DB
-    ADMIN --> DB
-    EVENT -->|Registration| MODEL[models.py]
-    CHECKIN -->|Registration| MODEL
-    ADMIN -->|User Event Registration| MODEL
+    AUTH[auth] -->|login_user| FL[Flask-Login]
+    EVENT[event] -->|current_user| FL
+    CHECKIN[checkin] -->|current_user| FL
+    ADMIN[admin] -->|admin_required| FL
+    AUTH & EVENT & CHECKIN & ADMIN --> DB[(数据库)]
+    EVENT & CHECKIN --> REG[Registration]
+    ADMIN --> USER[User]
 </div>
 
 <h3>3.3 ER图</h3>
@@ -715,32 +712,22 @@ erDiagram
     User ||--o{ Event : "创建"
     User {
         int id PK
-        string username UK
-        string email UK
-        string password_hash
+        string username
+        string email
         bool is_admin
-        datetime created_at
     }
     Event {
         int id PK
         string title
-        text description
-        string location
-        datetime start_time
-        datetime end_time
+        string category
         int max_participants
-        string checkin_code
-        int creator_id FK
-        datetime created_at
     }
     Registration {
         int id PK
         int user_id FK
         int event_id FK
         string status
-        datetime registered_at
         bool checked_in
-        datetime checked_in_at
     }
 </div>
 
@@ -1981,14 +1968,24 @@ AI作为辅助工具，最终的代码质量和技术决策由团队成员负责
 <script>
   mermaid.initialize({
     startOnLoad: true,
-    theme: 'default',
-    securityLevel: 'loose',
-    er: { useMaxWidth: true },
-    flowchart: { useMaxWidth: true, htmlLabels: true },
+    theme: 'base',
     themeVariables: {
+      primaryColor: '#F5EDE4',
+      primaryTextColor: '#1A1A1A',
+      primaryBorderColor: '#C4A882',
+      lineColor: '#B8A090',
+      secondaryColor: '#F0E8DD',
+      tertiaryColor: '#EDE4D8',
+      background: '#FAF8F5',
+      mainBkg: '#F5EDE4',
+      nodeBorder: '#C4A882',
+      clusterBkg: '#F0E8DD',
+      clusterBorder: '#D4C4B0',
       fontSize: '14px',
-      fontFamily: '"DM Sans", "Noto Sans SC", sans-serif'
-    }
+      fontFamily: '"Noto Serif SC", Georgia, serif'
+    },
+    flowchart: { curve: 'linear', htmlLabels: true },
+    er: { fontSize: 12 }
   });
 
   (function() {
@@ -2036,7 +2033,7 @@ AI作为辅助工具，最终的代码质量和技术决策由团队成员负责
 </script>
 
 <script>
-  document.querySelectorAll('pre, .tree, blockquote').forEach(el => {
+  document.querySelectorAll('pre, .tree, blockquote, .mermaid, table').forEach(el => {
     const btn = document.createElement('button');
     btn.className = 'copy-btn';
     btn.textContent = 'Copy';
