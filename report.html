@@ -428,8 +428,8 @@
 
   @media screen {
     .section {
-      opacity: 0;
-      transform: translateY(20px);
+      opacity: 1;
+      transform: translateY(0);
       transition: opacity 0.6s ease, transform 0.6s ease;
     }
     .section.visible {
@@ -764,12 +764,12 @@ erDiagram
     <tr><td><code>/event/&lt;id&gt;/cancel</code></td><td>POST</td><td>cancel</td><td>event</td><td>取消报名</td><td>登录</td></tr>
     <tr><td><code>/checkin/&lt;event_id&gt;</code></td><td>GET/POST</td><td>checkin</td><td>checkin</td><td>活动签到</td><td>登录+已报名</td></tr>
     <tr><td><code>/admin/</code></td><td>GET</td><td>dashboard</td><td>admin</td><td>管理面板</td><td>管理员</td></tr>
-    <tr><td><code>/checkin/&lt;id&gt;/qr</code></td><td>GET</td><td>qr</td><td>checkin</td><td><span data-zh="QR码签到页面" data-en="QR code check-in page">QR码签到页面</span></td><td>创建者/管理员</td></tr>
-    <tr><td><code>/admin/export/&lt;id&gt;</code></td><td>GET</td><td>export_event</td><td>admin</td><td><span data-zh="单活动CSV导出" data-en="Per-event CSV export">单活动CSV导出</span></td><td>管理员</td></tr>
+    <tr><td><code>/checkin/&lt;event_id&gt;/qr</code></td><td>GET</td><td>qr</td><td>checkin</td><td><span data-zh="QR码签到页面" data-en="QR code check-in page">QR码签到页面</span></td><td>创建者/管理员</td></tr>
+    <tr><td><code>/admin/export/&lt;event_id&gt;</code></td><td>GET</td><td>export_event</td><td>admin</td><td><span data-zh="单活动CSV导出" data-en="Per-event CSV export">单活动CSV导出</span></td><td>管理员</td></tr>
     <tr><td><code>/admin/export/all</code></td><td>GET</td><td>export_all</td><td>admin</td><td><span data-zh="全部活动批量CSV导出" data-en="Bulk CSV export for all events">全部活动批量CSV导出</span></td><td>管理员</td></tr>
     <tr><td><code>/admin/logs</code></td><td>GET</td><td>logs</td><td>admin</td><td><span data-zh="日志查看面板" data-en="Log viewer panel">日志查看面板</span></td><td>管理员</td></tr>
-    <tr><td><code>/api/translate</code></td><td>POST</td><td>api_translate</td><td>app</td><td><span data-zh="翻译API（CSRF豁免，中英双向字典翻译）" data-en="Translation API (CSRF-exempt, zh↔en dictionary)">翻译API（CSRF豁免，中英双向字典翻译）</span></td><td>公开</td></tr>
-    <tr><td><code>/api/events</code></td><td>GET</td><td>api_events</td><td>app</td><td><span data-zh="双语活动列表JSON" data-en="Bilingual event list JSON">双语活动列表JSON</span></td><td>公开</td></tr>
+    <tr><td><code>/api/translate</code></td><td>POST</td><td>translate</td><td>app</td><td><span data-zh="翻译API（CSRF豁免，中英双向字典翻译）" data-en="Translation API (CSRF-exempt, zh↔en dictionary)">翻译API（CSRF豁免，中英双向字典翻译）</span></td><td>公开</td></tr>
+    <tr><td><code>/api/events</code></td><td>GET</td><td>events_bilingual</td><td>app</td><td><span data-zh="双语活动列表JSON" data-en="Bilingual event list JSON">双语活动列表JSON</span></td><td>公开</td></tr>
   </tbody>
 </table>
 
@@ -787,7 +787,7 @@ erDiagram
     <tr><td>Werkzeug</td><td>3.x</td><td>WSGI工具库</td><td>密码哈希、Flask内置依赖</td></tr>
     <tr><td>SQLite</td><td>3.x</td><td>数据库</td><td>零配置、文件型，适合课程项目和原型开发</td></tr>
     <tr><td>pytest</td><td>8.x</td><td>测试框架</td><td>简洁的fixture机制，社区标准</td></tr>
-    <tr><td>qrcode</td><td>7.x</td><td>QR码生成</td><td>轻量QR码库，支持PIL图片输出</td></tr>
+    <tr><td>qrcode</td><td>8.0</td><td>QR码生成</td><td>轻量QR码库，支持PIL图片输出</td></tr>
     <tr><td>Cpolar</td><td>-</td><td>内网穿透</td><td>可选，用于局域网外演示访问</td></tr>
   </tbody>
 </table>
@@ -1026,7 +1026,7 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
     end_time = db.Column(db.DateTime, nullable=<span class="kw">False</span>)
     max_participants = db.Column(db.Integer, default=<span class="num">0</span>)
     checkin_code = db.Column(db.String(<span class="num">50</span>))
-     category = db.Column(db.String(<span class="num">50</span>), default=<span class="st">'其他'</span>)
+    category = db.Column(db.String(<span class="num">50</span>), default=<span class="st">'其他'</span>)
     creator_id = db.Column(db.Integer, db.ForeignKey(<span class="st">'user.id'</span>), nullable=<span class="kw">False</span>)
     created_at = db.Column(db.DateTime, default=<span class="kw">lambda</span>: datetime.now(timezone.utc))
 
@@ -1121,10 +1121,7 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
 <span class="dc">@checkin_bp.route</span>(<span class="st">'/&lt;int:event_id&gt;'</span>, methods=[<span class="st">'GET'</span>, <span class="st">'POST'</span>])
 <span class="dc">@login_required</span>
 <span class="kw">def</span> <span class="fn">checkin</span>(event_id):
-    event = db.session.get(Event, event_id)
-    <span class="kw">if</span> <span class="kw">not</span> event:
-        flash(<span class="st">'活动不存在'</span>, <span class="st">'warning'</span>)
-        <span class="kw">return</span> redirect(url_for(<span class="st">'event.list_events'</span>))
+    event = db.get_or_404(Event, event_id)
 
     reg = Registration.query.filter_by(
         user_id=current_user.id, event_id=event_id, status=<span class="st">'confirmed'</span>,
@@ -1140,7 +1137,7 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
 
     form = <span class="cls">CheckinForm</span>()
     <span class="kw">if</span> form.validate_on_submit():
-        <span class="kw">if</span> form.code.data.strip() == event.checkin_code:
+        <span class="kw">if</span> hmac.compare_digest(form.code.data.strip(), event.checkin_code):
             reg.checked_in = <span class="kw">True</span>
             reg.checked_in_at = datetime.now(timezone.utc)
             db.session.commit()
@@ -1160,6 +1157,8 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
 <span class="kw">def</span> <span class="fn">require_admin</span>():
     <span class="kw">pass</span>
 
+<span class="kw">from</span> sqlalchemy <span class="kw">import</span> func
+
 <span class="dc">@admin_bp.route</span>(<span class="st">'/'</span>)
 <span class="kw">def</span> <span class="fn">dashboard</span>():
     total_users = User.query.count()
@@ -1169,18 +1168,28 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
         status=<span class="st">'confirmed'</span>, checked_in=<span class="kw">True</span>
     ).count()
 
-    events = Event.query.order_by(Event.created_at.desc()).all()
+    stats = db.session.query(
+        Event,
+        func.count(Registration.id).filter(Registration.status == <span class="st">'confirmed'</span>).label(<span class="st">'registered'</span>),
+        func.count(Registration.id).filter(Registration.status == <span class="st">'confirmed'</span>, Registration.checked_in == <span class="kw">True</span>).label(<span class="st">'checked_in'</span>),
+    ).outerjoin(Registration).group_by(Event.id).order_by(Event.created_at.desc()).all()
+
     event_stats = []
-    <span class="kw">for</span> event <span class="kw">in</span> events:
-        registered = event.registered_count
-        checked = event.checked_in_count
-        rate = <span class="cls">round</span>(checked / registered * <span class="num">100</span>, <span class="num">1</span>) <span class="kw">if</span> registered > <span class="num">0</span> <span class="kw">else</span> <span class="num">0</span>
+    <span class="kw">for</span> event, registered, checked_in <span class="kw">in</span> stats:
+        rate = <span class="cls">round</span>(checked_in / registered * <span class="num">100</span>, <span class="num">1</span>) <span class="kw">if</span> registered > <span class="num">0</span> <span class="kw">else</span> <span class="num">0</span>
         event_stats.append({
             <span class="st">'event'</span>: event, <span class="st">'registered'</span>: registered,
-            <span class="st">'checked_in'</span>: checked, <span class="st">'rate'</span>: rate,
+            <span class="st">'checked_in'</span>: checked_in, <span class="st">'rate'</span>: rate,
         })
 
-    <span class="kw">return</span> render_template(<span class="st">'admin/dashboard.html'</span>, **<span class="cls">locals</span>())</code></pre>
+    <span class="kw">return</span> render_template(
+        <span class="st">'admin/dashboard.html'</span>,
+        total_users=total_users,
+        total_events=total_events,
+        total_registrations=total_registrations,
+        total_checkins=total_checkins,
+        event_stats=event_stats,
+    )
 
 <h3>5.11 权限装饰器</h3>
 <p>自定义<code>admin_required</code>装饰器，配合Flask-Login的<code>current_user</code>实现基于角色的访问控制。</p>
@@ -1205,7 +1214,7 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
 
 <span class="kw">def</span> <span class="fn">get_qr_code</span>(url):
     <span class="cm">"""生成QR码并返回base64编码的PNG图片"""</span>
-    img = qrcode.<span class="fn">make</span>(url, box_size=<span class="num">8</span>, border=<span class="num">2</span>)
+    img = qrcode.<span class="fn">make</span>(url, box_size=<span class="num">10</span>, border=<span class="num">2</span>)
     buf = io.<span class="cls">BytesIO</span>()
     img.<span class="fn">save</span>(buf, format=<span class="st">'PNG'</span>)
     <span class="kw">return</span> <span class="st">'data:image/png;base64,'</span> + base64.<span class="fn">b64encode</span>(buf.<span class="fn">getvalue</span>()).<span class="fn">decode</span>()
@@ -1213,10 +1222,13 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
 <span class="dc">@checkin_bp.route</span>(<span class="st">'/&lt;int:event_id&gt;/qr'</span>)
 <span class="dc">@login_required</span>
 <span class="kw">def</span> <span class="fn">qr</span>(event_id):
-    event = db.session.<span class="fn">get</span>(Event, event_id)
-    <span class="kw">if not</span> event <span class="kw">or</span> (event.creator_id != current_user.id <span class="kw">and not</span> current_user.is_admin):
-        <span class="fn">abort</span>(<span class="num">403</span>)
-    checkin_url = request.host_url.<span class="fn">rstrip</span>(<span class="st">'/'</span>) + url_for(<span class="st">'checkin.checkin'</span>, event_id=event.id)
+    event = db.get_or_404(Event, event_id)
+
+    <span class="kw">if</span> event.creator_id != current_user.id <span class="kw">and not</span> current_user.is_admin:
+        flash(<span class="st">'无权查看签到二维码'</span>, <span class="st">'danger'</span>)
+        <span class="kw">return</span> redirect(url_for(<span class="st">'event.detail'</span>, id=event_id))
+
+    checkin_url = request.url_root.<span class="fn">rstrip</span>(<span class="st">'/'</span>) + url_for(<span class="st">'checkin.checkin'</span>, event_id=event_id)
     qr_data_uri = <span class="fn">get_qr_code</span>(checkin_url)
     <span class="kw">return</span> <span class="fn">render_template</span>(<span class="st">'checkin/qr.html'</span>, event=event, qr_data_uri=qr_data_uri)</code></pre>
 
@@ -1227,45 +1239,55 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
 <span class="kw">from</span> flask <span class="kw">import</span> Response
 <span class="kw">from</span> urllib.parse <span class="kw">import</span> quote
 
-<span class="kw">def</span> <span class="fn">_make_csv_response</span>(rows, filename):
-    <span class="cm">"""生成带UTF-8 BOM和RFC 5987文件名的CSV响应"""</span>
-    buf = io.<span class="cls">StringIO</span>()
-    writer = csv.<span class="fn">writer</span>(buf)
-    writer.<span class="fn">writerow</span>([<span class="st">'活动标题'</span>, <span class="st">'用户名'</span>, <span class="st">'邮箱'</span>, <span class="st">'报名时间'</span>, <span class="st">'是否签到'</span>, <span class="st">'签到时间'</span>])
-    writer.<span class="fn">writerows</span>(rows)
-    encoded = <span class="fn">quote</span>(filename)
-    resp = <span class="cls">Response</span>(<span class="st">'\ufeff'</span> + buf.<span class="fn">getvalue</span>(), mimetype=<span class="st">'text/csv; charset=utf-8'</span>)
-    resp.headers[<span class="st">'Content-Disposition'</span>] = (
-        <span class="st">f"attachment; filename*=UTF-8''</span>{encoded}<span class="st">"</span>
-    )
-    <span class="kw">return</span> resp
-
 <span class="dc">@admin_bp.route</span>(<span class="st">'/export/&lt;int:event_id&gt;'</span>)
 <span class="kw">def</span> <span class="fn">export_event</span>(event_id):
     event = db.session.<span class="fn">get</span>(Event, event_id)
-    regs = (Registration.query
-        .<span class="fn">join</span>(User).<span class="fn">filter</span>(Registration.event_id == event_id,
-                         Registration.status == <span class="st">'confirmed'</span>)
-        .<span class="fn">add_columns</span>(User.username, User.email,
-                     Registration.registered_at,
-                     Registration.checked_in, Registration.checked_in_at)
-        .<span class="fn">all</span>())
-    rows = [[event.title, r.username, r.email, r.registered_at,
-             <span class="st">'是'</span> <span class="kw">if</span> r.checked_in <span class="kw">else</span> <span class="st">'否'</span>, r.checked_in_at <span class="kw">or</span> <span class="st">''</span>] <span class="kw">for</span> r <span class="kw">in</span> regs]
-    <span class="kw">return</span> <span class="fn">_make_csv_response</span>(rows, <span class="st">f'</span>{event.title}<span class="st">_报名名单.csv'</span>)
+    <span class="kw">if not</span> event:
+        <span class="kw">return</span> <span class="st">'Event not found'</span>, <span class="num">404</span>
+
+    registrations = Registration.query.<span class="fn">filter_by</span>(
+        event_id=event_id, status=<span class="st">'confirmed'</span>
+    ).<span class="fn">all</span>()
+
+    output = io.<span class="cls">StringIO</span>()
+    output.<span class="fn">write</span>(<span class="st">'\ufeff'</span>)
+    writer = csv.<span class="fn">writer</span>(output)
+    writer.<span class="fn">writerow</span>([<span class="st">'username'</span>, <span class="st">'email'</span>, <span class="st">'registered_at'</span>, <span class="st">'checked_in'</span>, <span class="st">'checked_in_at'</span>])
+
+    <span class="kw">for</span> r <span class="kw">in</span> registrations:
+        writer.<span class="fn">writerow</span>([r.user.username, r.user.email,
+            r.registered_at.<span class="fn">strftime</span>(<span class="st">'%Y-%m-%d %H:%M:%S'</span>) <span class="kw">if</span> r.registered_at <span class="kw">else</span> <span class="st">''</span>,
+            <span class="st">'Yes'</span> <span class="kw">if</span> r.checked_in <span class="kw">else</span> <span class="st">'No'</span>,
+            r.checked_in_at.<span class="fn">strftime</span>(<span class="st">'%Y-%m-%d %H:%M:%S'</span>) <span class="kw">if</span> r.checked_in_at <span class="kw">else</span> <span class="st">''</span>])
+
+    filename = <span class="st">f'</span>{event.title}<span class="st">_registrations.csv'</span>
+    encoded = <span class="fn">quote</span>(filename)
+    <span class="kw">return</span> <span class="cls">Response</span>(output.<span class="fn">getvalue</span>(),
+        mimetype=<span class="st">'text/csv; charset=utf-8'</span>,
+        headers={<span class="st">'Content-Disposition'</span>: <span class="st">f"attachment; filename=</span><span class="st">\"</span>{filename}<span class="st">\"</span><span class="st">; filename*=UTF-8''</span>{encoded}<span class="st">"</span>})
 
 <span class="dc">@admin_bp.route</span>(<span class="st">'/export/all'</span>)
 <span class="kw">def</span> <span class="fn">export_all</span>():
-    regs = (Registration.query
-        .<span class="fn">join</span>(User).<span class="fn">join</span>(Event)
-        .<span class="fn">filter</span>(Registration.status == <span class="st">'confirmed'</span>)
-        .<span class="fn">add_columns</span>(Event.title, User.username, User.email,
-                     Registration.registered_at,
-                     Registration.checked_in, Registration.checked_in_at)
-        .<span class="fn">all</span>())
-    rows = [[r.title, r.username, r.email, r.registered_at,
-             <span class="st">'是'</span> <span class="kw">if</span> r.checked_in <span class="kw">else</span> <span class="st">'否'</span>, r.checked_in_at <span class="kw">or</span> <span class="st">''</span>] <span class="kw">for</span> r <span class="kw">in</span> regs]
-    <span class="kw">return</span> <span class="fn">_make_csv_response</span>(rows, <span class="st">'全部活动报名数据.csv'</span>)</code></pre>
+    regs = db.session.<span class="fn">query</span>(Registration, Event.title).<span class="fn">join</span>(Event).<span class="fn">filter</span>(
+        Registration.status == <span class="st">'confirmed'</span>
+    ).<span class="fn">all</span>()
+
+    output = io.<span class="cls">StringIO</span>()
+    output.<span class="fn">write</span>(<span class="st">'\ufeff'</span>)
+    writer = csv.<span class="fn">writer</span>(output)
+    writer.<span class="fn">writerow</span>([<span class="st">'event_title'</span>, <span class="st">'username'</span>, <span class="st">'email'</span>, <span class="st">'registered_at'</span>, <span class="st">'checked_in'</span>, <span class="st">'checked_in_at'</span>])
+
+    <span class="kw">for</span> r, title <span class="kw">in</span> regs:
+        writer.<span class="fn">writerow</span>([title, r.user.username, r.user.email,
+            r.registered_at.<span class="fn">strftime</span>(<span class="st">'%Y-%m-%d %H:%M:%S'</span>) <span class="kw">if</span> r.registered_at <span class="kw">else</span> <span class="st">''</span>,
+            <span class="st">'Yes'</span> <span class="kw">if</span> r.checked_in <span class="kw">else</span> <span class="st">'No'</span>,
+            r.checked_in_at.<span class="fn">strftime</span>(<span class="st">'%Y-%m-%d %H:%M:%S'</span>) <span class="kw">if</span> r.checked_in_at <span class="kw">else</span> <span class="st">''</span>])
+
+    filename = <span class="st">'all_events_registrations.csv'</span>
+    encoded = <span class="fn">quote</span>(filename)
+    <span class="kw">return</span> <span class="cls">Response</span>(output.<span class="fn">getvalue</span>(),
+        mimetype=<span class="st">'text/csv; charset=utf-8'</span>,
+        headers={<span class="st">'Content-Disposition'</span>: <span class="st">f"attachment; filename=</span><span class="st">\"</span>{filename}<span class="st">\"</span><span class="st">; filename*=UTF-8''</span>{encoded}<span class="st">"</span>})</code></pre>
 
 <h3>5.14 <span data-zh="分页功能" data-en="Pagination">分页功能</span></h3>
 <p><span data-zh="活动列表使用Flask-SQLAlchemy的.paginate()方法实现分页，每页显示9条活动，支持上一页/页码/下一页导航。" data-en="Event list uses Flask-SQLAlchemy .paginate() for pagination, displaying 9 events per page with Previous/page numbers/Next navigation controls.">活动列表使用Flask-SQLAlchemy的.paginate()方法实现分页，每页显示9条活动，支持上一页/页码/下一页导航。</span></p>
@@ -1315,7 +1337,7 @@ CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>
 <span class="cm"># app/logging.py — 请求钩子</span>
 <span class="dc">@app.before_request</span>
 <span class="kw">def</span> <span class="fn">log_request_start</span>():
-    g.request_id = request.headers.get(<span class="st">"X-Request-ID"</span>, <span class="st">""</span>) <span class="kw">or</span> str(uuid.uuid4())[:<span class="num">8</span>]
+    g.request_id = request.headers.get(<span class="st">"X-Request-ID"</span>, str(uuid.uuid4())[:<span class="num">8</span>])
     g.start_time = time.time()
 
 <span class="dc">@app.after_request</span>
@@ -1330,47 +1352,33 @@ CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>
 <p><span data-zh="项目采用服务端 i18n 字典 + Jinja2 全局函数的方案，核心文件 translations.py 包含 120+ 条翻译条目，通过 t() 函数在模板中调用。Event 模型新增 title_en、description_en、location_en 双语字段。" data-en="The project uses a server-side i18n dictionary with Jinja2 global functions. The core file translations.py contains 120+ translation entries, called via t() in templates. The Event model adds title_en, description_en, location_en bilingual fields.">项目采用服务端 i18n 字典 + Jinja2 全局函数的方案，核心文件 translations.py 包含 120+ 条翻译条目，通过 t() 函数在模板中调用。Event 模型新增 title_en、description_en、location_en 双语字段。</span></p>
 <pre><code><span class="cm"># app/translations.py</span>
 TRANSLATIONS = {
-    <span class="st">"zh"</span>: {
-        <span class="st">"page_title"</span>: <span class="st">"校园活动平台"</span>,
-        <span class="st">"nav_events"</span>: <span class="st">"活动"</span>,
-        <span class="st">"btn_register"</span>: <span class="st">"报名"</span>,
-        <span class="st">"btn_cancel"</span>: <span class="st">"取消报名"</span>,
-        <span class="st">"btn_checkin"</span>: <span class="st">"签到"</span>,
-        <span class="cm"># ... 120+ 条目</span>
-    },
-    <span class="st">"en"</span>: {
-        <span class="st">"page_title"</span>: <span class="st">"Campus Events"</span>,
-        <span class="st">"nav_events"</span>: <span class="st">"Events"</span>,
-        <span class="st">"btn_register"</span>: <span class="st">"Register"</span>,
-        <span class="st">"btn_cancel"</span>: <span class="st">"Cancel"</span>,
-        <span class="st">"btn_checkin"</span>: <span class="st">"Check In"</span>,
-        <span class="cm"># ... 120+ 条目</span>
-    }
+    <span class="st">"活动列表"</span>: <span class="st">"Event List"</span>,
+    <span class="st">"活动"</span>: <span class="st">"Events"</span>,
+    <span class="st">"报名"</span>: <span class="st">"Register"</span>,
+    <span class="st">"取消报名"</span>: <span class="st">"Cancel"</span>,
+    <span class="st">"签到"</span>: <span class="st">"Check In"</span>,
+    <span class="cm"># ... 120+ 条目</span>
 }
 
-<span class="kw">def</span> <span class="fn">t</span>(key, lang=<span class="st">"zh"</span>):
-    <span class="cm">"""翻译函数：根据 key 和语言返回对应文本"""</span>
-    <span class="kw">return</span> TRANSLATIONS.<span class="fn">get</span>(lang, {}).<span class="fn">get</span>(key, key)
+CATEGORY_MAP = {
+    <span class="st">"学术"</span>: <span class="st">"Academic"</span>, <span class="st">"体育"</span>: <span class="st">"Sports"</span>,
+    <span class="st">"文艺"</span>: <span class="st">"Arts"</span>, <span class="st">"社交"</span>: <span class="st">"Social"</span>,
+    <span class="st">"志愿服务"</span>: <span class="st">"Volunteer"</span>, <span class="st">"其他"</span>: <span class="st">"Other"</span>,
+}</code></pre>
+<pre><code><span class="cm"># app/__init__.py — 注册 context_processor</span>
+<span class="kw">from</span> app.translations <span class="kw">import</span> TRANSLATIONS, CATEGORY_MAP
 
-<span class="kw">def</span> <span class="fn">t_category</span>(cat, lang=<span class="st">"zh"</span>):
-    <span class="cm">"""分类翻译"""</span>
-    CATEGORIES = {<span class="st">"学术"</span>: <span class="st">"Academic"</span>, <span class="st">"体育"</span>: <span class="st">"Sports"</span>,
-                  <span class="st">"文艺"</span>: <span class="st">"Arts"</span>, <span class="st">"社交"</span>: <span class="st">"Social"</span>,
-                  <span class="st">"志愿服务"</span>: <span class="st">"Volunteering"</span>, <span class="st">"其他"</span>: <span class="st">"Other"</span>}
-    <span class="kw">if</span> lang == <span class="st">"en"</span>:
-        <span class="kw">return</span> CATEGORIES.<span class="fn">get</span>(cat, cat)
-    <span class="kw">return</span> cat</code></pre>
-<pre><code><span class="cm"># app/__init__.py — 注册 Jinja2 全局函数</span>
-<span class="kw">from</span> app.translations <span class="kw">import</span> t, t_category
-app.jinja_env.globals[<span class="st">'t'</span>] = t
-app.jinja_env.globals[<span class="st">'t_category'</span>] = t_category</code></pre>
+<span class="dc">@app.context_processor</span>
+<span class="kw">def</span> <span class="fn">inject_translations</span>():
+    <span class="kw">def</span> <span class="fn">t</span>(zh):
+        <span class="kw">return</span> TRANSLATIONS.<span class="fn">get</span>(zh, zh)
+    <span class="kw">def</span> <span class="fn">t_category</span>(zh):
+        <span class="kw">return</span> CATEGORY_MAP.<span class="fn">get</span>(zh, zh)
+    <span class="kw">return</span> dict(t=t, t_category=t_category)</code></pre>
 <pre><code><span class="cm">&lt;!-- 模板中使用 t() 函数 --&gt;</span>
-&lt;a href=<span class="st">"{{ url_for('event.list_events') }}"</span>&gt;{{ <span class="fn">t</span>(<span class="st">"nav_events"</span>, lang) }}&lt;/a&gt;
-&lt;button&gt;{{ <span class="fn">t</span>(<span class="st">"btn_register"</span>, lang) }}&lt;/button&gt;
-&lt;span&gt;{{ <span class="fn">t_category</span>(event.category, lang) }}&lt;/span&gt;
-
-<span class="cm">&lt;!-- 双语数据库字段选择 --&gt;</span>
-&lt;h3&gt;{{ event.title_en <span class="kw">if</span> lang == <span class="st">'en'</span> <span class="kw">else</span> event.title }}&lt;/h3&gt;</code></pre>
+&lt;a href=<span class="st">"{{ url_for('event.list_events') }}"</span>&gt;{{ <span class="fn">t</span>(<span class="st">"活动"</span>) }}&lt;/a&gt;
+&lt;button&gt;{{ <span class="fn">t</span>(<span class="st">"报名"</span>) }}&lt;/button&gt;
+&lt;span&gt;{{ <span class="fn">t_category</span>(event.category) }}&lt;/span&gt;
 
 <h3>5.18 <span data-zh="Translation API" data-en="Translation API">Translation API</span></h3>
 <p><span data-zh="项目提供两个 JSON API 端点：POST /api/translate 支持中英双向翻译（CSRF 豁免），GET /api/events 返回双语活动列表。" data-en="The project exposes two JSON API endpoints: POST /api/translate for zh↔en translation (CSRF-exempt), and GET /api/events returning bilingual event data.">项目提供两个 JSON API 端点：POST /api/translate 支持中英双向翻译（CSRF 豁免），GET /api/events 返回双语活动列表。</span></p>
@@ -1443,8 +1451,14 @@ app.jinja_env.globals[<span class="st">'t_category'</span>] = t_category</code><
     <tr>
       <td><code>--ink-secondary</code></td>
       <td><span class="color-row"><span class="color-swatch" style="background:#666"></span>#666666</span></td>
-      <td><span class="color-row"><span class="color-swatch" style="background:#999"></span>#999999</span></td>
+      <td><span class="color-row"><span class="color-swatch" style="background:#C8C4BE"></span>#C8C4BE</span></td>
       <td>次要文字</td>
+    </tr>
+    <tr>
+      <td><code>--ink-muted</code></td>
+      <td>—</td>
+      <td><span class="color-row"><span class="color-swatch" style="background:#9A9690"></span>#9A9690</span></td>
+      <td>弱化文字</td>
     </tr>
     <tr>
       <td><code>--bg-gradient</code></td>
@@ -1466,13 +1480,13 @@ app.jinja_env.globals[<span class="st">'t_category'</span>] = t_category</code><
 <p>毛玻璃效果通过CSS <code>backdrop-filter</code>属性实现，核心代码如下：</p>
 <pre><code>.glass-card {
     background: <span class="kw">var</span>(--glass-bg);            <span class="cm">/* 半透明背景 */</span>
-    backdrop-filter: <span class="fn">blur</span>(20px);             <span class="cm">/* 核心：背景模糊 */</span>
-    -webkit-backdrop-filter: <span class="fn">blur</span>(20px);    <span class="cm">/* Safari兼容 */</span>
+    backdrop-filter: <span class="fn">blur</span>(<span class="kw">var</span>(--glass-blur));             <span class="cm">/* 核心：背景模糊 */</span>
+    -webkit-backdrop-filter: <span class="fn">blur</span>(<span class="kw">var</span>(--glass-blur));    <span class="cm">/* Safari兼容 */</span>
     border: <span class="num">1</span>px solid <span class="kw">var</span>(--glass-border);  <span class="cm">/* 细边框增加立体感 */</span>
     border-radius: <span class="kw">var</span>(--glass-radius);        <span class="cm">/* 20px 统一圆角 */</span>
     box-shadow: <span class="num">0</span> <span class="num">8</span>px <span class="num">32</span>px <span class="fn">rgba</span>(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0.1</span>);  <span class="cm">/* 柔和阴影 */</span>
 }</code></pre>
-<p>工作原理：<code>backdrop-filter: blur(20px)</code>会对元素背后的内容应用高斯模糊，配合半透明背景色，呈现出类似磨砂玻璃的视觉效果。</p>
+<p>工作原理：<code>backdrop-filter: blur(var(--glass-blur))</code>会对元素背后的内容应用高斯模糊，配合半透明背景色，呈现出类似磨砂玻璃的视觉效果。</p>
 
 <h3>6.4b <span data-zh="卡片组件样式简化" data-en="Card Component Simplification">卡片组件样式简化</span></h3>
 <p><span data-zh="卡片组件（.card.glass）移除了装饰性边框和伪元素，采用更简洁的视觉风格：border: none 替代 1px 边框，不再使用 ::before（顶部折射光线）和 ::after（内部折射渐变）伪元素，保留毛玻璃背景模糊和柔和阴影。" data-en="The card component (.card.glass) removes decorative borders and pseudo-elements for a cleaner look: border: none replaces the 1px border, ::before (top highlight) and ::after (refraction gradient) pseudo-elements are removed, while backdrop-filter blur and soft shadows are retained.">卡片组件（.card.glass）移除了装饰性边框和伪元素，采用更简洁的视觉风格：border: none 替代 1px 边框，不再使用 ::before（顶部折射光线）和 ::after（内部折射渐变）伪元素，保留毛玻璃背景模糊和柔和阴影。</span></p>

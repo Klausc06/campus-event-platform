@@ -41,7 +41,7 @@
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| **Backend** | Flask 3.x | Web框架，Application Factory + 4 Blueprints |
+| **Backend** | Flask 3.x | Web框架，Application Factory + 5 Blueprints |
 | **ORM** | Flask-SQLAlchemy 3.x | 数据库操作，ORM参数化查询防SQL注入 |
 | **Auth** | Flask-Login 0.6.x | 用户会话管理，@login_required |
 | **Forms** | Flask-WTF 1.x + WTForms 3.x | 表单验证、CSRF防护(CSRFProtect全局) |
@@ -231,7 +231,7 @@ campus-event-platform/
 
 #### `app/__init__.py` — Application Factory
 
-- **What it does**: Creates the Flask app via `create_app()`. Sets `template_folder` and `static_folder` to the project root (not inside `app/`), loads config, initializes all four extensions (db, login_manager, migrate, csrf) plus optional DebugToolbar, registers four blueprints (auth, event, checkin, admin), sets up structured logging and request hooks, registers 404/500 error handlers, and defines the `/` index route that redirects to the event list.
+- **What it does**: Creates the Flask app via `create_app()`. Sets `template_folder` and `static_folder` to the project root (not inside `app/`), loads config, initializes all four extensions (db, login_manager, migrate, csrf) plus optional DebugToolbar, registers five blueprints (auth, event, checkin, admin, translate), sets up structured logging and request hooks, registers 404/500 error handlers, and defines the `/` index route that redirects to the event list.
 - **How to add a new blueprint**:
   1. Create `app/newmodule/__init__.py` with `newmodule_bp = Blueprint('newmodule', __name__, url_prefix='/newmodule')`
   2. Create `app/newmodule/routes.py` with route functions decorated by `@newmodule_bp.route(...)`
@@ -252,7 +252,7 @@ campus-event-platform/
 
 #### `app/models.py` — Database Models
 
-- **What it does**: Defines three models: `User` (with `UserMixin` for Flask-Login, password hashing via werkzeug), `Event` (with computed properties `registered_count`, `checked_in_count`, `is_full`, plus a `category` field and `CATEGORIES` list), and `Registration` (the many-to-many join table with extra fields). Also defines the `@login_manager.user_loader` callback and a module-level `CATEGORIES = ['Tech', 'Culture', 'Sports', 'Academic', 'Social', 'Other']` list used by forms and templates.
+- **What it does**: Defines three models: `User` (with `UserMixin` for Flask-Login, password hashing via werkzeug), `Event` (with computed properties `registered_count`, `checked_in_count`, `is_full`, plus a `category` field and `CATEGORIES` list), and `Registration` (the many-to-many join table with extra fields). Also defines the `@login_manager.user_loader` callback and a module-level `CATEGORIES = ['学术', '体育', '文艺', '社交', '志愿服务', '其他']` list used by forms and templates.
 - **How to add a new model**: Create a class inheriting `db.Model`, add `__tablename__`, columns, and relationships. Then run `flask db migrate -m 'add new model'` and `flask db upgrade`.
 - **How to add a field to an existing model**: Add a `db.Column(...)` to the class, then run `flask db migrate -m 'add field'` and `flask db upgrade`.
 - **How to add event categories**: Already implemented. `Event.category` is a `String(50)` column. The `CATEGORIES = ['学术', '体育', '文艺', '社交', '志愿服务', '其他']` list at module level is imported by `app/forms.py` for the `SelectField` choices and by templates for filter pills.
@@ -339,10 +339,10 @@ campus-event-platform/
 
 #### `app/event/routes.py` — Event Routes
 
-- **What it does**: Seven routes: `list_events` (GET — search by title/location with `?q=`, **category filter with `?cat=`**, **paginated with `?page=`** using `.paginate(page, per_page=12)`), `detail` (GET — shows event + registration status), `create` (GET/POST — logged-in users), `edit` (GET/POST — creator or admin only), `delete` (POST — creator or admin only), `register` (POST — handles re-registration of cancelled registrations), `cancel` (POST — soft-delete via `status='cancelled'`).
+- **What it does**: Seven routes: `list_events` (GET — search by title/location with `?q=`, **category filter with `?category=`**, **paginated with `?page=`** using `.paginate(page, per_page=9)`), `detail` (GET — shows event + registration status), `create` (GET/POST — logged-in users), `edit` (GET/POST — creator or admin only), `delete` (POST — creator or admin only), `register` (POST — handles re-registration of cancelled registrations), `cancel` (POST — soft-delete via `status='cancelled'`).
 - **How to add event filtering**: Add query parameter handling in `list_events()`, update the search form in `templates/event/list.html`.
-- **How to add pagination**: Already implemented. Uses Flask-SQLAlchemy's `.paginate(page=page, per_page=12)` on the event query. The pagination object is passed to the template as `pagination`.
-- **How to add event categories**: Already implemented. Reads `?cat=` query param, filters with `Event.category == cat` when present.
+- **How to add pagination**: Already implemented. Uses Flask-SQLAlchemy's `.paginate(page=page, per_page=9)` on the event query. The pagination object is passed to the template as `pagination`.
+- **How to add event categories**: Already implemented. Reads `?category=` query param, filters with `Event.category == cat` when present.
 - **Dependencies**: Imports `event_bp` from `app.event`, `db` from `app.extensions`, `Event`, `Registration` from `app.models`, `EventForm` from `app.forms`.
 - **Gotchas**:
   - Cancel uses soft-delete (`reg.status = 'cancelled'`), not `db.session.delete()`.
@@ -363,12 +363,12 @@ campus-event-platform/
 
 - **What it does**: Single route `checkin` (GET/POST) — verifies that the user is registered and not already checked in, then compares the submitted code against `event.checkin_code`. On success, sets `checked_in=True` and records `checked_in_at` timestamp.
 - **How to add QR code check-in**: Already implemented. The `qr` route at `/checkin/<event_id>/qr` generates a QR code PNG (via the `qrcode` library) encoding the check-in URL with the code as a query parameter. Displayed on the event detail page.
-- **How to change check-in method**: Modify the comparison `form.code.data.strip() == event.checkin_code` at line 36.
+- **How to change check-in method**: Modify the comparison `hmac.compare_digest(form.code.data.strip(), event.checkin_code)` in the checkin route.
 - **Dependencies**: Imports `checkin_bp` from `app.checkin`, `db` from `app.extensions`, `Event`, `Registration` from `app.models`, `CheckinForm` from `app/forms`.
 - **Gotchas**:
   - Code comparison uses `.strip()` to handle accidental whitespace.
   - `checked_in_at` uses `datetime.now(timezone.utc)` — not `datetime.now()`.
-  - Uses `db.session.get(Event, event_id)` instead of `db.get_or_404()` — returns `None` if not found, then manually redirects with flash message.
+  - Uses `db.get_or_404(Event, event_id)` — returns 404 if not found.
 
 ---
 
@@ -383,7 +383,7 @@ campus-event-platform/
 
 - **What it does**: Uses `@admin_bp.before_request` to enforce `@login_required` + `@admin_required` on ALL admin routes. The `dashboard` route queries global stats (total users, events, registrations, check-ins) and per-event stats (registered count, checked-in count, check-in rate). **CSV export** routes: `/admin/export/all` (all registrations) and `/admin/export/<event_id>` (single event). Both return `text/csv` with UTF-8 BOM encoding for Excel compatibility.
 - **How to add new stats**: Add a query in `dashboard()`, pass the result to the template context.
-- **How to add CSV export**: Already implemented. Two routes generate CSV responses using Python's `csv.writer` with `utf-8-sig` encoding (BOM). The dashboard template has export buttons.
+- **How to add CSV export**: Already implemented. Two routes generate CSV responses using Python's `csv.writer` with manual UTF-8 BOM (`\ufeff`) and `charset=utf-8` Content-Type. The dashboard template has export buttons.
 - **Dependencies**: Imports `admin_bp` from `app.admin`, `admin_required` from `app.decorators`, `db` from `app.extensions`, `User`, `Event`, `Registration` from `app.models`.
 - **Gotchas**: The `before_request` hook applies authentication to ALL admin routes — you don't need `@login_required` on individual routes. If you add a public admin route, you'll need to exempt it.
 
@@ -421,8 +421,8 @@ campus-event-platform/
 
 #### `templates/event/list.html` — Event List
 
-- **What it does**: Hero section with title, search bar (GET form with `?q=`), "Create Event" button (authenticated users only), **category filter pills** (horizontal pill buttons linking to `?cat=...`), card grid with stagger animation, **pagination controls** (prev/next + page numbers), and empty state.
-- **How to add filtering**: Already implemented. Category pills filter by `?cat=` query param, rendered from the `CATEGORIES` list.
+- **What it does**: Hero section with title, search bar (GET form with `?q=`), "Create Event" button (authenticated users only), **category filter pills** (horizontal pill buttons linking to `?category=...`), card grid with stagger animation, **pagination controls** (prev/next + page numbers), and empty state.
+- **How to add filtering**: Already implemented. Category pills filter by `?category=` query param, rendered from the `CATEGORIES` list.
 - **How to change card layout**: Modify `.card` CSS in `static/css/style.css`.
 - **Dependencies**: Extends `base.html`. Uses `events`, `q`, `active_cat`, and `pagination` from route context.
 - **Gotchas**: Stagger animation uses `{{ loop.index0 * 80 }}ms` delay — change `80` to adjust the speed of the cascade effect.
@@ -629,7 +629,7 @@ campus-event-platform/
 | GET/POST | `/auth/register` | — | User registration |
 | GET/POST | `/auth/login` | — | User login |
 | POST | `/auth/logout` | ✓ | User logout (CSRF) |
-| GET | `/event/` | — | Event list + search (`?q=`) + category filter (`?cat=`) + pagination (`?page=`) |
+| GET | `/event/` | — | Event list + search (`?q=`) + category filter (`?category=`) + pagination (`?page=`) |
 | GET | `/event/<id>` | — | Event detail |
 | GET/POST | `/event/create` | ✓ | Create event |
 | GET/POST | `/event/<id>/edit` | ✓ | Edit event (creator/admin) |
@@ -744,10 +744,10 @@ event = db.get_or_404(Event, id)
 
 ```python
 page = request.args.get('page', 1, type=int)
-pagination = query.paginate(page=page, per_page=12, error_out=False)
+pagination = query.paginate(page=page, per_page=9, error_out=False)
 ```
 
-**Why**: `.paginate()` returns a `Pagination` object with built-in `has_prev`/`has_next`/`iter_pages()` — simpler and less error-prone than manual cursor/offset pagination. The `per_page=12` aligns with the 3-column card grid. Cursor-based pagination was considered but adds complexity for minimal benefit at this scale.
+**Why**: `.paginate()` returns a `Pagination` object with built-in `has_prev`/`has_next`/`iter_pages()` — simpler and less error-prone than manual cursor/offset pagination. The `per_page=9` aligns with the 3-column card grid. Cursor-based pagination was considered but adds complexity for minimal benefit at this scale.
 
 ### Server-Side QR Code Generation
 
@@ -764,13 +764,16 @@ qr_b64 = base64.b64encode(buf.getvalue()).decode()
 ### Global i18n via Jinja2 `t()` Function
 
 ```python
-# app/translations.py — 120+ entries in TRANSLATIONS dict
-def t(key, lang="zh"): ...
-def t_category(cat, lang="zh"): ...
+# app/translations.py — flat zh→en dict + category map
+TRANSLATIONS = {"活动": "Events", "报名": "Register", ...}  # 120+ entries
+CATEGORY_MAP = {"学术": "Academic", "体育": "Sports", ...}
 
-# app/__init__.py — register as Jinja2 globals
-app.jinja_env.globals['t'] = t
-app.jinja_env.globals['t_category'] = t_category
+# app/__init__.py — register via context_processor with closure
+@app.context_processor
+def inject_translations():
+    def t(zh): return TRANSLATIONS.get(zh, zh)
+    def t_category(zh): return CATEGORY_MAP.get(zh, zh)
+    return dict(t=t, t_category=t_category)
 ```
 
 **Why**: Server-side dictionary lookup in Jinja2 templates replaces the earlier `data-zh`/`data-en` attribute approach. Centralizes all UI strings in one file, supports easy addition of new languages, and avoids client-side JS text replacement. Event model adds `title_en`, `description_en`, `location_en` for pre-translated bilingual DB fields.
@@ -793,10 +796,11 @@ h1, h2, h3, h4, h5, h6 { text-wrap: balance; }
 ### CSV Export with UTF-8 BOM
 
 ```python
-response.headers['Content-Type'] = 'text/csv; charset=utf-8-sig'
+response.headers['Content-Type'] = 'text/csv; charset=utf-8'
+# BOM written manually: output.write('\ufeff')
 ```
 
-**Why**: Using `utf-8-sig` (UTF-8 with BOM) ensures Excel on Windows correctly detects the encoding and displays CJK characters. Plain UTF-8 CSVs open with garbled Chinese text in Excel by default.
+**Why**: Writing `\ufeff` (BOM) manually before CSV content ensures Excel on Windows correctly detects the encoding and displays CJK characters. The Content-Type uses `charset=utf-8` (not `utf-8-sig`). Plain UTF-8 CSVs open with garbled Chinese text in Excel by default.
 
 ## License
 

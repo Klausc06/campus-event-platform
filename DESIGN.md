@@ -71,8 +71,8 @@
 | `--bg` | `#0E0E12` | 页面背景 |
 | `--bg-gradient` | `linear-gradient(160deg, #0E0E12 0%, #141418 50%, #18181E 100%)` | 渐变背景 |
 | `--ink` | `#F0EDE8` | 主文字 |
-| `--ink-secondary` | `#B8B4AE` | 次要文字 |
-| `--ink-muted` | `#6A6660` | 弱化文字 |
+| `--ink-secondary` | `#C8C4BE` | 次要文字 |
+| `--ink-muted` | `#9A9690` | 弱化文字 |
 | `--accent` | `#E07050` | 主题强调色 |
 | `--accent-hover` | `#E88060` | 强调色 hover |
 | `--accent-soft` | `rgba(224,112,80,0.15)` | 强调色淡底 |
@@ -161,11 +161,15 @@
 
 ### 伪元素层次
 
+伪元素仅应用于 `.nav.glass`、`.stat-card.glass`、`.detail.glass`，不应用于 `.card.glass`（卡片组件已移除装饰性伪元素）。
+
 1. **`::before`** — 顶部折射光线（1px 高光线，从透明到高光再到透明）
 2. **`::after`** — 内部折射渐变（上半部分 50% 区域的线性渐变，模拟光线穿透玻璃）
 
 ```css
-.glass::before {
+.nav.glass::before,
+.stat-card.glass::before,
+.detail.glass::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
@@ -173,7 +177,8 @@
   background: linear-gradient(90deg, transparent 5%, var(--glass-highlight) 50%, transparent 95%);
 }
 
-.glass::after {
+.nav.glass::after,
+.detail.glass::after {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
@@ -286,8 +291,8 @@
 ```css
 .pill {
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: 20px;
   padding: 8px 18px;
@@ -345,7 +350,7 @@
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   border-radius: 10px;
-  padding: 8px 14px;
+  padding: 10px 14px;
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   font-weight: 500;
@@ -559,58 +564,44 @@ function setTheme(t) {
 ```python
 # app/translations.py
 TRANSLATIONS = {
-    "zh": {
-        "page_title": "校园活动平台",
-        "nav_events": "活动",
-        "nav_admin": "管理面板",
-        "btn_register": "报名",
-        "btn_cancel": "取消报名",
-        "btn_checkin": "签到",
-        # ... 120+ 条目
-    },
-    "en": {
-        "page_title": "Campus Events",
-        "nav_events": "Events",
-        "nav_admin": "Admin",
-        "btn_register": "Register",
-        "btn_cancel": "Cancel",
-        "btn_checkin": "Check In",
-        # ... 120+ 条目
-    }
+    "活动": "Events",
+    "报名": "Register",
+    "取消报名": "Cancel",
+    "签到": "Check In",
+    # ... 120+ 条目
 }
 
-def t(key, lang="zh"):
-    """翻译函数：根据 key 和语言返回对应文本"""
-    return TRANSLATIONS.get(lang, {}).get(key, key)
-
-def t_category(cat, lang="zh"):
-    """分类翻译：将中文分类名转为英文或保持中文"""
-    CATEGORIES = {"学术": "Academic", "体育": "Sports", "文艺": "Arts",
-                  "社交": "Social", "志愿服务": "Volunteering", "其他": "Other"}
-    if lang == "en":
-        return CATEGORIES.get(cat, cat)
-    return cat
+CATEGORY_MAP = {
+    "学术": "Academic", "体育": "Sports", "文艺": "Arts",
+    "社交": "Social", "志愿服务": "Volunteer", "其他": "Other",
+}
 ```
 
-### Jinja2 全局函数注册
+### Jinja2 context_processor 注册
 
-在 `create_app()` 中将 `t` 和 `t_category` 注册为 Jinja2 全局函数：
+在 `create_app()` 中通过 `context_processor` 注入翻译函数：
 
 ```python
-from app.translations import t, t_category
-app.jinja_env.globals['t'] = t
-app.jinja_env.globals['t_category'] = t_category
+from app.translations import TRANSLATIONS, CATEGORY_MAP
+
+@app.context_processor
+def inject_translations():
+    def t(zh):
+        return TRANSLATIONS.get(zh, zh)
+    def t_category(zh):
+        return CATEGORY_MAP.get(zh, zh)
+    return dict(t=t, t_category=t_category)
 ```
 
 ### 模板使用方式
 
 ```html
 <!-- 静态文本使用 t() 函数 -->
-<a href="{{ url_for('event.list_events') }}">{{ t("nav_events", lang) }}</a>
-<button>{{ t("btn_register", lang) }}</button>
+<a href="{{ url_for('event.list_events') }}">{{ t("活动") }}</a>
+<button>{{ t("报名") }}</button>
 
 <!-- 分类名使用 t_category() -->
-<span>{{ t_category(event.category, lang) }}</span>
+<span>{{ t_category(event.category) }}</span>
 ```
 
 ### 双语数据库字段
@@ -683,17 +674,26 @@ h1, h2, h3, h4, h5, h6 {
 翻译 API 端点，支持中英双向翻译。CSRF 豁免，供前端异步调用。
 
 ```python
-# app/__init__.py 或单独的 api blueprint
-@app.route('/api/translate', methods=['POST'])
+# app/translate.py
+@translate_bp.route('/translate', methods=['POST'])
 @csrf.exempt
-def api_translate():
+def translate():
     data = request.get_json()
-    text = data.get('text', '')
-    source = data.get('source', 'zh')  # zh 或 en
-    target = data.get('target', 'en')  # en 或 zh
-    # 基于字典的翻译（非 ML）
-    result = translate_dict(text, source, target)
-    return jsonify({"translated": result})
+    if not data or 'text' not in data:
+        return jsonify({"error": "missing 'text' field"}), 400
+
+    text = data['text']
+    target = data.get('target', 'en')
+
+    zh_en = {"学术": "Academic", "体育": "Sports", "文艺": "Arts", ...}
+    en_zh = {v: k for k, v in zh_en.items()}
+
+    if target == "en":
+        result = zh_en.get(text, text)
+    else:
+        result = en_zh.get(text, text)
+
+    return jsonify({"original": text, "translated": result, "target": target})
 ```
 
 ### GET /api/events
