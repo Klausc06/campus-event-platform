@@ -329,7 +329,7 @@ body {
 
 .section-tag {
   padding: 0 32px;
-  margin: 20px 0 16px;
+  margin: 20px auto 16px;
   max-width: 680px;
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
@@ -338,7 +338,7 @@ body {
   text-transform: uppercase;
 }
 
-.detail-wrap { padding: 0 32px 40px; max-width: 680px; }
+.detail-wrap { padding: 0 32px 40px; max-width: 680px; margin: 0 auto; }
 
 .detail { padding: 32px; }
 
@@ -415,7 +415,7 @@ body {
   border-radius: 10px;
 }
 
-.auth-wrap { padding: 0 32px 40px; max-width: 680px; display: flex; justify-content: center; }
+.auth-wrap { padding: 0 32px 40px; max-width: 680px; margin: 0 auto; display: flex; justify-content: center; }
 
 .auth-card { padding: 44px 32px; max-width: 380px; width: 100%; }
 
@@ -468,7 +468,7 @@ body {
 
 .auth-card .switch a:hover { opacity: 0.7; }
 
-.checkin-wrap { padding: 0 32px 40px; max-width: 680px; display: flex; justify-content: center; }
+.checkin-wrap { padding: 0 32px 40px; max-width: 680px; margin: 0 auto; display: flex; justify-content: center; }
 
 .checkin-card { padding: 44px 32px; max-width: 380px; width: 100%; text-align: center; }
 
@@ -498,7 +498,7 @@ body {
 
 .checkin-card input::placeholder { font-size: 14px; letter-spacing: 1px; color: var(--ink-muted); }
 
-.admin-wrap { padding: 0 32px 40px; max-width: 680px; }
+.admin-wrap { padding: 0 32px 40px; max-width: 680px; margin: 0 auto; }
 
 .stat-row { display: flex; gap: 12px; margin-bottom: 20px; }
 
