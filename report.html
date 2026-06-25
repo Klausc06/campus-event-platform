@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
 <style>
   :root {
     --bg: #EDEAE4;
@@ -2035,11 +2035,8 @@ AI作为辅助工具，最终的代码质量和技术决策由团队成员负责
           nodeBorder: '#C4A882',
           clusterBkg: '#F0E8DD',
           clusterBorder: '#D4C4B0',
-          fontSize: '14px',
-          fontFamily: '"Noto Serif SC", Georgia, serif'
-        },
-        flowchart: { curve: 'linear', htmlLabels: true },
-        er: { fontSize: 12 }
+          fontSize: '14px'
+        }
       });
     } catch(e) {
       console.error('Mermaid init failed:', e);
