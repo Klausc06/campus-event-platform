@@ -2,6 +2,8 @@ TRANSLATIONS = {
     # Nav
     "活动列表": "Event List",
     "活动": "Events",
+    "校园活动": "Campus Events",
+    "平台": "Platform",
     "我的": "My",
     "管理": "Admin",
     "日志": "Logs",

@@ -286,7 +286,7 @@ h1, h2, h3 { text-wrap: balance; }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.card { background: rgba(255,255,255,0.85); padding: 26px 28px 22px; border-top: 3px solid transparent; }
+.card { background: rgba(255,255,255,0.85); padding: 26px 28px 22px; border-radius: var(--glass-radius); box-shadow: var(--glass-shadow); }
 
 
 .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
@@ -952,9 +952,4 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   outline: none;
 }
 
-/* Category card borders */
-.card[data-category="学术"] { border-top: 3px solid #2D7A4F; }
-.card[data-category="体育"] { border-top: 3px solid #E07050; }
-.card[data-category="文艺"] { border-top: 3px solid #7C5CBF; }
-.card[data-category="社交"] { border-top: 3px solid #4A90D9; }
-.card[data-category="志愿服务"] { border-top: 3px solid #D4A853; }
+
