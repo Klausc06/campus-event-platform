@@ -48,7 +48,7 @@
 | **Migrations** | Flask-Migrate 4.x | 数据库版本迁移(Alembic) |
 | **Database** | SQLite 3.x | 零配置文件型数据库，课程项目适用 |
 | **Templates** | Jinja2 (Flask内置) | SSR服务端渲染，自动转义防XSS |
-| **Frontend** | Custom CSS (959 lines) with utility classes | Liquid Glass design system |
+| **Frontend** | Custom CSS (960 lines) with utility classes | Liquid Glass design system |
 | **QR Code** | qrcode + Pillow | 生成签到二维码(base64 PNG) |
 | **Testing** | pytest 8.x | 20个测试用例，TestConfig内存SQLite |
 | **Logging** | Python dictConfig | 结构化日志、RotatingFileHandler、请求ID追踪 |
@@ -195,7 +195,7 @@ campus-event-platform/
 │   ├── errors/              # 404.html, 500.html
 │   └── admin/               # dashboard.html, logs.html
 ├── static/css/
-│   └── style.css            # full Liquid Glass design system (959 lines)
+│   └── style.css            # full Liquid Glass design system (960 lines)
 ├── tests/
 │   ├── conftest.py          # fixtures: app, client, auth_client, sample_event
 │   ├── test_auth.py         # registration + login tests
@@ -398,7 +398,7 @@ campus-event-platform/
 
 #### `templates/base.html` — Base Template
 
-- **What it does**: HTML skeleton with: Google Fonts (Noto Serif SC + DM Sans), Bootstrap 5.3 CSS, custom `style.css`, sticky nav bar (brand, nav links, lang/theme toggles, logout/login buttons), main content area with flash messages, footer, Bootstrap JS, and inline JavaScript for theme/language switching with localStorage persistence.
+- **What it does**: HTML skeleton with: Google Fonts (Noto Serif SC + DM Sans), custom `style.css` (960 lines), sticky nav bar (brand, nav links, lang/theme toggles, logout/login buttons), main content area with flash messages, footer, and inline JavaScript for theme/language switching with localStorage persistence.
 - **How to add a new nav link**: Add `<a>` inside `.nav-links` div, with `data-zh` and `data-en` attributes for bilingual support.
 - **How to add a new page**: Create a template extending `base.html` with `{% extends "base.html" %}` and `{% block content %}...{% endblock %}`.
 - **How to add a new language**: Add `data-ja="..."` attributes to elements, add a toggle button calling `setLang('ja')`, update the `setLang()` function.
@@ -407,7 +407,7 @@ campus-event-platform/
   - Logout is a POST form with CSRF token — never make it a GET link.
   - `form.hidden_tag()` or `{{ csrf_token() }}` must be in every POST form.
   - The `setTheme()` and `setLang()` functions are inline — changes affect all pages.
-  - Bootstrap is loaded from CDN — no local fallback.
+  - All styling is in `static/css/style.css` — no external CSS frameworks.
 
 ---
 
@@ -498,7 +498,7 @@ campus-event-platform/
 
 #### `static/css/style.css` — Design System
 
-- **What it does**: 959-line CSS file implementing the complete Apple Liquid Glass design system. Includes: CSS custom properties for light/dark themes (lines 1-75), reset (line 77), `.glass` component with `::before` highlight and `::after` refraction (lines 88-127), navigation (128-201), hero section (203-223), search box (225-255), cards with stagger animation (257-336), detail page (338-350), buttons (354-413), auth/checkin forms (415-496), admin dashboard (498-558), flash messages (593-630), footer (632-641), and responsive breakpoint at 640px (647-659).
+- **What it does**: 960-line CSS file implementing the complete Apple Liquid Glass design system. Includes: CSS custom properties for light/dark themes (lines 1-75), reset (line 77), `.glass` component with `::before` highlight and `::after` refraction (lines 88-127), navigation (128-201), hero section (203-223), search box (225-255), cards with stagger animation (257-336), detail page (338-350), buttons (354-413), auth/checkin forms (415-496), admin dashboard (498-558), flash messages (593-630), footer (632-641), and responsive breakpoint at 640px (647-659).
 - **How to change colors**: Modify CSS variables in `:root`/`[data-theme="light"]` (lines 1-38) and `[data-theme="dark"]` (lines 40-75).
 - **How to change fonts**: Update the Google Fonts `<link>` in `templates/base.html` and the `font-family` declarations in CSS.
 - **How to add a new component**: Follow the `.glass` pattern: `background` (semi-transparent), `backdrop-filter` (blur), `border` (1px solid), `border-radius` (--glass-radius), `box-shadow`, `::before` (highlight), `::after` (refraction).
