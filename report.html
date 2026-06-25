@@ -2018,30 +2018,28 @@ AI作为辅助工具，最终的代码质量和技术决策由团队成员负责
 </div><!-- end report-body -->
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    try {
-      mermaid.initialize({
-        startOnLoad: true,
-        theme: 'neutral',
-        themeVariables: {
-          primaryColor: '#F5EDE4',
-          primaryTextColor: '#1A1A1A',
-          primaryBorderColor: '#C4A882',
-          lineColor: '#B8A090',
-          secondaryColor: '#F0E8DD',
-          tertiaryColor: '#EDE4D8',
-          background: '#FAF8F5',
-          mainBkg: '#F5EDE4',
-          nodeBorder: '#C4A882',
-          clusterBkg: '#F0E8DD',
-          clusterBorder: '#D4C4B0',
-          fontSize: '14px'
-        }
-      });
-    } catch(e) {
-      console.error('Mermaid init failed:', e);
-    }
-  });
+  try {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'neutral',
+      themeVariables: {
+        primaryColor: '#F5EDE4',
+        primaryTextColor: '#1A1A1A',
+        primaryBorderColor: '#C4A882',
+        lineColor: '#B8A090',
+        secondaryColor: '#F0E8DD',
+        tertiaryColor: '#EDE4D8',
+        background: '#FAF8F5',
+        mainBkg: '#F5EDE4',
+        nodeBorder: '#C4A882',
+        clusterBkg: '#F0E8DD',
+        clusterBorder: '#D4C4B0',
+        fontSize: '14px'
+      }
+    });
+  } catch(e) {
+    console.error('Mermaid init failed:', e);
+  }
 </script>
 
 <script>
