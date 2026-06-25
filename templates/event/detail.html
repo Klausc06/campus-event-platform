@@ -9,7 +9,7 @@
 
 <div class="detail-wrap">
     <div class="detail">
-        <h2 data-zh="{{ event.title }}" data-en="{{ event.title_en or event.title }}">{{ event.title }}</h2>
+        <h2  >{{ event.title }}</h2>
         <span class="tag category-tag" style="margin-bottom:16px;display:inline-block;">{{ t_category(event.category) }}</span>
         <div class="info-grid">
             <div class="info-item">
@@ -19,7 +19,7 @@
             {% if event.location %}
             <div class="info-item">
                 <div class="label">{{ t("地点") }}</div>
-                <div class="value" data-zh="{{ event.location }}" data-en="{{ event.location_en or event.location }}">{{ event.location }}</div>
+                <div class="value"  >{{ event.location }}</div>
             </div>
             {% endif %}
             <div class="info-item">
@@ -35,7 +35,7 @@
         </div>
 
         {% if event.description %}
-        <div class="body-text" data-zh="{{ event.description }}" data-en="{{ event.description_en or event.description }}">{{ event.description }}</div>
+        <div class="body-text"  >{{ event.description }}</div>
         {% endif %}
 
         <div class="actions">

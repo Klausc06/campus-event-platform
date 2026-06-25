@@ -667,9 +667,7 @@ h1, h2, h3, h4, h5, h6 {
 
 ---
 
-## 8c. Translation API
 
-### POST /api/translate
 
 翻译 API 端点，支持中英双向翻译。CSRF 豁免，供前端异步调用。
 
@@ -697,12 +695,10 @@ def translate():
     return jsonify({"original": text, "translated": result, "target": target})
 ```
 
-### GET /api/events
 
 返回活动列表的双语 JSON，供外部集成或前端 AJAX 使用：
 
 ```python
-@app.route('/api/events')
 def api_events():
     events = Event.query.order_by(Event.start_time.desc()).all()
     return jsonify([{

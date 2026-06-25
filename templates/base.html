@@ -59,28 +59,31 @@
         document.documentElement.setAttribute('data-theme', t);
         document.querySelectorAll('#themeToggle button').forEach(function(b) { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
         var active = document.querySelector('#themeToggle button[onclick="setTheme(\'' + t + '\')"]');
-        active.classList.add('active');
-        active.setAttribute('aria-pressed', 'true');
+        if (active) {
+            active.classList.add('active');
+            active.setAttribute('aria-pressed', 'true');
+        }
         localStorage.setItem('theme', t);
+        document.cookie = "theme=" + t + "; path=/; max-age=31536000";
     }
     function setLang(l) {
-        document.querySelectorAll('[data-zh]').forEach(function(el) {
-            el.textContent = el.getAttribute('data-' + l);
-        });
-        document.querySelectorAll('[data-zh-placeholder]').forEach(function(el) {
-            el.placeholder = el.getAttribute('data-' + l + '-placeholder');
-        });
-        document.querySelectorAll('#langToggle button').forEach(function(b) { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
-        var active = document.querySelector('#langToggle button[onclick="setLang(\'' + l + '\')"]');
-        active.classList.add('active');
-        active.setAttribute('aria-pressed', 'true');
-        localStorage.setItem('lang', l);
+        document.cookie = "lang=" + l + "; path=/; max-age=31536000";
+        location.reload();
     }
     (function() {
         var saved = localStorage.getItem('theme');
         if (saved) setTheme(saved);
-        var savedLang = localStorage.getItem('lang');
-        if (savedLang) setLang(savedLang);
+        
+        var match = document.cookie.match(new RegExp('(^| )lang=([^;]+)'));
+        var savedLang = match ? match[2] : null;
+        if (savedLang) {
+            document.querySelectorAll('#langToggle button').forEach(function(b) { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+            var active = document.querySelector('#langToggle button[onclick="setLang(\'' + savedLang + '\')"]');
+            if (active) {
+                active.classList.add('active');
+                active.setAttribute('aria-pressed', 'true');
+            }
+        }
     })();
     </script>
 </body>
