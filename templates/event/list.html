@@ -50,7 +50,7 @@
         <div class="card-footer">
             {% if event.is_full %}
             <span class="badge full">{{ event.registered_count }}/{{ event.max_participants }} {{ t("名额已满") }}</span>
-            {% elif event.max_participants > 0 and (event.registered_count / event.max_participants) > 0.7 %}
+            {% elif event.max_participants > 0 and event.registered_count / event.max_participants > 0.7 %}
             <span class="badge warn">{{ event.registered_count }}/{{ event.max_participants }} {{ t("即将满员") }}</span>
             {% else %}
             <span class="badge open">

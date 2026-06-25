@@ -45,7 +45,7 @@ def login():
         next_page = request.args.get('next')
         if next_page:
             parsed = urlparse(next_page)
-            if parsed.netloc and parsed.netloc != request.host:
+            if not next_page or not next_page.startswith('/') or next_page.startswith('//'):
                 next_page = None
         return redirect(next_page or url_for('event.list_events'))
     return render_template('auth/login.html', form=form)

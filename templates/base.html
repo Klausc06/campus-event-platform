@@ -15,9 +15,7 @@
         <div class="nav-right">
             <div class="nav-links">
                 <a href="{{ url_for('event.list_events') }}" class="{% if request.endpoint and 'event' in request.endpoint and request.endpoint != 'event.detail' %}active{% endif %}">{{ t("活动") }}</a>
-                {% if current_user.is_authenticated %}
-                <a href="{{ url_for('auth.login') }}">{{ t("我的") }}</a>
-                {% endif %}
+
                 {% if current_user.is_authenticated and current_user.is_admin %}
                 <a href="{{ url_for('admin.dashboard') }}" class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}">{{ t("管理") }}</a>
                 <a href="{{ url_for('admin.logs') }}" class="{% if request.endpoint == 'admin.logs' %}active{% endif %}">{{ t("日志") }}</a>

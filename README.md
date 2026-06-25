@@ -33,7 +33,7 @@
 | **Liquid Glass Design** | Apple WWDC25风格毛玻璃效果，40px backdrop-filter blur，折射高光，同心圆角 |
 | **Dark/Light Theme** | 深浅主题切换，CSS变量驱动，localStorage持久化 |
 | **Chinese/English** | 中英文界面切换，translations.py字典 + Jinja2 t()函数，双语DB字段 |
-| **Responsive** | 移动端优先，640px断点，Bootstrap 5网格 |
+| **Responsive** | 移动端优先，640px断点，CSS Grid + Flexbox |
 | **Micro-interactions** | 卡片悬浮上浮、按钮scale(0.96)点击反馈、滚动淡入动画、Flash消息自动消失 |
 | **Accessibility** | 最小40x40px触摸区域、font-variant-numeric: tabular-nums、text-wrap: balance |
 
@@ -48,7 +48,7 @@
 | **Migrations** | Flask-Migrate 4.x | 数据库版本迁移(Alembic) |
 | **Database** | SQLite 3.x | 零配置文件型数据库，课程项目适用 |
 | **Templates** | Jinja2 (Flask内置) | SSR服务端渲染，自动转义防XSS |
-| **Frontend** | Bootstrap 5 (CDN) + Custom CSS | 响应式网格 + Liquid Glass设计系统(881行) |
+| **Frontend** | Custom CSS (959 lines) with utility classes | Liquid Glass design system |
 | **QR Code** | qrcode + Pillow | 生成签到二维码(base64 PNG) |
 | **Testing** | pytest 8.x | 20个测试用例，TestConfig内存SQLite |
 | **Logging** | Python dictConfig | 结构化日志、RotatingFileHandler、请求ID追踪 |
@@ -195,7 +195,7 @@ campus-event-platform/
 │   ├── errors/              # 404.html, 500.html
 │   └── admin/               # dashboard.html, logs.html
 ├── static/css/
-│   └── style.css            # full Liquid Glass design system (881 lines)
+│   └── style.css            # full Liquid Glass design system (959 lines)
 ├── tests/
 │   ├── conftest.py          # fixtures: app, client, auth_client, sample_event
 │   ├── test_auth.py         # registration + login tests
@@ -498,7 +498,7 @@ campus-event-platform/
 
 #### `static/css/style.css` — Design System
 
-- **What it does**: 659-line CSS file implementing the complete Apple Liquid Glass design system. Includes: CSS custom properties for light/dark themes (lines 1-75), reset (line 77), `.glass` component with `::before` highlight and `::after` refraction (lines 88-127), navigation (128-201), hero section (203-223), search box (225-255), cards with stagger animation (257-336), detail page (338-350), buttons (354-413), auth/checkin forms (415-496), admin dashboard (498-558), flash messages (593-630), footer (632-641), and responsive breakpoint at 640px (647-659).
+- **What it does**: 959-line CSS file implementing the complete Apple Liquid Glass design system. Includes: CSS custom properties for light/dark themes (lines 1-75), reset (line 77), `.glass` component with `::before` highlight and `::after` refraction (lines 88-127), navigation (128-201), hero section (203-223), search box (225-255), cards with stagger animation (257-336), detail page (338-350), buttons (354-413), auth/checkin forms (415-496), admin dashboard (498-558), flash messages (593-630), footer (632-641), and responsive breakpoint at 640px (647-659).
 - **How to change colors**: Modify CSS variables in `:root`/`[data-theme="light"]` (lines 1-38) and `[data-theme="dark"]` (lines 40-75).
 - **How to change fonts**: Update the Google Fonts `<link>` in `templates/base.html` and the `font-family` declarations in CSS.
 - **How to add a new component**: Follow the `.glass` pattern: `background` (semi-transparent), `backdrop-filter` (blur), `border` (1px solid), `border-radius` (--glass-radius), `box-shadow`, `::before` (highlight), `::after` (refraction).
