@@ -761,7 +761,7 @@ erDiagram
         int id PK
         string username
         string email
-        bool is_admin
+        boolean is_admin
     }
     Event {
         int id PK
@@ -774,7 +774,7 @@ erDiagram
         int user_id FK
         int event_id FK
         string status
-        bool checked_in
+        boolean checked_in
     }
 </div>
 
@@ -2022,7 +2022,7 @@ AI作为辅助工具，最终的代码质量和技术决策由团队成员负责
     try {
       mermaid.initialize({
         startOnLoad: true,
-        theme: 'base',
+        theme: 'neutral',
         themeVariables: {
           primaryColor: '#F5EDE4',
           primaryTextColor: '#1A1A1A',
