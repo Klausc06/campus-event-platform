@@ -47,6 +47,7 @@
     font-size: var(--text-base);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
 
   body, td, th, p, li, dd, dt, blockquote {
@@ -285,7 +286,8 @@
     margin: 16px 0;
     overflow-x: hidden;
     white-space: pre-wrap;
-    word-break: break-word;
+    word-break: break-all;
+    word-wrap: break-word;
     font-family: var(--font-code);
     font-size: var(--text-xs);
     line-height: 1.7;
