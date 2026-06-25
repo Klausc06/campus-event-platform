@@ -694,29 +694,39 @@
 
 <div class="mermaid">
 graph TB
-    subgraph 入口
+    subgraph Entry
         RUN[run.py] --> APP[create_app]
     end
-    subgraph 扩展
+    subgraph Extensions
         DB[(db)]
         LOGIN[login_manager]
         MIGRATE[migrate]
         CSRF[csrf]
     end
-    subgraph 蓝图
-        AUTH["auth /注册/登录"]
-        EVENT["event /活动CRUD"]
-        CHECKIN["checkin /签到"]
-        ADMIN["admin /管理面板"]
+    subgraph Blueprints
+        AUTH["auth"]
+        EVT_BL["event"]
+        CHK["checkin"]
+        ADM["admin"]
     end
-    subgraph 模型
+    subgraph Models
         USER[User]
         EVT[Event]
         REG[Registration]
     end
-    APP --> DB & LOGIN & MIGRATE & CSRF
-    APP --> AUTH & EVENT & CHECKIN & ADMIN
-    AUTH & EVENT & CHECKIN & ADMIN --> USER & EVT & REG
+    APP --> DB
+    APP --> LOGIN
+    APP --> MIGRATE
+    APP --> CSRF
+    APP --> AUTH
+    APP --> EVT_BL
+    APP --> CHK
+    APP --> ADM
+    AUTH --> USER
+    EVT_BL --> EVT
+    EVT_BL --> REG
+    CHK --> REG
+    ADM --> USER
     USER --> REG
     EVT --> REG
 </div>
@@ -727,12 +737,16 @@ graph TB
 <div class="mermaid">
 graph LR
     AUTH[auth] -->|login_user| FL[Flask-Login]
-    EVENT[event] -->|current_user| FL
-    CHECKIN[checkin] -->|current_user| FL
-    ADMIN[admin] -->|admin_required| FL
-    AUTH & EVENT & CHECKIN & ADMIN --> DB[(数据库)]
-    EVENT & CHECKIN --> REG[Registration]
-    ADMIN --> USER[User]
+    EVT[event] -->|current_user| FL
+    CHK[checkin] -->|current_user| FL
+    ADM[admin] -->|admin_required| FL
+    AUTH --> DB[(database)]
+    EVT --> DB
+    CHK --> DB
+    ADM --> DB
+    EVT --> REG[Registration]
+    CHK --> REG
+    ADM --> USER[User]
 </div>
 
 <h3>3.3 ER图</h3>
@@ -740,9 +754,9 @@ graph LR
 
 <div class="mermaid">
 erDiagram
-    User ||--o{ Registration : "报名"
-    Event ||--o{ Registration : "包含"
-    User ||--o{ Event : "创建"
+    User ||--o{ Registration : "registers"
+    Event ||--o{ Registration : "contains"
+    User ||--o{ Event : "creates"
     User {
         int id PK
         string username
