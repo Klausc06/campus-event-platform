@@ -8,547 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Noto+Serif+SC:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
-<style>
-  :root {
-    --bg: #EDEAE4;
-    --ink: #1A1A1A;
-    --ink-secondary: #4A4A4A;
-    --ink-muted: #5A5A5A;
-    --accent: #C45A3A;
-    --accent-hover: #B04E32;
-    --success: #2D7A4F;
-    --glass-blur: 40px;
-    --line: rgba(0,0,0,0.06);
-    --shadow-surface: 0 1px 3px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.06);
-    --glass-bg: rgba(255,255,255,0.42);
-    --glass-border: rgba(255,255,255,0.6);
-    --font-code: "DM Sans", "SF Mono", "Fira Code", "Consolas", monospace;
-    --font-ui: "DM Sans", "Noto Serif SC", sans-serif;
-    --font-body: "Noto Serif SC", "Songti SC", "SimSun", serif;
-    --text-xs: 12px;
-    --text-sm: 13px;
-    --text-base: 15px;
-    --text-md: 17px;
-    --text-lg: 20px;
-    --text-xl: 26px;
-    --ls-wider: 4px;
-    --ls-wide: 3px;
-    --ls-normal: 1px;
-    --ls-tight: 0.3px;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: var(--font-body);
-    color: var(--ink);
-    background: var(--bg);
-    line-height: 1.9;
-    font-size: var(--text-base);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
-  }
-
-  body, td, th, p, li, dd, dt, blockquote {
-    font-variant-numeric: tabular-nums;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    text-wrap: balance;
-    font-family: var(--font-body);
-    font-weight: 300;
-    letter-spacing: var(--ls-normal);
-    color: var(--ink);
-  }
-
-  @media print {
-    body { font-size: 12pt; line-height: 1.7; background: #fff; }
-    .page-break { page-break-before: always; }
-    .no-break { page-break-inside: avoid; }
-    .cover { page-break-after: always; }
-    .toc { page-break-after: always; }
-    nav { display: none !important; }
-    .report-body { padding: 0; max-width: 100%; }
-    pre, .tree, table, .mermaid, .note, blockquote {
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      background: #f9f9f9 !important;
-      border: 1px solid #ddd !important;
-      box-shadow: none !important;
-    }
-    .section { opacity: 1 !important; transform: none !important; }
-  }
-
-  @media screen {
-    .report-body {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 60px;
-      overflow-x: hidden;
-    }
-  }
-
-  /* ============ COVER ============ */
-  .cover {
-    text-align: center;
-    padding: 120px 40px 80px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  .cover h1 {
-    font-size: var(--text-xl);
-    font-weight: 300;
-    letter-spacing: var(--ls-wider);
-    margin-bottom: 8px;
-  }
-  .cover .subtitle {
-    font-size: var(--text-md);
-    color: var(--ink-secondary);
-    margin-bottom: 60px;
-    font-weight: 300;
-    letter-spacing: var(--ls-normal);
-  }
-  .cover .project-name {
-    font-size: var(--text-lg);
-    font-weight: 400;
-    color: var(--accent);
-    margin-bottom: 60px;
-    padding: 14px 44px;
-    border: 1.5px solid var(--accent);
-    border-radius: 6px;
-    display: inline-block;
-    letter-spacing: var(--ls-wide);
-    position: relative;
-  }
-  .cover .project-name::after {
-    content: "";
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40px;
-    height: 1.5px;
-    background: var(--accent);
-  }
-  .cover .meta-table {
-    width: 380px;
-    margin: 0 auto;
-    text-align: left;
-    border-collapse: collapse;
-  }
-  .cover .meta-table td {
-    padding: 11px 14px;
-    border-bottom: 1px solid var(--line);
-    font-size: var(--text-sm);
-  }
-  .cover .meta-table td:first-child {
-    font-weight: 400;
-    width: 100px;
-    color: var(--ink-secondary);
-    letter-spacing: var(--ls-normal);
-  }
-  .cover .meta-table tr:last-child td {
-    border-bottom: none;
-  }
-  .cover .date {
-    margin-top: 70px;
-    font-size: var(--text-base);
-    color: var(--ink-secondary);
-    letter-spacing: var(--ls-normal);
-  }
-
-  @media screen { .cover { padding-top: 160px; } }
-
-  /* ============ TOC ============ */
-  .toc { padding: 40px 0; }
-  .toc h2 {
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: var(--text-md);
-    letter-spacing: var(--ls-wide);
-    position: relative;
-  }
-  .toc h2::after {
-    content: "";
-    display: block;
-    width: 30px;
-    height: 1.5px;
-    background: var(--accent);
-    margin: 14px auto 0;
-  }
-  .toc ol {
-    list-style: none;
-    counter-reset: toc;
-    max-width: 500px;
-    margin: 0 auto;
-  }
-  .toc li {
-    counter-increment: toc;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--line);
-    font-size: var(--text-base);
-  }
-  .toc li a {
-    text-decoration: none;
-    color: var(--ink-secondary);
-    display: flex;
-    justify-content: space-between;
-    transition: color 0.2s;
-  }
-  .toc li a:hover { color: var(--accent); }
-  .toc li a::before {
-    content: counter(toc) ". ";
-    font-weight: 400;
-    color: var(--ink-muted);
-    font-variant-numeric: tabular-nums;
-  }
-
-  /* ============ HEADINGS ============ */
-  h2 {
-    font-size: var(--text-md);
-    font-weight: 300;
-    letter-spacing: var(--ls-wide);
-    margin: 60px 0 24px;
-    padding-bottom: 0;
-    border-bottom: none;
-    position: relative;
-  }
-  h2::after {
-    content: "";
-    display: block;
-    width: 28px;
-    height: 2px;
-    background: var(--accent);
-    margin-top: 12px;
-    border-radius: 1px;
-  }
-  h3 {
-    font-size: var(--text-md);
-    font-weight: 400;
-    color: var(--ink);
-    margin: 36px 0 14px;
-    letter-spacing: var(--ls-normal);
-  }
-  h4 {
-    font-size: var(--text-base);
-    font-weight: 400;
-    margin: 24px 0 10px;
-    letter-spacing: var(--ls-normal);
-  }
-
-  p { margin: 12px 0; text-align: justify; }
-
-  /* ============ TABLES ============ */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 18px 0;
-    font-size: var(--text-sm);
-    border-radius: 6px;
-    overflow: hidden;
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid var(--glass-border);
-    max-width: 100%;
-    overflow-x: auto;
-  }
-  th, td {
-    border: 1px solid rgba(0,0,0,0.06);
-    padding: 10px 14px;
-    text-align: left;
-    vertical-align: top;
-    background: transparent;
-    overflow-wrap: break-word;
-    word-break: break-word;
-  }
-  th {
-    background: rgba(0,0,0,0.03);
-    font-weight: 600;
-    color: var(--ink);
-    font-family: var(--font-ui);
-    font-size: var(--text-xs);
-    letter-spacing: var(--ls-tight);
-  }
-  tr:hover td {
-    background: rgba(0,0,0,0.02);
-  }
-
-  /* ============ CODE BLOCKS ============ */
-  pre {
-    position: relative;
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid var(--glass-border);
-    border-radius: 6px;
-    padding: 16px 20px;
-    margin: 16px 0;
-    overflow-x: hidden;
-    white-space: pre-wrap;
-    word-break: break-all;
-    word-wrap: break-word;
-    font-family: var(--font-code);
-    font-size: var(--text-xs);
-    line-height: 1.7;
-    page-break-inside: avoid;
-  }
-  code {
-    font-family: var(--font-code);
-    font-size: var(--text-xs);
-    font-variant-numeric: tabular-nums;
-  }
-  p code, li code, td code {
-    background: rgba(196,90,58,0.08);
-    padding: 1px 6px;
-    border-radius: 6px;
-    font-size: var(--text-xs);
-    color: var(--accent);
-    font-family: var(--font-code);
-  }
-
-  /* ============ CODE SYNTAX COLORS ============ */
-  .kw { color: #7A4E2D; font-weight: 600; }
-  .fn { color: #C45A3A; }
-  .st { color: #2D7A4F; }
-  .cm { color: #6A6A6A; font-style: italic; }
-  .dc { color: #B04E32; }
-  .num { color: #C45A3A; }
-  .op { color: #4A4A4A; }
-  .cls { color: #1A1A1A; font-weight: 600; }
-
-  /* ============ LISTS ============ */
-  ul, ol { margin: 12px 0 12px 26px; }
-  li { margin: 5px 0; }
-
-  /* ============ MERMAID ============ */
-  .mermaid {
-    position: relative;
-    text-align: center;
-    margin: 24px 0;
-    padding: 20px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid var(--glass-border);
-    border-radius: 6px;
-    overflow-x: auto;
-    max-width: 100%;
-  }
-  .mermaid svg {
-    max-width: 100%;
-    height: auto;
-  }
-
-  img {
-    outline: 1px solid rgba(0,0,0,0.1);
-    outline-offset: -1px;
-  }
-
-  /* ============ NAV (glass) ============ */
-  nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: rgba(237,234,228,0.75);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border-bottom: 1px solid var(--line);
-    padding: 12px 24px;
-    z-index: 100;
-    font-size: var(--text-sm);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-  nav a {
-    color: var(--ink-secondary);
-    text-decoration: none;
-    margin-right: 12px;
-    font-family: var(--font-ui);
-    font-weight: 500;
-    padding: 11px 12px;
-    min-height: 40px;
-    border-radius: 6px;
-    transition: color 0.2s, background 0.2s, transform 0.15s;
-    letter-spacing: var(--ls-tight);
-  }
-  nav a:hover {
-    color: var(--accent);
-    background: rgba(196,90,58,0.06);
-  }
-  nav a:active {
-    transform: scale(0.96);
-  }
-  nav a.active {
-    color: var(--accent);
-    background: rgba(196,90,58,0.1);
-  }
-
-  /* ============ NOTE / CALLOUT ============ */
-  .note {
-    position: relative;
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid var(--glass-border);
-    border-radius: 6px;
-    padding: 14px 18px;
-    margin: 18px 0;
-    font-size: var(--text-sm);
-  }
-
-  /* ============ PROJECT TREE ============ */
-  .tree {
-    position: relative;
-    font-family: var(--font-code);
-    font-size: var(--text-sm);
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid var(--glass-border);
-    border-radius: 6px;
-    padding: 20px 24px;
-    line-height: 1.8;
-    overflow-x: auto;
-    max-width: 100%;
-  }
-
-  /* ============ COLOR SWATCH ============ */
-  .color-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
-  .color-swatch {
-    width: 32px; height: 32px; border-radius: 6px;
-    border: 1px solid var(--line); flex-shrink: 0;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  }
-
-  /* ============ STATUS BADGE ============ */
-  .pass {
-    display: inline-block;
-    background: rgba(45,122,79,0.12);
-    color: var(--success);
-    padding: 2px 10px;
-    border-radius: 6px;
-    font-size: var(--text-sm);
-    font-weight: 600;
-    font-family: var(--font-ui);
-    letter-spacing: var(--ls-tight);
-  }
-
-  /* ============ SECTION ============ */
-  .section {
-    margin-bottom: 48px;
-    position: relative;
-  }
-
-  @media screen {
-    .section {
-      opacity: 1;
-      transform: translateY(0);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    .section.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* ============ COPY BUTTON ============ */
-  pre .copy-btn,
-  .tree .copy-btn,
-  blockquote .copy-btn,
-  .mermaid .copy-btn,
-  table .copy-btn,
-  .note .copy-btn {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    padding: 6px 10px;
-    min-height: 28px;
-    min-width: 28px;
-    background: rgba(0,0,0,0.06);
-    border: none;
-    border-radius: 4px;
-    color: var(--ink-muted);
-    font-family: var(--font-ui);
-    font-size: 11px;
-    cursor: pointer;
-    transition: color 0.2s, background 0.2s, transform 0.15s, opacity 0.2s;
-    z-index: 5;
-    letter-spacing: var(--ls-tight);
-    opacity: 0;
-  }
-  pre:hover .copy-btn,
-  tree:hover .copy-btn,
-  blockquote:hover .copy-btn,
-  .mermaid:hover .copy-btn,
-  table:hover .copy-btn,
-  .note:hover .copy-btn {
-    opacity: 1;
-  }
-  pre .copy-btn:hover,
-  tree .copy-btn:hover,
-  blockquote .copy-btn:hover,
-  .mermaid .copy-btn:hover,
-  table .copy-btn:hover,
-  .note .copy-btn:hover {
-    color: var(--ink);
-    background: rgba(0,0,0,0.1);
-  }
-  pre .copy-btn:active,
-  tree .copy-btn:active,
-  blockquote .copy-btn:active,
-  .mermaid .copy-btn:active,
-  table .copy-btn:active,
-  .note .copy-btn:active {
-    transform: scale(0.96);
-  }
-  pre .copy-btn.copied,
-  tree .copy-btn.copied,
-  blockquote .copy-btn.copied,
-  .mermaid .copy-btn.copied,
-  table .copy-btn.copied,
-  .note .copy-btn.copied {
-    color: var(--success);
-  }
-  .tree { position: relative; }
-  blockquote { position: relative; }
-  .mermaid { position: relative; }
-  table { position: relative; }
-
-  /* ============ BLOCKQUOTE ============ */
-  blockquote {
-    position: relative;
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid var(--glass-border);
-    border-radius: 6px;
-    padding: 14px 20px;
-    margin: 16px 0;
-    color: var(--ink-secondary);
-    font-style: italic;
-  }
-
-  /* ============ SELECTION ============ */
-  ::selection {
-    background: rgba(196,90,58,0.15);
-    color: var(--ink);
-  }
-
-  /* ============ SCROLLBAR ============ */
-  @media screen {
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
-  }
-</style>
+<link href="static/css/report.css" rel="stylesheet">
 </head>
 <body>
 
@@ -643,10 +103,10 @@
     <tr><td rowspan="3">管理面板</td><td>数据统计</td><td>管理员查看用户总数、活动总数、报名总数、签到总数</td></tr>
     <tr><td>活动统计</td><td>每个活动的报名人数、签到人数、签到率</td></tr>
     <tr><td>权限控制</td><td>仅管理员可访问管理面板</td></tr>
-    <tr><td rowspan="2"><span data-zh="附加功能" data-en="Bonus Features">附加功能</span></td><td><span data-zh="QR码签到" data-en="QR Code Check-in">QR码签到</span></td><td><span data-zh="每个活动生成唯一QR码，链接到签到页面，支持打印张贴于活动场地" data-en="Generate unique QR code per event linking to check-in page, supports printing for venue posting">每个活动生成唯一QR码，链接到签到页面，支持打印张贴于活动场地</span></td></tr>
-    <tr><td><span data-zh="CSV导出" data-en="CSV Export">CSV导出</span></td><td><span data-zh="支持单个活动报名名单导出和全部活动批量导出，UTF-8 BOM兼容Excel中文，RFC 5987文件名编码" data-en="Export per-event attendee list or bulk export all registrations, UTF-8 BOM for Excel Chinese compatibility, RFC 5987 filename encoding">支持单个活动报名名单导出和全部活动批量导出，UTF-8 BOM兼容Excel中文，RFC 5987文件名编码</span></td></tr>
-    <tr><td rowspan="2"><span data-zh="体验优化" data-en="UX Enhancement">体验优化</span></td><td><span data-zh="分页功能" data-en="Pagination">分页功能</span></td><td><span data-zh="活动列表每页显示9条，支持上一页/页码/下一页导航，玻璃风格分页按钮" data-en="Event list paginated at 9 per page with Previous/page numbers/Next controls, glass-styled pagination buttons">活动列表每页显示9条，支持上一页/页码/下一页导航，玻璃风格分页按钮</span></td></tr>
-    <tr><td><span data-zh="活动分类" data-en="Category Filter">活动分类</span></td><td><span data-zh="支持学术、体育、文艺、社交、志愿服务、其他六类分类，分类筛选标签和详情页分类徽章" data-en="Six categories: Academic, Sports, Arts, Social, Volunteering, Other; category filter pills and detail page badge">支持学术、体育、文艺、社交、志愿服务、其他六类分类，分类筛选标签和详情页分类徽章</span></td></tr>
+    <tr><td rowspan="2">附加功能</td><td>QR码签到</td><td>每个活动生成唯一QR码，链接到签到页面，支持打印张贴于活动场地</td></tr>
+    <tr><td>CSV导出</td><td>支持单个活动报名名单导出和全部活动批量导出，UTF-8 BOM兼容Excel中文，RFC 5987文件名编码</td></tr>
+    <tr><td rowspan="2">体验优化</td><td>分页功能</td><td>活动列表每页显示9条，支持上一页/页码/下一页导航，玻璃风格分页按钮</td></tr>
+    <tr><td>活动分类</td><td>支持学术、体育、文艺、社交、志愿服务、其他六类分类，分类筛选标签和详情页分类徽章</td></tr>
   </tbody>
 </table>
 
@@ -797,12 +257,10 @@ erDiagram
     <tr><td><code>/event/&lt;id&gt;/cancel</code></td><td>POST</td><td>cancel</td><td>event</td><td>取消报名</td><td>登录</td></tr>
     <tr><td><code>/checkin/&lt;event_id&gt;</code></td><td>GET/POST</td><td>checkin</td><td>checkin</td><td>活动签到</td><td>登录+已报名</td></tr>
     <tr><td><code>/admin/</code></td><td>GET</td><td>dashboard</td><td>admin</td><td>管理面板</td><td>管理员</td></tr>
-    <tr><td><code>/checkin/&lt;event_id&gt;/qr</code></td><td>GET</td><td>qr</td><td>checkin</td><td><span data-zh="QR码签到页面" data-en="QR code check-in page">QR码签到页面</span></td><td>创建者/管理员</td></tr>
-    <tr><td><code>/admin/export/&lt;event_id&gt;</code></td><td>GET</td><td>export_event</td><td>admin</td><td><span data-zh="单活动CSV导出" data-en="Per-event CSV export">单活动CSV导出</span></td><td>管理员</td></tr>
-    <tr><td><code>/admin/export/all</code></td><td>GET</td><td>export_all</td><td>admin</td><td><span data-zh="全部活动批量CSV导出" data-en="Bulk CSV export for all events">全部活动批量CSV导出</span></td><td>管理员</td></tr>
-    <tr><td><code>/admin/logs</code></td><td>GET</td><td>logs</td><td>admin</td><td><span data-zh="日志查看面板" data-en="Log viewer panel">日志查看面板</span></td><td>管理员</td></tr>
-    <tr><td><code>/api/translate</code></td><td>POST</td><td>translate</td><td>app</td><td><span data-zh="翻译API（CSRF豁免，中英双向字典翻译）" data-en="Translation API (CSRF-exempt, zh↔en dictionary)">翻译API（CSRF豁免，中英双向字典翻译）</span></td><td>公开</td></tr>
-    <tr><td><code>/api/events</code></td><td>GET</td><td>events_bilingual</td><td>app</td><td><span data-zh="双语活动列表JSON" data-en="Bilingual event list JSON">双语活动列表JSON</span></td><td>公开</td></tr>
+    <tr><td><code>/checkin/&lt;event_id&gt;/qr</code></td><td>GET</td><td>qr</td><td>checkin</td><td>QR码签到页面</td><td>创建者/管理员</td></tr>
+    <tr><td><code>/admin/export/&lt;event_id&gt;</code></td><td>GET</td><td>export_event</td><td>admin</td><td>单活动CSV导出</td><td>管理员</td></tr>
+    <tr><td><code>/admin/export/all</code></td><td>GET</td><td>export_all</td><td>admin</td><td>全部活动批量CSV导出</td><td>管理员</td></tr>
+    <tr><td><code>/admin/logs</code></td><td>GET</td><td>logs</td><td>admin</td><td>日志查看面板</td><td>管理员</td></tr>
   </tbody>
 </table>
 
@@ -853,16 +311,16 @@ erDiagram
   <tbody>
     <tr><td>id</td><td>Integer</td><td>PRIMARY KEY, AUTOINCREMENT</td><td>活动唯一标识</td></tr>
     <tr><td>title</td><td>String(200)</td><td>NOT NULL</td><td>活动标题</td></tr>
-    <tr><td>title_en</td><td>String(200)</td><td>可空</td><td><span data-zh="活动英文标题" data-en="Event title (English)">活动英文标题</span></td></tr>
+    <tr><td>title_en</td><td>String(200)</td><td>可空</td><td>活动英文标题</td></tr>
     <tr><td>description</td><td>Text</td><td>可空</td><td>活动详细描述</td></tr>
-    <tr><td>description_en</td><td>Text</td><td>可空</td><td><span data-zh="活动英文描述" data-en="Event description (English)">活动英文描述</span></td></tr>
+    <tr><td>description_en</td><td>Text</td><td>可空</td><td>活动英文描述</td></tr>
     <tr><td>location</td><td>String(200)</td><td>可空</td><td>活动地点</td></tr>
-    <tr><td>location_en</td><td>String(200)</td><td>可空</td><td><span data-zh="活动英文地点" data-en="Event location (English)">活动英文地点</span></td></tr>
+    <tr><td>location_en</td><td>String(200)</td><td>可空</td><td>活动英文地点</td></tr>
     <tr><td>start_time</td><td>DateTime</td><td>NOT NULL</td><td>开始时间</td></tr>
     <tr><td>end_time</td><td>DateTime</td><td>NOT NULL</td><td>结束时间</td></tr>
     <tr><td>max_participants</td><td>Integer</td><td>DEFAULT 0</td><td>最大参与人数，0表示不限</td></tr>
     <tr><td>checkin_code</td><td>String(50)</td><td>可空</td><td>签到码</td></tr>
-    <tr><td>category</td><td>String(50)</td><td>DEFAULT '其他'</td><td><span data-zh="活动分类：学术/体育/文艺/社交/志愿服务/其他" data-en="Event category: Academic/Sports/Arts/Social/Volunteering/Other">活动分类：学术/体育/文艺/社交/志愿服务/其他</span></td></tr>
+    <tr><td>category</td><td>String(50)</td><td>DEFAULT '其他'</td><td>活动分类：学术/体育/文艺/社交/志愿服务/其他</td></tr>
     <tr><td>creator_id</td><td>Integer</td><td>FK → user.id, NOT NULL</td><td>创建者ID</td></tr>
     <tr><td>created_at</td><td>DateTime</td><td>DEFAULT utcnow</td><td>创建时间</td></tr>
   </tbody>
@@ -1223,6 +681,7 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
         total_checkins=total_checkins,
         event_stats=event_stats,
     )
+</code></pre>
 
 <h3>5.11 权限装饰器</h3>
 <p>自定义<code>admin_required</code>装饰器，配合Flask-Login的<code>current_user</code>实现基于角色的访问控制。</p>
@@ -1239,8 +698,8 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
         <span class="kw">return</span> f(*args, **kwargs)
     <span class="kw">return</span> decorated_function</code></pre>
 
-<h3>5.12 <span data-zh="QR码签到" data-en="QR Code Check-in">QR码签到</span></h3>
-<p><span data-zh="使用qrcode库为每个活动生成唯一QR码，链接到签到页面。事件创建者或管理员可查看并打印QR码，方便张贴于活动场地。" data-en="Uses the qrcode library to generate a unique QR code per event linking to its check-in page. Event creator or admin can view and print QR codes for venue posting.">使用qrcode库为每个活动生成唯一QR码，链接到签到页面。事件创建者或管理员可查看并打印QR码，方便张贴于活动场地。</span></p>
+<h3>5.12 QR码签到</h3>
+<p>使用qrcode库为每个活动生成唯一QR码，链接到签到页面。事件创建者或管理员可查看并打印QR码，方便张贴于活动场地。</p>
 <pre><code><span class="cm"># app/checkin/routes.py</span>
 <span class="kw">import</span> io, base64
 <span class="kw">import</span> qrcode
@@ -1265,8 +724,8 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
     qr_data_uri = <span class="fn">get_qr_code</span>(checkin_url)
     <span class="kw">return</span> <span class="fn">render_template</span>(<span class="st">'checkin/qr.html'</span>, event=event, qr_data_uri=qr_data_uri)</code></pre>
 
-<h3>5.13 <span data-zh="CSV导出" data-en="CSV Export">CSV导出</span></h3>
-<p><span data-zh="支持单个活动报名名单导出和全部活动批量导出。使用UTF-8 BOM确保Excel正确显示中文，RFC 5987编码文件名防止乱码。查询采用单次JOIN避免N+1问题。" data-en="Supports per-event attendee list export and bulk export for all events. Uses UTF-8 BOM for Excel Chinese compatibility, RFC 5987 filename encoding. Single JOIN query avoids N+1 problem.">支持单个活动报名名单导出和全部活动批量导出。使用UTF-8 BOM确保Excel正确显示中文，RFC 5987编码文件名防止乱码。查询采用单次JOIN避免N+1问题。</span></p>
+<h3>5.13 CSV导出</h3>
+<p>支持单个活动报名名单导出和全部活动批量导出。使用UTF-8 BOM确保Excel正确显示中文，RFC 5987编码文件名防止乱码。查询采用单次JOIN避免N+1问题。</p>
 <pre><code><span class="cm"># app/admin/routes.py</span>
 <span class="kw">import</span> csv, io
 <span class="kw">from</span> flask <span class="kw">import</span> Response
@@ -1322,8 +781,8 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
         mimetype=<span class="st">'text/csv; charset=utf-8'</span>,
         headers={<span class="st">'Content-Disposition'</span>: <span class="st">f"attachment; filename=</span><span class="st">\"</span>{filename}<span class="st">\"</span><span class="st">; filename*=UTF-8''</span>{encoded}<span class="st">"</span>})</code></pre>
 
-<h3>5.14 <span data-zh="分页功能" data-en="Pagination">分页功能</span></h3>
-<p><span data-zh="活动列表使用Flask-SQLAlchemy的.paginate()方法实现分页，每页显示9条活动，支持上一页/页码/下一页导航。" data-en="Event list uses Flask-SQLAlchemy .paginate() for pagination, displaying 9 events per page with Previous/page numbers/Next navigation controls.">活动列表使用Flask-SQLAlchemy的.paginate()方法实现分页，每页显示9条活动，支持上一页/页码/下一页导航。</span></p>
+<h3>5.14 分页功能</h3>
+<p>活动列表使用Flask-SQLAlchemy的.paginate()方法实现分页，每页显示9条活动，支持上一页/页码/下一页导航。</p>
 <pre><code><span class="cm"># app/event/routes.py — list_events 中的分页逻辑</span>
 <span class="dc">@event_bp.route</span>(<span class="st">'/'</span>)
 <span class="kw">def</span> <span class="fn">list_events</span>():
@@ -1333,8 +792,8 @@ csrf = <span class="cls">CSRFProtect</span>()</code></pre>
     <span class="kw">return</span> <span class="fn">render_template</span>(<span class="st">'event/list.html'</span>,
                            events=pagination.items, pagination=pagination)</code></pre>
 
-<h3>5.15 <span data-zh="活动分类" data-en="Category Filter">活动分类</span></h3>
-<p><span data-zh="活动支持六种分类（学术、体育、文艺、社交、志愿服务、其他），通过URL参数?category=进行筛选，分类标签以pill样式展示在活动列表上方。" data-en="Events support six categories (Academic, Sports, Arts, Social, Volunteering, Other), filtered via ?category= URL parameter, with pill-style filter buttons above the event cards.">活动支持六种分类（学术、体育、文艺、社交、志愿服务、其他），通过URL参数?category=进行筛选，分类标签以pill样式展示在活动列表上方。</span></p>
+<h3>5.15 活动分类</h3>
+<p>活动支持六种分类（学术、体育、文艺、社交、志愿服务、其他），通过URL参数?category=进行筛选，分类标签以pill样式展示在活动列表上方。</p>
 <pre><code><span class="cm"># app/event/routes.py — 分类筛选逻辑</span>
 CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>, <span class="st">'文艺'</span>, <span class="st">'社交'</span>, <span class="st">'志愿服务'</span>, <span class="st">'其他'</span>]
 
@@ -1350,8 +809,8 @@ CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>
                            events=pagination.items, pagination=pagination,
                            categories=CATEGORIES, category=category)</code></pre>
 
-<h3>5.16 <span data-zh="日志系统" data-en="Logging System">日志系统</span></h3>
-<p><span data-zh="项目实现了结构化日志系统，支持请求追踪、文件轮转和控制台输出。每个请求分配唯一request_id，日志记录请求方法、URL、IP地址和响应耗时。" data-en="The project implements a structured logging system with request tracing, file rotation, and console output. Each request gets a unique request_id, and logs record request method, URL, IP address, and response duration.">项目实现了结构化日志系统，支持请求追踪、文件轮转和控制台输出。每个请求分配唯一request_id，日志记录请求方法、URL、IP地址和响应耗时。</span></p>
+<h3>5.16 日志系统</h3>
+<p>项目实现了结构化日志系统，支持请求追踪、文件轮转和控制台输出。每个请求分配唯一request_id，日志记录请求方法、URL、IP地址和响应耗时。</p>
 <pre><code><span class="cm"># app/logging.py — 日志初始化</span>
 <span class="kw">from</span> logging.config <span class="kw">import</span> dictConfig
 
@@ -1381,8 +840,8 @@ CATEGORIES = [<span class="st">'学术'</span>, <span class="st">'体育'</span>
     response.headers[<span class="st">"X-Request-ID"</span>] = g.request_id
     <span class="kw">return</span> response</code></pre>
 
-<h3>5.17 <span data-zh="国际化系统" data-en="Internationalization System">国际化系统</span></h3>
-<p><span data-zh="项目采用服务端 i18n 字典 + Jinja2 全局函数的方案，核心文件 translations.py 包含 120+ 条翻译条目，通过 t() 函数在模板中调用。Event 模型新增 title_en、description_en、location_en 双语字段。" data-en="The project uses a server-side i18n dictionary with Jinja2 global functions. The core file translations.py contains 120+ translation entries, called via t() in templates. The Event model adds title_en, description_en, location_en bilingual fields.">项目采用服务端 i18n 字典 + Jinja2 全局函数的方案，核心文件 translations.py 包含 120+ 条翻译条目，通过 t() 函数在模板中调用。Event 模型新增 title_en、description_en、location_en 双语字段。</span></p>
+<h3>5.17 国际化系统</h3>
+<p>项目采用服务端 i18n 字典 + Jinja2 全局函数的方案，核心文件 translations.py 包含 120+ 条翻译条目，通过 t() 函数在模板中调用。Event 模型新增 title_en、description_en、location_en 双语字段。</p>
 <pre><code><span class="cm"># app/translations.py</span>
 TRANSLATIONS = {
     <span class="st">"活动列表"</span>: <span class="st">"Event List"</span>,
@@ -1411,33 +870,9 @@ CATEGORY_MAP = {
 <pre><code><span class="cm">&lt;!-- 模板中使用 t() 函数 --&gt;</span>
 &lt;a href=<span class="st">"{{ url_for('event.list_events') }}"</span>&gt;{{ <span class="fn">t</span>(<span class="st">"活动"</span>) }}&lt;/a&gt;
 &lt;button&gt;{{ <span class="fn">t</span>(<span class="st">"报名"</span>) }}&lt;/button&gt;
-&lt;span&gt;{{ <span class="fn">t_category</span>(event.category) }}&lt;/span&gt;
+&lt;span&gt;{{ <span class="fn">t_category</span>(event.category) }}&lt;/span&gt;</code></pre>
 
-<h3>5.18 <span data-zh="Translation API" data-en="Translation API">Translation API</span></h3>
-<p><span data-zh="项目提供两个 JSON API 端点：POST /api/translate 支持中英双向翻译（CSRF 豁免），GET /api/events 返回双语活动列表。" data-en="The project exposes two JSON API endpoints: POST /api/translate for zh↔en translation (CSRF-exempt), and GET /api/events returning bilingual event data.">项目提供两个 JSON API 端点：POST /api/translate 支持中英双向翻译（CSRF 豁免），GET /api/events 返回双语活动列表。</span></p>
-<pre><code><span class="cm"># POST /api/translate — CSRF 豁免的翻译端点</span>
-<span class="dc">@app.route</span>(<span class="st">'/api/translate'</span>, methods=[<span class="st">'POST'</span>])
-<span class="dc">@csrf.exempt</span>
-<span class="kw">def</span> <span class="fn">api_translate</span>():
-    data = request.<span class="fn">get_json</span>()
-    text = data.<span class="fn">get</span>(<span class="st">'text'</span>, <span class="st">''</span>)
-    source = data.<span class="fn">get</span>(<span class="st">'source'</span>, <span class="st">'zh'</span>)
-    target = data.<span class="fn">get</span>(<span class="st">'target'</span>, <span class="st">'en'</span>)
-    result = <span class="fn">translate_dict</span>(text, source, target)
-    <span class="kw">return</span> <span class="fn">jsonify</span>({<span class="st">"translated"</span>: result})
-
-<span class="cm"># GET /api/events — 双语活动 JSON</span>
-<span class="dc">@app.route</span>(<span class="st">'/api/events'</span>)
-<span class="kw">def</span> <span class="fn">api_events</span>():
-    events = Event.query.<span class="fn">order_by</span>(Event.start_time.<span class="fn">desc</span>()).<span class="fn">all</span>()
-    <span class="kw">return</span> <span class="fn">jsonify</span>([{
-        <span class="st">"id"</span>: e.id,
-        <span class="st">"title"</span>: e.title, <span class="st">"title_en"</span>: e.title_en,
-        <span class="st">"description"</span>: e.description, <span class="st">"description_en"</span>: e.description_en,
-        <span class="st">"location"</span>: e.location, <span class="st">"location_en"</span>: e.location_en,
-        <span class="st">"category"</span>: e.category,
-    } <span class="kw">for</span> e <span class="kw">in</span> events])</code></pre>
-
+</div>
 <!-- ============ 六、UI设计 ============ -->
 <h2 id="s6" class="page-break">六、UI设计</h2>
 <div class="section">
@@ -1521,11 +956,11 @@ CATEGORY_MAP = {
 }</code></pre>
 <p>工作原理：<code>backdrop-filter: blur(var(--glass-blur))</code>会对元素背后的内容应用高斯模糊，配合半透明背景色，呈现出类似磨砂玻璃的视觉效果。</p>
 
-<h3>6.4b <span data-zh="卡片组件样式简化" data-en="Card Component Simplification">卡片组件样式简化</span></h3>
-<p><span data-zh="卡片组件（.card.glass）移除了装饰性边框和伪元素，采用更简洁的视觉风格：border: none 替代 1px 边框，不再使用 ::before（顶部折射光线）和 ::after（内部折射渐变）伪元素，保留毛玻璃背景模糊和柔和阴影。" data-en="The card component (.card.glass) removes decorative borders and pseudo-elements for a cleaner look: border: none replaces the 1px border, ::before (top highlight) and ::after (refraction gradient) pseudo-elements are removed, while backdrop-filter blur and soft shadows are retained.">卡片组件（.card.glass）移除了装饰性边框和伪元素，采用更简洁的视觉风格：border: none 替代 1px 边框，不再使用 ::before（顶部折射光线）和 ::after（内部折射渐变）伪元素，保留毛玻璃背景模糊和柔和阴影。</span></p>
+<h3>6.4b 卡片组件样式简化</h3>
+<p>卡片组件（.card.glass）移除了装饰性边框和伪元素，采用更简洁的视觉风格：border: none 替代 1px 边框，不再使用 ::before（顶部折射光线）和 ::after（内部折射渐变）伪元素，保留毛玻璃背景模糊和柔和阴影。</p>
 
-<h3>6.4c <span data-zh="全局 CSS 规则" data-en="Global CSS Rules">全局 CSS 规则</span></h3>
-<p><span data-zh="项目使用全局选择器列表统一字体、数字等宽、标题换行等规则，避免逐组件重复声明：" data-en="The project uses global selector lists for font-family, tabular-nums, text-wrap:balance, and container centering, avoiding per-component repetition:">项目使用全局选择器列表统一字体、数字等宽、标题换行等规则，避免逐组件重复声明：</span></p>
+<h3>6.4c 全局 CSS 规则</h3>
+<p>项目使用全局选择器列表统一字体、数字等宽、标题换行等规则，避免逐组件重复声明：</p>
 <pre><code><span class="cm">/* 字体层次：衬线用于标题/正文，无衬线用于 UI 元素 */</span>
 h1, h2, h3, h4, h5, h6,
 .detail-body, .desc, .hero p {
@@ -1579,13 +1014,13 @@ h1, h2, h3, h4, h5, h6 { text-wrap: balance; }
   <li>用户语言偏好存储在 <code>localStorage</code> 中，下次访问自动应用</li>
 </ul>
 
-<h3>6.8 <span data-zh="分类筛选标签组件" data-en="Category Filter Pills Component">分类筛选标签组件</span></h3>
-<p><span data-zh="活动列表页顶部展示分类筛选标签（pill样式），点击切换当前分类。标签使用玻璃风格背景，选中状态以主色调高亮。" data-en="Category filter pills displayed above event cards with glass-styled background. Active category highlighted with accent color.">活动列表页顶部展示分类筛选标签（pill样式），点击切换当前分类。标签使用玻璃风格背景，选中状态以主色调高亮。</span></p>
+<h3>6.8 分类筛选标签组件</h3>
+<p>活动列表页顶部展示分类筛选标签（pill样式），点击切换当前分类。标签使用玻璃风格背景，选中状态以主色调高亮。</p>
 <pre><code><span class="cm">&lt;!-- templates/event/list.html — 分类筛选标签 --&gt;</span>
 &lt;div class=<span class="st">"category-pills"</span>&gt;
   &lt;a href=<span class="st">"{{ url_for('event.list_events') }}"</span>
      class=<span class="st">"pill {% if not category %}active{% endif %}"</span>&gt;
-    <span data-zh="全部" data-en="All">全部</span>
+    全部
   &lt;/a&gt;
   {% for cat in categories %}
   &lt;a href=<span class="st">"{{ url_for('event.list_events', category=cat) }}"</span>
@@ -1613,14 +1048,14 @@ h1, h2, h3, h4, h5, h6 { text-wrap: balance; }
   border-color: <span class="kw">var</span>(--accent);
 }</code></pre>
 
-<h3>6.9 <span data-zh="分页控件组件" data-en="Pagination Controls Component">分页控件组件</span></h3>
-<p><span data-zh="活动列表底部分页导航，包含上一页按钮、页码按钮和下一页按钮，使用玻璃风格设计，与整体UI风格一致。" data-en="Pagination navigation at the bottom of event list with Previous, page numbers, and Next buttons in glass-styled design consistent with overall UI.">活动列表底部分页导航，包含上一页按钮、页码按钮和下一页按钮，使用玻璃风格设计，与整体UI风格一致。</span></p>
+<h3>6.9 分页控件组件</h3>
+<p>活动列表底部分页导航，包含上一页按钮、页码按钮和下一页按钮，使用玻璃风格设计，与整体UI风格一致。</p>
 <pre><code><span class="cm">&lt;!-- templates/event/list.html — 分页控件 --&gt;</span>
 {% if pagination.pages > 1 %}
 &lt;nav class=<span class="st">"pagination"</span>&gt;
   {% if pagination.has_prev %}
   &lt;a href=<span class="st">"{{ url_for('event.list_events', page=pagination.prev_num) }}"</span>
-     class=<span class="st">"page-btn"</span>&gt;&laquo; <span data-zh="上一页" data-en="Prev">上一页</span>&lt;/a&gt;
+     class=<span class="st">"page-btn"</span>&gt;&laquo; 上一页&lt;/a&gt;
   {% endif %}
   {% for p in pagination.iter_pages() %}
     {% if p %}
@@ -1632,7 +1067,7 @@ h1, h2, h3, h4, h5, h6 { text-wrap: balance; }
   {% endfor %}
   {% if pagination.has_next %}
   &lt;a href=<span class="st">"{{ url_for('event.list_events', page=pagination.next_num) }}"</span>
-     class=<span class="st">"page-btn"</span>&gt;<span data-zh="下一页" data-en="Next">下一页</span> &raquo;&lt;/a&gt;
+     class=<span class="st">"page-btn"</span>&gt;下一页 &raquo;&lt;/a&gt;
   {% endif %}
 &lt;/nav&gt;
 {% endif %}</code></pre>
@@ -1656,15 +1091,15 @@ h1, h2, h3, h4, h5, h6 { text-wrap: balance; }
   border-color: <span class="kw">var</span>(--accent);
 }</code></pre>
 
-<h3>6.10 <span data-zh="QR码签到页面" data-en="QR Code Check-in Page">QR码签到页面</span></h3>
-<p><span data-zh="独立的QR码展示页面，居中显示活动标题和QR码图片，支持浏览器打印功能。采用print-friendly设计，适合打印张贴于活动场地入口。" data-en="Dedicated QR code display page centered with event title and QR image, supports browser print. Print-friendly design suitable for posting at venue entrances.">独立的QR码展示页面，居中显示活动标题和QR码图片，支持浏览器打印功能。采用print-friendly设计，适合打印张贴于活动场地入口。</span></p>
+<h3>6.10 QR码签到页面</h3>
+<p>独立的QR码展示页面，居中显示活动标题和QR码图片，支持浏览器打印功能。采用print-friendly设计，适合打印张贴于活动场地入口。</p>
 <pre><code><span class="cm">&lt;!-- templates/checkin/qr.html — QR码页面 --&gt;</span>
 &lt;div class=<span class="st">"qr-page"</span>&gt;
   &lt;h2&gt;{{ event.title }}&lt;/h2&gt;
-  &lt;p class=<span class="st">"qr-subtitle"</span>&gt;<span data-zh="扫描二维码签到" data-en="Scan QR code to check in">扫描二维码签到</span>&lt;/p&gt;
+  &lt;p class=<span class="st">"qr-subtitle"</span>&gt;扫描二维码签到&lt;/p&gt;
   &lt;img src=<span class="st">"{{ qr_data_uri }}"</span> alt=<span class="st">"QR Code"</span> class=<span class="st">"qr-image"</span>&gt;
   &lt;button onclick=<span class="st">"window.print()"</span> class=<span class="st">"btn-print"</span>&gt;
-    <span data-zh="打印QR码" data-en="Print QR Code">打印QR码</span>
+    打印QR码
   &lt;/button&gt;
 &lt;/div&gt;</code></pre>
 <pre><code><span class="cm">/* QR码页面样式 */</span>
@@ -1827,8 +1262,8 @@ cpolar http <span class="num">5000</span>
 <span class="cm"># https://xxxx.cpolar.top</span>
 <span class="cm"># 通过该 URL 即可从外部访问本地服务</span></code></pre>
 
-<h3>8.5 <span data-zh="Vercel 部署" data-en="Vercel Deployment">Vercel 部署</span></h3>
-<p><span data-zh="项目使用 Vercel 进行生产部署，采用 Serverless Python 架构。vercel.json 配置 @vercel/python 和 @vercel/static 构建器，所有请求路由到 api/index.py 入口文件。" data-en="The project deploys to Vercel using a Serverless Python architecture. vercel.json configures @vercel/python and @vercel/static builders, routing all requests to the api/index.py entry point.">项目使用 Vercel 进行生产部署，采用 Serverless Python 架构。vercel.json 配置 @vercel/python 和 @vercel/static 构建器，所有请求路由到 api/index.py 入口文件。</span></p>
+<h3>8.5 Vercel 部署</h3>
+<p>项目使用 Vercel 进行生产部署，采用 Serverless Python 架构。vercel.json 配置 @vercel/python 和 @vercel/static 构建器，所有请求路由到 api/index.py 入口文件。</p>
 <pre><code><span class="cm">// vercel.json</span>
 {
   <span class="st">"builds"</span>: [
@@ -1850,13 +1285,13 @@ app = <span class="fn">create_app</span>()
     db.create_all()
     <span class="kw">from</span> seed <span class="kw">import</span> seed_data
     <span class="fn">seed_data</span>()</code></pre>
-<p><span data-zh="部署步骤：" data-en="Deployment steps:">部署步骤：</span></p>
+<p>部署步骤：</p>
 <pre><code><span class="cm"># 安装 Vercel CLI</span>
 npm i -g vercel
 
 <span class="cm"># 部署到生产环境</span>
 vercel --prod</code></pre>
-<p><span data-zh="注意事项：Vercel 使用 /tmp 目录存储 SQLite 数据库（临时文件系统，冷启动时重置），日志仅输出到控制台（Serverless 不支持文件写入）。" data-en="Notes: Vercel uses /tmp for SQLite (ephemeral filesystem, resets on cold start). Logging falls back to console-only (no file write on serverless).">注意事项：Vercel 使用 /tmp 目录存储 SQLite 数据库（临时文件系统，冷启动时重置），日志仅输出到控制台（Serverless 不支持文件写入）。</span></p>
+<p>注意事项：Vercel 使用 /tmp 目录存储 SQLite 数据库（临时文件系统，冷启动时重置），日志仅输出到控制台（Serverless 不支持文件写入）。</p>
 </div>
 
 <!-- ============ 九、AI辅助开发说明 ============ -->
@@ -2062,5 +1497,6 @@ AI作为辅助工具，最终的代码质量和技术决策由团队成员负责
   });
 </script>
 
+</div>
 </body>
 </html>

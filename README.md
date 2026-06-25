@@ -231,7 +231,7 @@ campus-event-platform/
 
 #### `app/__init__.py` — Application Factory
 
-- **What it does**: Creates the Flask app via `create_app()`. Sets `template_folder` and `static_folder` to the project root (not inside `app/`), loads config, initializes all four extensions (db, login_manager, migrate, csrf) plus optional DebugToolbar, registers five blueprints (auth, event, checkin, admin, translate), sets up structured logging and request hooks, registers 404/500 error handlers, and defines the `/` index route that redirects to the event list.
+- **What it does**: Creates the Flask app via `create_app()`. Sets `template_folder` and `static_folder` to the project root (not inside `app/`), loads config, initializes all four extensions (db, login_manager, migrate, csrf) plus optional DebugToolbar, registers four blueprints (auth, event, checkin, admin), sets up structured logging and request hooks, registers 404/500 error handlers, and defines the `/` index route that redirects to the event list.
 - **How to add a new blueprint**:
   1. Create `app/newmodule/__init__.py` with `newmodule_bp = Blueprint('newmodule', __name__, url_prefix='/newmodule')`
   2. Create `app/newmodule/routes.py` with route functions decorated by `@newmodule_bp.route(...)`
@@ -642,8 +642,6 @@ campus-event-platform/
 | GET | `/admin/export/<event_id>` | ✓+admin | CSV export for single event |
 | GET | `/admin/export/all` | ✓+admin | CSV export for all registrations |
 | GET | `/admin/logs` | ✓+admin | Log viewer panel |
-| POST | `/api/translate` | — | Translation API (CSRF-exempt, zh↔en dictionary) |
-| GET | `/api/events` | — | Bilingual event list JSON (title_en, description_en, etc.) |
 
 ## Data Models
 

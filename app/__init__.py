@@ -33,22 +33,25 @@ def create_app(config_class=Config):
     from app.event import event_bp
     from app.checkin import checkin_bp
     from app.admin import admin_bp
-    from app.translate import translate_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(event_bp)
     app.register_blueprint(checkin_bp)
     app.register_blueprint(admin_bp)
-    app.register_blueprint(translate_bp)
 
     from app.translations import TRANSLATIONS, CATEGORY_MAP
 
     @app.context_processor
     def inject_translations():
+        lang = request.cookies.get('lang', 'zh')
         def t(zh):
-            return TRANSLATIONS.get(zh, zh)
+            if lang == 'en':
+                return TRANSLATIONS.get(zh, zh)
+            return zh
         def t_category(zh):
-            return CATEGORY_MAP.get(zh, zh)
+            if lang == 'en':
+                return CATEGORY_MAP.get(zh, zh)
+            return zh
         return dict(t=t, t_category=t_category)
 
     @app.errorhandler(404)
