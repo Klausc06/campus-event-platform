@@ -45,3 +45,7 @@ class TestCheckin:
         )
         assert resp.status_code == 200
         assert '已经签到过了' in resp.data.decode()
+
+    def test_qr_code_page(self, auth_client, sample_event):
+        resp = auth_client.get(f'/checkin/{sample_event.id}/qr')
+        assert resp.status_code == 200

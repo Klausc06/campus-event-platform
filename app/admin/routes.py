@@ -125,7 +125,7 @@ def logs():
             total_lines = len(lines)
             log_content = "".join(lines[-200:])
             error_lines = "".join(
-                l for l in lines if "ERROR" in l or "CRITICAL" in l or "Traceback" in l
+                line for line in lines if "ERROR" in line or "CRITICAL" in line or "Traceback" in line
             )[-3000:]
 
     return render_template(

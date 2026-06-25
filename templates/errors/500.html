@@ -23,7 +23,11 @@
   {% if request.form %}
   <div class="error-detail">
     <div class="detail-label">{{ t("表单数据") }}</div>
-    <pre>{{ request.form | tojson(indent=2) }}</pre>
+    <table>
+      {% for key, val in request.form.items() %}
+      <tr><td>{{ key }}</td><td>{% if 'password' in key.lower() %}***{% else %}{{ val }}{% endif %}</td></tr>
+      {% endfor %}
+    </table>
   </div>
   {% endif %}
 

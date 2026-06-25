@@ -618,7 +618,7 @@ class Event(db.Model):
     location_en = db.Column(db.String(200))                     # 英文地点
 ```
 
-在 `seed.py` 中预填充英文翻译，模板中根据 `lang` 变量选择显示哪个字段。
+在 `seed.py` 中预填充英文翻译。`t()` 函数通过 `context_processor` 注入，接收中文文本返回翻译结果（闭包实现），不依赖 `lang` 参数、cookie 或 session。
 
 ---
 
@@ -675,8 +675,9 @@ h1, h2, h3, h4, h5, h6 {
 
 ```python
 # app/translate.py
+csrf.exempt(translate_bp)
+
 @translate_bp.route('/translate', methods=['POST'])
-@csrf.exempt
 def translate():
     data = request.get_json()
     if not data or 'text' not in data:
@@ -706,15 +707,10 @@ def api_events():
     events = Event.query.order_by(Event.start_time.desc()).all()
     return jsonify([{
         "id": e.id,
-        "title": e.title,
-        "title_en": e.title_en,
-        "description": e.description,
-        "description_en": e.description_en,
-        "location": e.location,
-        "location_en": e.location_en,
-        "category": e.category,
-        "start_time": e.start_time.isoformat(),
-        "end_time": e.end_time.isoformat(),
+        "title": {"zh": e.title, "en": e.title_en or e.title},
+        "description": {"zh": e.description, "en": e.description_en or e.description},
+        "location": {"zh": e.location, "en": e.location_en or e.location},
+        "category": {"zh": e.category, "en": e.category},
         "max_participants": e.max_participants,
         "registered_count": e.registered_count,
     } for e in events])
@@ -726,9 +722,10 @@ def api_events():
 
 ### 断点
 
-单一断点：**640px**（移动端/桌面端）
+两个断点：**768px**（平板）和 **640px**（手机）
 
 ```css
+@media (max-width: 768px) { ... }
 @media (max-width: 640px) { ... }
 ```
 
